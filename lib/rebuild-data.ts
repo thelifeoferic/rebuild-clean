@@ -1,7 +1,7 @@
 import { seedData } from "@/data/mock-data";
 import type { RebuildData, TimelineItem } from "@/types/rebuild";
 
-export const storageKey = "rebuild:data:v2";
+export const storageKey = "rebuild:data:v3";
 export const todayLabel = "June 24, 2026";
 
 export function createId(prefix: string) {

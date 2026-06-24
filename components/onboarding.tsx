@@ -22,7 +22,7 @@ const equipment = [
   "Bench",
   "Barbell",
 ];
-const behaviorFocus = ["Smoking", "Anger", "Heartbreak", "Boredom", "Stress eating", "Avoidance"];
+const behaviorFocus = ["Smoking", "Anger", "Stress", "Boredom", "Stress eating", "Avoidance"];
 const resetPlans = ["Gym", "Walk", "Playlist", "Call someone", "Journal", "Cold shower"];
 
 export function Onboarding({
@@ -42,17 +42,30 @@ export function Onboarding({
   return (
     <section className="px-4 pb-4 pt-5">
       <div className="mb-5">
-        <div className="mb-4 overflow-hidden rounded-2xl border border-white/10 bg-black">
+        <div className="relative mb-4 min-h-56 overflow-hidden rounded-[1.75rem] border border-white/10 bg-black">
           <Image
-            src="/rebuild-logo.png"
-            alt="REBUILD. Better every day."
-            width={1774}
-            height={887}
+            src="/rebuild-conditioning.jpg"
+            alt=""
+            fill
             priority
-            className="aspect-[2.4/1] w-full object-cover object-center"
+            sizes="(max-width: 768px) 100vw, 448px"
+            className="object-cover object-center opacity-70"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/5" />
+          <div className="absolute bottom-4 left-4 right-4">
+            <p className="metric-label mb-3 text-white/60">Set the operating mode</p>
+            <div className="w-52 overflow-hidden rounded-2xl border border-white/10 bg-black/75 backdrop-blur">
+              <Image
+                src="/rebuild-logo.png"
+                alt="REBUILD. Better every day."
+                width={1774}
+                height={887}
+                priority
+                className="aspect-[2.4/1] w-full object-cover object-center"
+              />
+            </div>
+          </div>
         </div>
-        <p className="metric-label mb-2">Set the operating mode</p>
         <p className="mt-3 text-sm leading-5 text-white/55">
           Choose the few inputs that shape the dashboard. You can start logging immediately after this.
         </p>

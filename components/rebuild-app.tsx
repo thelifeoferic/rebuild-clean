@@ -30,9 +30,12 @@ export function RebuildApp() {
     const storedProfile = window.localStorage.getItem(profileKey);
 
     try {
-      if (stored) setData(normalizeRebuildData(JSON.parse(stored) as Partial<RebuildData>));
+      if (stored) {
+        const restored = normalizeRebuildData(JSON.parse(stored) as Partial<RebuildData>);
+        setData(restored);
+        setSavedMessage(totalLogs(restored) ? "Loaded saved logs" : "Fresh slate");
+      }
       if (storedProfile) setProfile(JSON.parse(storedProfile) as OnboardingProfile);
-      setSavedMessage("Loaded saved logs");
     } catch {
       setSavedMessage("Using seed data");
     }
@@ -73,8 +76,8 @@ export function RebuildApp() {
 
   return (
     <AppShell activeView={activeView} onNavigate={setActiveView}>
-      <div className="px-4">
-        <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
+      <div className="px-4 pt-5">
+        <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
           <p className="text-sm font-semibold text-white/60">{savedMessage}</p>
           <button
             type="button"
@@ -236,4 +239,19 @@ function labelFor(kind: LogKind) {
   };
 
   return labels[kind];
+}
+
+function totalLogs(data: RebuildData) {
+  return (
+    data.weights.length +
+    data.bikeSessions.length +
+    data.jacobsLadderSessions.length +
+    data.pushUpSessions.length +
+    data.dumbbellCurlSessions.length +
+    data.kettlebellSessions.length +
+    data.farmerCarrySessions.length +
+    data.strengthAccessorySessions.length +
+    data.meals.length +
+    data.behaviorWins.length
+  );
 }

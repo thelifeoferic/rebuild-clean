@@ -1,4 +1,5 @@
 import { Dumbbell, Footprints, Repeat2, Shell } from "lucide-react";
+import Image from "next/image";
 import type { RebuildData } from "@/types/rebuild";
 import { MetricCard } from "@/components/metric-card";
 import { Section } from "@/components/section";
@@ -9,6 +10,20 @@ export function KettlebellPrograms({ data }: { data: RebuildData }) {
 
   return (
     <Section id="kettlebell" eyebrow="Strength circuit" title="Kettlebell Programs">
+      <div className="relative mb-3 min-h-40 overflow-hidden rounded-2xl border border-white/10 bg-black">
+        <Image
+          src="/rebuild-strength.jpg"
+          alt=""
+          fill
+          sizes="(max-width: 768px) 100vw, 448px"
+          className="object-cover object-[52%_45%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+        <div className="absolute bottom-4 left-4 right-4">
+          <p className="metric-label text-white/60">Strength</p>
+          <p className="mt-1 text-xl font-semibold text-porcelain">Simple work, repeated.</p>
+        </div>
+      </div>
       <div className="panel p-4">
         <div className="space-y-3">
           {data.kettlebellSessions.length ? data.kettlebellSessions.map((move) => (

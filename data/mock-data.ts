@@ -38,8 +38,9 @@ export const behaviorWins: BehaviorWin[] = [];
 
 export const timeline: TimelineItem[] = [];
 
-export const sevenDayAverageWeight =
-  Math.round((weights.reduce((sum, item) => sum + item.weight, 0) / weights.length) * 10) / 10;
+export const sevenDayAverageWeight = weights.length
+  ? Math.round((weights.reduce((sum, item) => sum + item.weight, 0) / weights.length) * 10) / 10
+  : 0;
 
 export const weeklyBikeMinutes = bikeSessions.reduce((sum, session) => sum + session.minutes, 0);
 

@@ -1,7 +1,6 @@
 export type MoodReason =
   | "stress"
   | "anger"
-  | "heartbreak"
   | "boredom"
   | "energy"
   | "habit";

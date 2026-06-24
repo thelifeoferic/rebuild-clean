@@ -1,28 +1,29 @@
 import { ExternalLink, Headphones, Play } from "lucide-react";
+import Image from "next/image";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import { ActionButton } from "@/components/action-button";
 import { Section } from "@/components/section";
 
 const videos = [
   {
-    title: "Stationary bike endurance",
-    meta: "30-45 minute indoor cycling options",
-    query: "stationary bike endurance workout 30 minutes",
+    title: "30 minute Cycling Workout for Beginners",
+    meta: "Kaleigh Cohen Cycling",
+    id: "i5WE0AghY_s",
   },
   {
-    title: "Kettlebell around-the-worlds",
-    meta: "Rotational core and pass-around technique",
-    query: "kettlebell around the world pass around workout",
+    title: "Kettlebell Around the World Exercise Explained",
+    meta: "Shane Heins / Onnit",
+    id: "N4mMVG8S5Kg",
   },
   {
-    title: "Farmer carry form",
-    meta: "Loaded carry technique and programming",
-    query: "farmer carry proper form kettlebell",
+    title: "How to Perform the Farmer's Carry",
+    meta: "Dr. Carl Baird",
+    id: "z7E_YU9P1jU",
   },
   {
-    title: "Push-up progression",
-    meta: "Simple sets, form, and progression plans",
-    query: "push up progression beginner workout",
+    title: "10 Minute Push-Up Progression Workout",
+    meta: "Juice & Toya",
+    id: "eiMOxvZKyvM",
   },
 ];
 
@@ -35,6 +36,20 @@ export function VideoLibrary() {
       action={<ActionButton label="TIDAL" icon={ExternalLink} href={tidalPlaylistUrl} variant="gold" />}
     >
       <div className="panel p-4">
+        <div className="relative mb-4 min-h-44 overflow-hidden rounded-2xl bg-black">
+          <Image
+            src="/rebuild-cardio.jpg"
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 448px"
+            className="object-cover object-[52%_42%]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4">
+            <p className="metric-label text-white/60">Training cues</p>
+            <p className="mt-1 text-2xl font-semibold leading-tight text-porcelain">Watch, then work.</p>
+          </div>
+        </div>
         <a
           href={tidalPlaylistUrl}
           target="_blank"
@@ -51,8 +66,8 @@ export function VideoLibrary() {
         </a>
         <div className="space-y-4">
           {videos.map((item) => {
-            const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(item.query)}`;
-            const embedUrl = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(item.query)}`;
+            const videoUrl = `https://www.youtube.com/watch?v=${item.id}`;
+            const embedUrl = `https://www.youtube.com/embed/${item.id}`;
             return (
               <article key={item.title} className="overflow-hidden rounded-2xl bg-white/[0.055]">
                 <div className="p-3">
@@ -62,7 +77,7 @@ export function VideoLibrary() {
                       <p className="text-sm text-white/50">{item.meta}</p>
                     </div>
                     <a
-                      href={searchUrl}
+                      href={videoUrl}
                       target="_blank"
                       rel="noreferrer"
                       className="grid size-9 shrink-0 place-items-center rounded-full bg-white/10 text-champagne"

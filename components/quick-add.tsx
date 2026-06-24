@@ -11,10 +11,10 @@ const logTypes = [
   { kind: "kettlebell", label: "Kettlebell", detail: "exercise, weight, reps", icon: Dumbbell },
   { kind: "farmerCarries", label: "Farmer carries", detail: "load, distance, rounds", icon: Footprints },
   { kind: "meal", label: "Meal", detail: "calories, protein, notes", icon: Salad },
-  { kind: "mood", label: "Mood reset", detail: "stress, anger, heartbreak", icon: Brain },
+  { kind: "mood", label: "Mood reset", detail: "stress, anger, boredom", icon: Brain },
 ];
 
-const moods = ["stress", "anger", "heartbreak", "boredom", "energy", "habit"];
+const moods = ["stress", "anger", "boredom", "energy", "habit"];
 
 export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind) => void }) {
   return (

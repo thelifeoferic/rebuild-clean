@@ -37,7 +37,7 @@ const defaults: Record<LogKind, Draft> = {
   },
 };
 
-const moodReasons: MoodReason[] = ["stress", "anger", "heartbreak", "boredom", "energy", "habit"];
+const moodReasons: MoodReason[] = ["stress", "anger", "boredom", "energy", "habit"];
 
 export function LogModal({
   kind,
