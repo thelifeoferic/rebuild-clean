@@ -8,7 +8,7 @@ export function ExerciseGuides() {
       <div className="panel p-4">
         <div className="relative mb-4 min-h-36 overflow-hidden rounded-2xl bg-black">
           <Image
-            src="/rebuild-dumbbell-close.jpg"
+            src="/rebuild-kettlebell-pushup.jpg"
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, 448px"

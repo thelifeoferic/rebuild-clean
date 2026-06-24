@@ -6,6 +6,12 @@ create table if not exists public.rebuild_profiles (
   first_name text,
   goal text not null default 'Rebuild discipline',
   goals text[] not null default '{}',
+  theme_preference text not null default 'dark',
+  accent_color text not null default 'teal',
+  coaching_tone text not null default 'calm',
+  quote_style text not null default 'goggins',
+  preferred_training_minutes integer not null default 25,
+  default_location text not null default 'gym',
   current_weight numeric,
   target_weight numeric,
   height text,
@@ -17,6 +23,13 @@ create table if not exists public.rebuild_profiles (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.rebuild_profiles add column if not exists theme_preference text not null default 'dark';
+alter table public.rebuild_profiles add column if not exists accent_color text not null default 'teal';
+alter table public.rebuild_profiles add column if not exists coaching_tone text not null default 'calm';
+alter table public.rebuild_profiles add column if not exists quote_style text not null default 'goggins';
+alter table public.rebuild_profiles add column if not exists preferred_training_minutes integer not null default 25;
+alter table public.rebuild_profiles add column if not exists default_location text not null default 'gym';
 
 create table if not exists public.rebuild_data_snapshots (
   id uuid primary key default gen_random_uuid(),

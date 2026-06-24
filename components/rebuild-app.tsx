@@ -111,7 +111,7 @@ export function RebuildApp() {
   }
 
   return (
-    <AppShell activeView={activeView} onNavigate={setActiveView}>
+    <AppShell activeView={activeView} onNavigate={setActiveView} profile={profile}>
       {activeView === "home" ? (
         <HeroDashboard
           data={data}
@@ -144,7 +144,7 @@ export function RebuildApp() {
         </>
       ) : null}
       {activeView === "reset" ? <RebuildTimeline timeline={timeline} /> : null}
-      {activeView === "library" ? <VideoLibrary /> : null}
+      {activeView === "library" ? <VideoLibrary profile={profile} /> : null}
       {toast ? (
         <div className="fixed inset-x-4 bottom-24 z-[70] mx-auto max-w-sm rounded-2xl border border-white/10 bg-carbon/92 px-4 py-3 text-sm font-semibold text-porcelain shadow-panel backdrop-blur-xl">
           {toast}

@@ -37,9 +37,16 @@ export function ProfileCard({
         ) : null}
 
         <div className="mb-3 flex flex-wrap gap-2">
-          {goals.slice(0, 5).map((goal) => (
-            <span key={goal} className="rounded-full bg-white/[0.055] px-3 py-1 text-xs font-bold text-white/55">
-              {goal}
+          {[
+            ...goals.slice(0, 4),
+            `${profile?.preferredTrainingMinutes ?? 25} min`,
+            profile?.defaultLocation ?? "gym",
+            profile?.themePreference ?? "dark",
+            profile?.accentColor ?? "champagne",
+            profile?.coachingTone ?? "calm",
+          ].map((item) => (
+            <span key={item} className="rounded-full bg-white/[0.055] px-3 py-1 text-xs font-bold capitalize text-white/55">
+              {item}
             </span>
           ))}
         </div>

@@ -65,12 +65,19 @@ const equipment = [
 ];
 
 const behaviorFocus = ["Smoking", "Anger", "Stress", "Boredom", "Stress eating", "Avoidance", "Late-night scrolling"];
+const themeOptions = ["dark", "light", "auto"] as const;
+const accentOptions = ["teal", "cobalt", "volt", "champagne"] as const;
+const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
+const quoteOptions = ["goggins", "calm", "athlete", "none"] as const;
+const locationOptions = ["home", "gym", "travel", "pool"] as const;
+const durationOptions = [10, 20, 25, 30, 45] as const;
 
 const stepMeta = [
   { title: "Welcome", eyebrow: "Start here", icon: ShieldCheck },
   { title: "Baseline", eyebrow: "Tell the truth", icon: Scale },
   { title: "Goals", eyebrow: "Choose the lanes", icon: Target },
   { title: "Equipment", eyebrow: "Use what is real", icon: Dumbbell },
+  { title: "Style", eyebrow: "Make it yours", icon: Target },
   { title: "Commit", eyebrow: "Protect the reset", icon: Cloud },
 ];
 
@@ -88,6 +95,12 @@ export function Onboarding({
   const [why, setWhy] = useState("");
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>(["Bike", "Kettlebells", "Dumbbells", "Weight bench"]);
   const [equipmentQuery, setEquipmentQuery] = useState("");
+  const [themePreference, setThemePreference] = useState<NonNullable<OnboardingProfile["themePreference"]>>("dark");
+  const [accentColor, setAccentColor] = useState<NonNullable<OnboardingProfile["accentColor"]>>("teal");
+  const [coachingTone, setCoachingTone] = useState<NonNullable<OnboardingProfile["coachingTone"]>>("calm");
+  const [quoteStyle, setQuoteStyle] = useState<NonNullable<OnboardingProfile["quoteStyle"]>>("goggins");
+  const [defaultLocation, setDefaultLocation] = useState<NonNullable<OnboardingProfile["defaultLocation"]>>("gym");
+  const [preferredTrainingMinutes, setPreferredTrainingMinutes] = useState<NonNullable<OnboardingProfile["preferredTrainingMinutes"]>>(25);
   const [selectedFocus, setSelectedFocus] = useState<string[]>(["Smoking", "Avoidance"]);
   const isFinalStep = step === stepMeta.length - 1;
   const currentMeta = stepMeta[step];
@@ -110,15 +123,21 @@ export function Onboarding({
 
   function complete() {
     onComplete({
+      accentColor,
       behaviorFocus: selectedFocus,
+      coachingTone,
       completed: true,
       currentWeight: numberOrUndefined(currentWeight),
+      defaultLocation,
       equipment: selectedEquipment,
       firstName: firstName.trim(),
       goal: selectedGoals[0] ?? "Rebuild discipline",
       goals: selectedGoals,
       height: height.trim(),
+      preferredTrainingMinutes,
+      quoteStyle,
       targetWeight: numberOrUndefined(targetWeight),
+      themePreference,
       why: why.trim(),
     });
   }
@@ -165,7 +184,7 @@ export function Onboarding({
       <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.035] shadow-panel">
         <div className="relative min-h-[13.5rem] bg-black">
           <Image
-            src={step === 0 ? "/rebuild-conditioning.jpg" : step === 3 ? "/rebuild-strength.jpg" : "/rebuild-bike-room.jpg"}
+            src={onboardingImageFor(step)}
             alt=""
             fill
             priority
@@ -253,6 +272,41 @@ export function Onboarding({
 
           {step === 4 ? (
             <div className="space-y-4">
+              <PreferenceGroup
+                title="Interface"
+                helper="Light mode softens the product. Dark mode keeps the original cockpit feel."
+                options={themeOptions}
+                selected={themePreference}
+                onSelect={setThemePreference}
+              />
+              <PreferenceGroup title="Accent color" options={accentOptions} selected={accentColor} onSelect={setAccentColor} />
+              <PreferenceGroup title="Coaching tone" options={toneOptions} selected={coachingTone} onSelect={setCoachingTone} />
+              <PreferenceGroup title="Quote style" options={quoteOptions} selected={quoteStyle} onSelect={setQuoteStyle} />
+              <PreferenceGroup title="Default location" options={locationOptions} selected={defaultLocation} onSelect={setDefaultLocation} />
+              <div>
+                <p className="metric-label mb-2">Default workout length</p>
+                <div className="grid grid-cols-5 gap-2">
+                  {durationOptions.map((minutes) => (
+                    <button
+                      key={minutes}
+                      type="button"
+                      onClick={() => setPreferredTrainingMinutes(minutes)}
+                      className={`min-h-10 rounded-2xl border text-sm font-bold ${
+                        preferredTrainingMinutes === minutes
+                          ? "border-champagne bg-champagne text-carbon"
+                          : "border-white/10 bg-white/[0.055] text-white/62"
+                      }`}
+                    >
+                      {minutes}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {step === 5 ? (
+            <div className="space-y-4">
               <ChoiceGroup
                 title="Behavior loops to replace"
                 helper="These become reset moments, not identity labels."
@@ -300,7 +354,17 @@ function headlineFor(step: number) {
   if (step === 1) return "Set your baseline.";
   if (step === 2) return "Choose the mission.";
   if (step === 3) return "Map your tools.";
+  if (step === 4) return "Tune the experience.";
   return "Commit the reset.";
+}
+
+function onboardingImageFor(step: number) {
+  if (step === 0) return "/rebuild-conditioning.jpg";
+  if (step === 1) return "/rebuild-bike-room.jpg";
+  if (step === 2) return "/rebuild-leg-press-side.jpg";
+  if (step === 3) return "/rebuild-kettlebell-outdoor.jpg";
+  if (step === 4) return "/rebuild-yoga-light.jpg";
+  return "/rebuild-swim-lane.jpg";
 }
 
 function IntroPoint({
@@ -366,6 +430,42 @@ function ChoiceGroup({
             No matches. Try a different equipment search.
           </p>
         ) : null}
+      </div>
+    </div>
+  );
+}
+
+function PreferenceGroup<T extends string>({
+  helper,
+  onSelect,
+  options,
+  selected,
+  title,
+}: {
+  helper?: string;
+  onSelect: (value: T) => void;
+  options: readonly T[];
+  selected: T;
+  title: string;
+}) {
+  return (
+    <div>
+      <p className="metric-label mb-2">{title}</p>
+      {helper ? <p className="mb-3 text-sm leading-5 text-white/45">{helper}</p> : null}
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <button
+            key={option}
+            type="button"
+            onClick={() => onSelect(option)}
+            className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3 text-sm font-semibold capitalize transition ${
+              selected === option ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-white/[0.055] text-white/62"
+            }`}
+          >
+            {selected === option ? <CheckCircle2 size={15} strokeWidth={2.2} aria-hidden /> : null}
+            {option.replace("_", " ")}
+          </button>
+        ))}
       </div>
     </div>
   );

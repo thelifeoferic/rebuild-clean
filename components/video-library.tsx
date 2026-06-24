@@ -6,8 +6,15 @@ import { useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import { ActionButton } from "@/components/action-button";
 import { Section } from "@/components/section";
+import type { OnboardingProfile } from "@/types/rebuild";
 
 const videos = [
+  {
+    title: "Cycle & Arms Workout - Cycle Bike Cardio + Dumbbells | 25 Minutes",
+    category: "Featured",
+    meta: "Bike + dumbbell session",
+    id: "6lFv6vveUOw",
+  },
   {
     title: "30 minute Cycling Workout for Beginners",
     category: "Bike",
@@ -109,23 +116,25 @@ const quickSearches = [
   { label: "Yoga mobility", href: "https://www.youtube.com/results?search_query=beginner+yoga+mobility" },
 ];
 
-export function VideoLibrary() {
+export function VideoLibrary({ profile }: { profile: OnboardingProfile | null }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const active = videos[activeIndex];
   const videoUrl = `https://www.youtube.com/watch?v=${active.id}`;
   const embedUrl = `https://www.youtube.com/embed/${active.id}`;
+  const activeImage = imageForCategory(active.category);
+  const preferredTone = profile?.coachingTone ?? "calm";
 
   return (
     <Section
       id="library"
-      eyebrow="Fuel"
-      title="Video / Playlist Library"
+      eyebrow="Media room"
+      title="Watch, then work"
       action={<ActionButton label="TIDAL" icon={ExternalLink} href={tidalPlaylistUrl} variant="gold" />}
     >
       <div className="panel overflow-hidden">
-        <div className="relative min-h-44 bg-black">
+        <div className="relative min-h-52 bg-black">
           <Image
-            src="/rebuild-air-bike.jpg"
+            src={activeImage}
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, 448px"
@@ -133,8 +142,11 @@ export function VideoLibrary() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
           <div className="absolute bottom-4 left-4 right-4">
-            <p className="metric-label text-white/60">Watch, then work</p>
-            <p className="mt-1 text-2xl font-semibold leading-tight text-porcelain">{active.category}</p>
+            <p className="metric-label text-white/60">Featured session</p>
+            <p className="mt-1 text-2xl font-semibold leading-tight text-white">{active.title}</p>
+            <p className="mt-2 text-sm font-semibold text-white/62">
+              {active.meta} · {preferredTone} coaching mode
+            </p>
           </div>
         </div>
 
@@ -178,21 +190,42 @@ export function VideoLibrary() {
             </div>
           </div>
 
-          <div className="mt-4 grid max-h-96 grid-cols-2 gap-2 overflow-y-auto pr-1">
+          <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.055] p-3">
+            <p className="metric-label">For your profile</p>
+            <p className="mt-1 text-sm leading-5 text-white/50">
+              REBUILD can lean media toward {profile?.defaultLocation ?? "gym"} sessions, {profile?.preferredTrainingMinutes ?? 25}-minute blocks, and {profile?.goals?.[0] ?? profile?.goal ?? "discipline"}.
+            </p>
+          </div>
+
+          <div className="mt-4 grid max-h-[30rem] grid-cols-2 gap-2 overflow-y-auto pr-1">
             {videos.map((item, index) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`min-h-20 rounded-2xl border px-3 py-3 text-left transition ${
+                className={`overflow-hidden rounded-2xl border text-left transition ${
                   activeIndex === index
                     ? "border-champagne bg-champagne text-carbon"
                     : "border-white/10 bg-white/[0.055] text-white/64"
                 }`}
               >
-                <span className="block text-xs font-bold uppercase tracking-[0.14em]">{item.category}</span>
-                <span className="mt-1 block text-sm font-semibold leading-tight">{item.title}</span>
-                <span className="mt-1 block text-xs font-semibold opacity-70">{item.meta}</span>
+                <span className="relative block h-20 bg-black">
+                  <Image
+                    src={imageForCategory(item.category)}
+                    alt=""
+                    fill
+                    sizes="180px"
+                    className="object-cover object-center opacity-75"
+                  />
+                  <span className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <span className="absolute bottom-2 left-2 text-[0.62rem] font-black uppercase tracking-[0.14em] text-white">
+                    {item.category}
+                  </span>
+                </span>
+                <span className="block px-3 py-3">
+                  <span className="block text-sm font-semibold leading-tight">{item.title}</span>
+                  <span className="mt-1 block text-xs font-semibold opacity-70">{item.meta}</span>
+                </span>
               </button>
             ))}
           </div>
@@ -218,4 +251,15 @@ export function VideoLibrary() {
       </div>
     </Section>
   );
+}
+
+function imageForCategory(category: string) {
+  const normalized = category.toLowerCase();
+  if (normalized.includes("featured") || normalized.includes("bike") || normalized.includes("hiit")) return "/rebuild-air-bike.jpg";
+  if (normalized.includes("swim")) return "/rebuild-swim-lane.jpg";
+  if (normalized.includes("yoga")) return "/rebuild-yoga-light.jpg";
+  if (normalized.includes("kettlebell")) return "/rebuild-kettlebell-pushup.jpg";
+  if (normalized.includes("squat") || normalized.includes("deadlift")) return "/rebuild-leg-press-side.jpg";
+  if (normalized.includes("curl") || normalized.includes("carr")) return "/rebuild-kettlebell-outdoor.jpg";
+  return "/rebuild-bodyweight.jpg";
 }

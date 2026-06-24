@@ -4,6 +4,14 @@
 
 :root {
   color-scheme: dark;
+  --color-carbon: 8 9 10;
+  --color-graphite: 17 19 21;
+  --color-steel: 32 36 41;
+  --color-accent: 216 177 95;
+  --color-ember: 225 95 63;
+  --color-signal: 46 230 166;
+  --color-porcelain: 242 238 231;
+  --app-bg: #08090a;
   background: #08090a;
 }
 
@@ -18,11 +26,11 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  color: #f2eee7;
+  color: rgb(var(--color-porcelain));
   background:
     linear-gradient(180deg, rgba(216, 177, 95, 0.12), transparent 26rem),
     radial-gradient(circle at 20% -10%, rgba(225, 95, 63, 0.18), transparent 18rem),
-    #08090a;
+    var(--app-bg);
 }
 
 button,
@@ -30,6 +38,133 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+.theme-dark {
+  color-scheme: dark;
+  --color-carbon: 8 9 10;
+  --color-graphite: 17 19 21;
+  --color-steel: 32 36 41;
+  --color-porcelain: 242 238 231;
+  --app-bg: #08090a;
+}
+
+.theme-light {
+  color-scheme: light;
+  --color-carbon: 251 248 242;
+  --color-graphite: 255 255 255;
+  --color-steel: 229 223 213;
+  --color-porcelain: 18 22 26;
+  --app-bg: #f6f1e8;
+  background:
+    linear-gradient(180deg, rgba(var(--color-accent), 0.18), transparent 22rem),
+    radial-gradient(circle at 86% 2%, rgba(var(--color-signal), 0.16), transparent 17rem),
+    var(--app-bg);
+  color: rgb(var(--color-porcelain));
+}
+
+.accent-champagne {
+  --color-accent: 216 177 95;
+  --color-signal: 46 230 166;
+}
+
+.accent-teal {
+  --color-accent: 0 181 181;
+  --color-signal: 46 230 166;
+}
+
+.accent-cobalt {
+  --color-accent: 42 108 255;
+  --color-signal: 28 201 214;
+}
+
+.accent-volt {
+  --color-accent: 182 255 63;
+  --color-signal: 46 230 166;
+}
+
+.theme-light .panel {
+  border-color: rgba(18, 22, 26, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 24px 70px rgba(52, 42, 24, 0.12);
+}
+
+.theme-light .hairline,
+.theme-light .border-white\/10 {
+  border-color: rgba(18, 22, 26, 0.12);
+}
+
+.theme-light .bg-white\/10,
+.theme-light .bg-white\/\[0\.045\],
+.theme-light .bg-white\/\[0\.055\] {
+  background-color: rgba(255, 255, 255, 0.72);
+}
+
+.theme-light .bg-carbon,
+.theme-light .bg-carbon\/70,
+.theme-light .bg-carbon\/80,
+.theme-light .bg-carbon\/92 {
+  background-color: rgba(255, 255, 255, 0.82);
+}
+
+.theme-light .text-porcelain {
+  color: rgb(var(--color-porcelain));
+}
+
+.theme-light .text-white\/28,
+.theme-light .text-white\/35,
+.theme-light .text-white\/36,
+.theme-light .text-white\/38,
+.theme-light .text-white\/40,
+.theme-light .text-white\/42,
+.theme-light .text-white\/45,
+.theme-light .text-white\/48,
+.theme-light .text-white\/50,
+.theme-light .text-white\/54,
+.theme-light .text-white\/55,
+.theme-light .text-white\/58,
+.theme-light .text-white\/60,
+.theme-light .text-white\/62,
+.theme-light .text-white\/64,
+.theme-light .text-white\/65,
+.theme-light .text-white\/68,
+.theme-light .text-white\/70,
+.theme-light .text-white\/75 {
+  color: rgba(18, 22, 26, 0.58);
+}
+
+.theme-light .metric-label {
+  color: rgba(18, 22, 26, 0.48);
+}
+
+.theme-light .bg-black .metric-label,
+.theme-light .bg-black .text-porcelain,
+.theme-light .bg-black .text-white,
+.theme-light .bg-black .text-white\/28,
+.theme-light .bg-black .text-white\/35,
+.theme-light .bg-black .text-white\/36,
+.theme-light .bg-black .text-white\/38,
+.theme-light .bg-black .text-white\/40,
+.theme-light .bg-black .text-white\/42,
+.theme-light .bg-black .text-white\/45,
+.theme-light .bg-black .text-white\/48,
+.theme-light .bg-black .text-white\/50,
+.theme-light .bg-black .text-white\/54,
+.theme-light .bg-black .text-white\/55,
+.theme-light .bg-black .text-white\/58,
+.theme-light .bg-black .text-white\/60,
+.theme-light .bg-black .text-white\/62,
+.theme-light .bg-black .text-white\/64,
+.theme-light .bg-black .text-white\/65,
+.theme-light .bg-black .text-white\/68,
+.theme-light .bg-black .text-white\/70,
+.theme-light .bg-black .text-white\/75 {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.theme-light .bg-black .text-white,
+.theme-light .bg-black .text-porcelain {
+  color: #fff;
 }
 
 @layer components {

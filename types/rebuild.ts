@@ -144,12 +144,18 @@ export type LogKind =
 export type AppView = "home" | "log" | "training" | "progress" | "reset" | "library";
 
 export type OnboardingProfile = {
+  accentColor?: "champagne" | "teal" | "cobalt" | "volt";
   firstName?: string;
   goal: string;
   goals?: string[];
+  coachingTone?: "calm" | "intense" | "minimal" | "tactical";
   currentWeight?: number;
+  defaultLocation?: "home" | "gym" | "travel" | "pool";
   height?: string;
+  preferredTrainingMinutes?: number;
+  quoteStyle?: "goggins" | "calm" | "athlete" | "none";
   targetWeight?: number;
+  themePreference?: "dark" | "light" | "auto";
   why?: string;
   equipment: string[];
   behaviorFocus: string[];

@@ -10,13 +10,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        carbon: "#08090A",
-        graphite: "#111315",
-        steel: "#202429",
-        champagne: "#D8B15F",
-        ember: "#E15F3F",
-        signal: "#2EE6A6",
-        porcelain: "#F2EEE7",
+        carbon: "rgb(var(--color-carbon) / <alpha-value>)",
+        graphite: "rgb(var(--color-graphite) / <alpha-value>)",
+        steel: "rgb(var(--color-steel) / <alpha-value>)",
+        champagne: "rgb(var(--color-accent) / <alpha-value>)",
+        ember: "rgb(var(--color-ember) / <alpha-value>)",
+        signal: "rgb(var(--color-signal) / <alpha-value>)",
+        porcelain: "rgb(var(--color-porcelain) / <alpha-value>)",
       },
       boxShadow: {
         glow: "0 0 40px rgba(216, 177, 95, 0.16)",

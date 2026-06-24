@@ -1,6 +1,6 @@
 import { Dumbbell, Flame, Home, Library, LineChart, TimerReset } from "lucide-react";
 import type { ReactNode } from "react";
-import type { AppView } from "@/types/rebuild";
+import type { AppView, OnboardingProfile } from "@/types/rebuild";
 
 const navigation = [
   { view: "home", label: "Home", icon: Home },
@@ -15,15 +15,21 @@ export function AppShell({
   activeView,
   children,
   onNavigate,
+  profile,
   showNavigation = true,
 }: {
   activeView: AppView;
   children: ReactNode;
   onNavigate: (view: AppView) => void;
+  profile?: OnboardingProfile | null;
   showNavigation?: boolean;
 }) {
+  const themePreference = profile?.themePreference ?? "dark";
+  const themeClass = themePreference === "light" ? "theme-light" : "theme-dark";
+  const accentClass = `accent-${profile?.accentColor ?? "champagne"}`;
+
   return (
-    <main className={`mx-auto min-h-screen w-full max-w-md ${showNavigation ? "pb-24" : "pb-8"}`}>
+    <main className={`mx-auto min-h-screen w-full max-w-md ${themeClass} ${accentClass} ${showNavigation ? "pb-24" : "pb-8"}`}>
       {children}
       {showNavigation ? (
       <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md border-t border-white/10 bg-carbon/90 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
