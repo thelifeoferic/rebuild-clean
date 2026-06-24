@@ -6,7 +6,22 @@ import { useState } from "react";
 import type { OnboardingProfile } from "@/types/rebuild";
 
 const goals = ["Lose weight", "Build strength", "Quit smoking", "Stop spiraling", "Rebuild discipline"];
-const equipment = ["Bike", "Kettlebells", "Dumbbells", "Jacob's Ladder", "Bodyweight"];
+const equipment = [
+  "Bike",
+  "Kettlebells",
+  "Dumbbells",
+  "Jacob's Ladder",
+  "Bodyweight",
+  "Treadmill",
+  "Row machine",
+  "Cable machine",
+  "Pull-up bar",
+  "Resistance bands",
+  "Jump rope",
+  "Medicine ball",
+  "Bench",
+  "Barbell",
+];
 const behaviorFocus = ["Smoking", "Anger", "Heartbreak", "Boredom", "Stress eating", "Avoidance"];
 const resetPlans = ["Gym", "Walk", "Playlist", "Call someone", "Journal", "Cold shower"];
 
@@ -57,7 +72,12 @@ export function Onboarding({
           selected={selectedFocus}
           onSelect={(value) => toggle(value, selectedFocus, setSelectedFocus)}
         />
-        <ChoiceGroup title="Default reset" options={resetPlans} selected={[resetPlan]} onSelect={(value) => setResetPlan(value)} single />
+        <div>
+          <ChoiceGroup title="Go-to reset action" options={resetPlans} selected={[resetPlan]} onSelect={(value) => setResetPlan(value)} single />
+          <p className="mt-2 px-1 text-xs leading-5 text-white/45">
+            This is the first healthy move REBUILD suggests when stress, boredom, anger, or cravings hit.
+          </p>
+        </div>
       </div>
 
       <button
@@ -73,7 +93,7 @@ export function Onboarding({
         }
         className="mt-5 min-h-12 w-full rounded-2xl bg-champagne px-4 text-base font-bold text-carbon shadow-glow"
       >
-        Start fresh
+        Rebuild
       </button>
     </section>
   );

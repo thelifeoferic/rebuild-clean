@@ -16,7 +16,7 @@ import { buildTimeline, cloneSeedData, createId, normalizeRebuildData, storageKe
 import type { AppView, LogKind, MoodReason, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
 type Draft = Record<string, string | boolean>;
-const profileKey = "rebuild:profile:v1";
+const profileKey = "rebuild:profile:v2";
 
 export function RebuildApp() {
   const [data, setData] = useState<RebuildData>(() => cloneSeedData());

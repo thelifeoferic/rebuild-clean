@@ -1,4 +1,4 @@
-import { ExternalLink, Headphones, Play, Radio } from "lucide-react";
+import { ExternalLink, Headphones, Play } from "lucide-react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import { ActionButton } from "@/components/action-button";
 import { Section } from "@/components/section";
@@ -6,33 +6,23 @@ import { Section } from "@/components/section";
 const videos = [
   {
     title: "Stationary bike endurance",
-    meta: "YouTube training videos for 30-45 minute rides",
-    icon: Radio,
-    url: "https://www.youtube.com/results?search_query=stationary+bike+endurance+workout+30+minutes",
+    meta: "30-45 minute indoor cycling options",
+    query: "stationary bike endurance workout 30 minutes",
   },
   {
     title: "Kettlebell around-the-worlds",
-    meta: "Technique and rotational core drills",
-    icon: Play,
-    url: "https://www.youtube.com/results?search_query=kettlebell+around+the+world+pass+around+workout",
+    meta: "Rotational core and pass-around technique",
+    query: "kettlebell around the world pass around workout",
   },
   {
     title: "Farmer carry form",
     meta: "Loaded carry technique and programming",
-    icon: Play,
-    url: "https://www.youtube.com/results?search_query=farmer+carry+proper+form+kettlebell",
+    query: "farmer carry proper form kettlebell",
   },
   {
     title: "Push-up progression",
     meta: "Simple sets, form, and progression plans",
-    icon: Play,
-    url: "https://www.youtube.com/results?search_query=push+up+progression+beginner+workout",
-  },
-  {
-    title: "Reset playlist",
-    meta: "TIDAL one-tap launch",
-    icon: Headphones,
-    url: tidalPlaylistUrl,
+    query: "push up progression beginner workout",
   },
 ];
 
@@ -59,28 +49,56 @@ export function VideoLibrary() {
             <Headphones size={28} strokeWidth={2.3} aria-hidden />
           </div>
         </a>
-        <div className="space-y-2">
+        <div className="space-y-4">
           {videos.map((item) => {
-            const Icon = item.icon;
+            const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(item.query)}`;
+            const embedUrl = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(item.query)}`;
             return (
-              <a
-                key={item.title}
-                href={item.url}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-3 rounded-2xl bg-white/[0.055] p-3 transition hover:bg-white/10"
-              >
-                <div className="grid size-10 place-items-center rounded-full bg-white/10 text-champagne">
-                  <Icon size={18} strokeWidth={2.1} aria-hidden />
+              <article key={item.title} className="overflow-hidden rounded-2xl bg-white/[0.055]">
+                <div className="p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-porcelain">{item.title}</p>
+                      <p className="text-sm text-white/50">{item.meta}</p>
+                    </div>
+                    <a
+                      href={searchUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="grid size-9 shrink-0 place-items-center rounded-full bg-white/10 text-champagne"
+                      aria-label={`Open ${item.title} on YouTube`}
+                    >
+                      <ExternalLink size={17} strokeWidth={2.1} aria-hidden />
+                    </a>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-porcelain">{item.title}</p>
-                  <p className="text-sm text-white/50">{item.meta}</p>
+                <div className="aspect-video bg-black">
+                  <iframe
+                    className="h-full w-full"
+                    src={embedUrl}
+                    title={item.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
                 </div>
-                <ExternalLink className="text-white/35" size={17} strokeWidth={2.1} aria-hidden />
-              </a>
+              </article>
             );
           })}
+          <a
+            href={tidalPlaylistUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-3 rounded-2xl bg-white/[0.055] p-3 transition hover:bg-white/10"
+          >
+            <div className="grid size-10 place-items-center rounded-full bg-white/10 text-champagne">
+              <Headphones size={18} strokeWidth={2.1} aria-hidden />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold text-porcelain">Reset playlist</p>
+              <p className="text-sm text-white/50">Open TIDAL for the workout mix</p>
+            </div>
+            <Play className="text-white/35" size={17} strokeWidth={2.1} aria-hidden />
+          </a>
         </div>
       </div>
     </Section>
