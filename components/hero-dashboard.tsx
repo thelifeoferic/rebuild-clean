@@ -2,7 +2,7 @@ import { Bike, Headphones, RotateCcw, Scale, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import type { AppView, OnboardingProfile, RebuildData } from "@/types/rebuild";
-import { getTodaysBikeMinutes } from "@/lib/rebuild-data";
+import { getTodaysBikeMinutes, getWeightChangeFromLast } from "@/lib/rebuild-data";
 import { formatMinutes, formatWeight } from "@/lib/metrics";
 
 const quotes = [
@@ -35,6 +35,8 @@ export function HeroDashboard({
   profile: OnboardingProfile | null;
 }) {
   const todayWeight = data.weights[0]?.weight ?? 0;
+  const weightChange = getWeightChangeFromLast(data);
+  const weightDetail = data.weights.length > 1 ? `${weightChange > 0 ? "+" : ""}${weightChange.toFixed(1)} lb` : "weigh-in";
   const todaysBikeMinutes = getTodaysBikeMinutes(data);
   const firstName = profile?.firstName?.trim();
   const quote = quotes[(new Date().getDate() + data.behaviorWins.length + data.bikeSessions.length) % quotes.length];
@@ -123,7 +125,7 @@ export function HeroDashboard({
       ) : null}
 
       <div className="mt-4 grid grid-cols-3 gap-2">
-        <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} icon={Scale} />
+        <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} detail={weightDetail} icon={Scale} />
         <MiniStat label="Bike" value={formatMinutes(todaysBikeMinutes)} icon={Bike} />
         <MiniStat label="Wins" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
       </div>
@@ -159,10 +161,12 @@ export function HeroDashboard({
 function MiniStat({
   icon: Icon,
   label,
+  detail,
   value,
 }: {
   icon: typeof Scale;
   label: string;
+  detail?: string;
   value: string;
 }) {
   return (
@@ -170,6 +174,7 @@ function MiniStat({
       <Icon className="mb-2 text-champagne" size={17} strokeWidth={2.1} aria-hidden />
       <p className="metric-label">{label}</p>
       <p className="mt-1 text-base font-semibold text-porcelain">{value}</p>
+      {detail ? <p className="mt-1 text-xs font-semibold text-white/35">{detail}</p> : null}
     </div>
   );
 }

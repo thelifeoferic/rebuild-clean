@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { BikeDashboard } from "@/components/bike-dashboard";
+import { ExerciseGuides } from "@/components/exercise-guides";
 import { HeroDashboard } from "@/components/hero-dashboard";
 import { KettlebellPrograms } from "@/components/kettlebell-programs";
 import { LogModal } from "@/components/log-modal";
@@ -94,6 +95,7 @@ export function RebuildApp() {
       {activeView === "training" ? (
         <>
           <TrainingOverview data={data} />
+          <ExerciseGuides />
           <BikeDashboard data={data} />
           <KettlebellPrograms data={data} />
         </>

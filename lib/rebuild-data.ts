@@ -74,6 +74,11 @@ export function getRecentLowWeight(data: RebuildData) {
   return Math.min(...data.weights.map((entry) => entry.weight));
 }
 
+export function getWeightChangeFromLast(data: RebuildData) {
+  if (data.weights.length < 2) return 0;
+  return Math.round((data.weights[0].weight - data.weights[1].weight) * 10) / 10;
+}
+
 export function buildTimeline(data: RebuildData): TimelineItem[] {
   const items: TimelineItem[] = [];
 

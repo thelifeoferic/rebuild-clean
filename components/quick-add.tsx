@@ -3,7 +3,7 @@ import { Section } from "@/components/section";
 import type { LogKind } from "@/types/rebuild";
 
 const logTypes = [
-  { kind: "weight", label: "Morning weight", detail: "bodyweight and date", icon: Scale },
+  { kind: "weight", label: "Weigh-in", detail: "bodyweight and date", icon: Scale },
   { kind: "bike", label: "Bike session", detail: "minutes, resistance, calories", icon: Bike },
   { kind: "jacobsLadder", label: "Jacob's Ladder", detail: "duration and longest attempt", icon: Flame },
   { kind: "pushUps", label: "Push-ups", detail: "sets and reps", icon: Trophy },

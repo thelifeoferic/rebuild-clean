@@ -43,6 +43,7 @@ const trainingBlocks = [
 export function TrainingOverview({ data }: { data: RebuildData }) {
   const latestCarry = data.farmerCarrySessions[0];
   const latestCurl = data.dumbbellCurlSessions[0];
+  const latestKettlebell = data.kettlebellSessions[0];
   const latestMeal = data.meals[0];
 
   return (
@@ -77,6 +78,12 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <TrainingStat
+          label="Kettlebell"
+          value={latestKettlebell ? `${latestKettlebell.weight} lb` : "--"}
+          detail={latestKettlebell ? `${latestKettlebell.exercise} · ${latestKettlebell.reps} reps` : "none logged"}
+          icon={Dumbbell}
+        />
+        <TrainingStat
           label="Carries"
           value={latestCarry ? `${latestCarry.rounds} rounds` : "--"}
           detail={latestCarry ? `${latestCarry.weightEachHand} lb each` : "none logged"}
@@ -93,12 +100,6 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
           value={`${data.meals.length}`}
           detail={latestMeal ? `${latestMeal.protein}g protein` : "none logged"}
           icon={Salad}
-        />
-        <TrainingStat
-          label="Resets"
-          value={`${data.behaviorWins.length}`}
-          detail="wins logged"
-          icon={Flame}
         />
       </div>
     </Section>

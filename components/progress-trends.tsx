@@ -5,6 +5,7 @@ import {
   getPushUpMaxSet,
   getRecentLowWeight,
   getSevenDayAverageWeight,
+  getWeightChangeFromLast,
   getWeeklyBikeMinutes,
 } from "@/lib/rebuild-data";
 import { formatWeight } from "@/lib/metrics";
@@ -16,6 +17,9 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
   const maxWeight = weights.length ? Math.max(...weights.map((entry) => entry.weight)) : 0;
   const minWeight = weights.length ? Math.min(...weights.map((entry) => entry.weight)) : 0;
   const sevenDayAverageWeight = getSevenDayAverageWeight(data);
+  const latestWeight = data.weights[0]?.weight ?? 0;
+  const weightChange = getWeightChangeFromLast(data);
+  const weightChangeLabel = data.weights.length > 1 ? `${weightChange > 0 ? "+" : ""}${weightChange.toFixed(1)} lb` : "first entry";
 
   return (
     <Section id="trends" eyebrow="Proof, not vibes" title="Progress Trends">
@@ -24,6 +28,9 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
           <div>
             <p className="metric-label">Weight trend</p>
             <p className="mt-1 text-lg font-semibold text-porcelain">{formatWeight(sevenDayAverageWeight)} avg</p>
+            <p className="mt-1 text-sm font-semibold text-white/45">
+              Latest {formatWeight(latestWeight)} · {weightChangeLabel}
+            </p>
           </div>
           <LineChart className="text-champagne" size={22} strokeWidth={2.1} aria-hidden />
         </div>
@@ -44,7 +51,7 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
             );
           }) : (
             <div className="grid h-28 w-full place-items-center rounded-2xl bg-white/[0.055] px-4 text-center text-sm leading-5 text-white/55">
-              Log tomorrow morning weight to start the trend.
+              Log a weigh-in to start the trend.
             </div>
           )}
         </div>
