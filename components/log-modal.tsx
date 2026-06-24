@@ -28,7 +28,7 @@ const defaults: Record<LogKind, Draft> = {
   weight: { date: "Today", weight: "" },
   bike: { date: "Today", minutes: "", resistance: "", calories: "", notes: "" },
   jacobsLadder: { date: "Today", duration: "", longestContinuous: "" },
-  pushUps: { date: "Today", sets: "" },
+  pushUps: { date: "Today", set1: "", set2: "", set3: "", set4: "", set5: "", set6: "", extraSets: "" },
   dumbbellCurls: { date: "Today", weight: "", repsEachArm: "" },
   strength: { date: "Today", exercise: "", weight: "", reps: "", notes: "" },
   kettlebell: { date: "Today", exercise: "Pass-arounds", weight: "", reps: "" },
@@ -132,7 +132,7 @@ export function LogModal({
           {activeKind === "pushUps" ? (
             <>
               <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
-              <Field label="Sets" name="sets" value={String(draft.sets)} onChange={update} />
+              <PushUpSetFields draft={draft} onChange={update} />
             </>
           ) : null}
 
@@ -193,7 +193,7 @@ export function LogModal({
 
           {activeKind === "meal" ? (
             <>
-              <FoodPresetPicker onApply={applyFoodPreset} />
+              <FoodPresetPicker onApply={applyFoodPreset} selectedName={String(draft.name)} />
               <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
               <Field label="Name" name="name" value={String(draft.name)} onChange={update} />
               <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
@@ -314,5 +314,59 @@ function Check({
         className="size-5 accent-champagne"
       />
     </label>
+  );
+}
+
+function PushUpSetFields({
+  draft,
+  onChange,
+}: {
+  draft: Draft;
+  onChange: (name: string, value: string) => void;
+}) {
+  const setNames = ["set1", "set2", "set3", "set4", "set5", "set6"];
+  const reps = [
+    ...setNames.map((name) => Number(draft[name] || 0)),
+    ...String(draft.extraSets ?? "")
+      .split(",")
+      .map((value) => Number(value.trim())),
+  ].filter((value) => Number.isFinite(value) && value > 0);
+  const total = reps.reduce((sum, value) => sum + value, 0);
+
+  return (
+    <div className="rounded-2xl bg-white/[0.055] p-3">
+      <div className="mb-3 flex items-end justify-between gap-3">
+        <div>
+          <p className="metric-label">Reps by set</p>
+          <p className="mt-1 text-xs leading-4 text-white/40">Enter the reps you actually completed in each set.</p>
+        </div>
+        <div className="rounded-2xl bg-carbon px-3 py-2 text-right">
+          <p className="text-xl font-semibold text-porcelain">{total}</p>
+          <p className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-white/35">total</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {setNames.map((name, index) => (
+          <label key={name} className="block">
+            <span className="mb-2 block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-white/35">Set {index + 1}</span>
+            <input
+              value={String(draft[name] ?? "")}
+              inputMode="numeric"
+              onChange={(event) => onChange(name, event.target.value)}
+              className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-3 text-center text-lg font-semibold text-porcelain outline-none placeholder:text-white/25 focus:border-champagne"
+            />
+          </label>
+        ))}
+      </div>
+      <label className="mt-3 block">
+        <span className="metric-label mb-2 block">Extra sets</span>
+        <input
+          value={String(draft.extraSets ?? "")}
+          placeholder="Example: 8, 7, 5"
+          onChange={(event) => onChange("extraSets", event.target.value)}
+          className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base text-porcelain outline-none placeholder:text-white/25 focus:border-champagne"
+        />
+      </label>
+    </div>
   );
 }

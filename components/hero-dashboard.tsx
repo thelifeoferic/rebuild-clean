@@ -24,6 +24,13 @@ const quotes = [
     source: "David Goggins",
   },
   { line: "Analyze your schedule, kill your empty habits, burn out the bullshit, and see what's left.", source: "David Goggins" },
+  { line: "Take care of your body. It's the only place you have to live.", source: "Jim Rohn" },
+  { line: "Look in the mirror. That's your competition.", source: "John Assaraf" },
+  { line: "We are what we repeatedly do. Excellence then is not an act, but a habit.", source: "Aristotle" },
+  {
+    line: "No matter how many mistakes you make or how slow you progress, you are still way ahead of everyone who isn't trying.",
+    source: "Tony Robbins",
+  },
 ];
 
 export function HeroDashboard({

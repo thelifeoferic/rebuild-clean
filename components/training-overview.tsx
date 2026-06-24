@@ -2,6 +2,7 @@ import { Activity, Bike, Dumbbell, Flame, Footprints, Salad, Trophy, Waves } fro
 import type { RebuildData } from "@/types/rebuild";
 import {
   getBestJacobsLadderTime,
+  getPushUpMaxSet,
   getTodaysBikeMinutes,
   getTodaysPushUps,
   getWeeklyBikeMinutes,
@@ -55,6 +56,8 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
   const latestStrength = data.strengthAccessorySessions[0];
   const latestSwim = data.swimSessions[0];
   const latestYoga = data.yogaSessions[0];
+  const todaysPushUps = getTodaysPushUps(data);
+  const pushUpMax = getPushUpMaxSet(data);
 
   return (
     <Section id="train-overview" eyebrow="Training hub" title="Today's Work">
@@ -62,7 +65,12 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
         <TrainingStat label="Bike today" value={formatMinutes(getTodaysBikeMinutes(data))} icon={Bike} />
         <TrainingStat label="Weekly bike" value={formatMinutes(getWeeklyBikeMinutes(data))} icon={Activity} />
         <TrainingStat label="Ladder best" value={getBestJacobsLadderTime(data)} icon={Flame} />
-        <TrainingStat label="Push-ups" value={`${getTodaysPushUps(data)}`} icon={Trophy} />
+        <TrainingStat
+          label="Push-ups"
+          value={`${todaysPushUps} total`}
+          detail={pushUpMax ? `${pushUpMax} largest set` : "reps today"}
+          icon={Trophy}
+        />
       </div>
 
       <div className="mt-3 panel p-4">

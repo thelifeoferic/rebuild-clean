@@ -5,6 +5,7 @@ import {
   getPushUpMaxSet,
   getRecentLowWeight,
   getSevenDayAverageWeight,
+  getTodaysPushUps,
   getWeightChangeFromLast,
   getWeeklyBikeMinutes,
 } from "@/lib/rebuild-data";
@@ -60,7 +61,13 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
       <div className="mt-3 grid grid-cols-2 gap-3">
         <MetricCard label="Bike min" value={`${getWeeklyBikeMinutes(data)}`} detail="weekly total" icon={LineChart} tone="green" />
         <MetricCard label="Ladder" value={getBestJacobsLadderTime(data)} detail="best continuous" icon={CircleGauge} tone="gold" />
-        <MetricCard label="Push max" value={`${getPushUpMaxSet(data)}`} detail="largest set" icon={Trophy} tone="ember" />
+        <MetricCard
+          label="Push-ups"
+          value={`${getTodaysPushUps(data)} total`}
+          detail={getPushUpMaxSet(data) ? `${getPushUpMaxSet(data)} largest set` : "reps today"}
+          icon={Trophy}
+          tone="ember"
+        />
         <MetricCard label="Low" value={formatWeight(getRecentLowWeight(data))} detail="recent floor" icon={Scale} tone="steel" />
       </div>
     </Section>

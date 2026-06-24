@@ -189,10 +189,7 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
     next.pushUpSessions.unshift({
       id: createId("push"),
       date: text(draft.date, "Today"),
-      sets: String(draft.sets ?? "")
-        .split(",")
-        .map((set) => Number(set.trim()))
-        .filter((set) => Number.isFinite(set) && set > 0),
+      sets: pushUpSetsFromDraft(draft),
     });
   }
 
@@ -290,6 +287,22 @@ function number(value: unknown) {
 function text(value: unknown, fallback: string) {
   const parsed = String(value ?? "").trim();
   return parsed || fallback;
+}
+
+function pushUpSetsFromDraft(draft: Draft) {
+  const structuredSets = ["set1", "set2", "set3", "set4", "set5", "set6"]
+    .map((key) => Number(draft[key]))
+    .filter((set) => Number.isFinite(set) && set > 0);
+  const extraSets = String(draft.extraSets ?? "")
+    .split(",")
+    .map((set) => Number(set.trim()))
+    .filter((set) => Number.isFinite(set) && set > 0);
+  const legacySets = String(draft.sets ?? "")
+    .split(",")
+    .map((set) => Number(set.trim()))
+    .filter((set) => Number.isFinite(set) && set > 0);
+
+  return [...structuredSets, ...extraSets, ...legacySets];
 }
 
 function labelFor(kind: LogKind) {

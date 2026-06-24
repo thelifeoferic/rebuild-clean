@@ -6,7 +6,7 @@ const logTypes = [
   { kind: "weight", label: "Weigh-in", detail: "bodyweight and date", icon: Scale },
   { kind: "bike", label: "Bike session", detail: "minutes, resistance, calories", icon: Bike },
   { kind: "jacobsLadder", label: "Jacob's Ladder", detail: "duration and longest attempt", icon: Flame },
-  { kind: "pushUps", label: "Push-ups", detail: "sets and reps", icon: Trophy },
+  { kind: "pushUps", label: "Push-ups", detail: "reps by set, total counted", icon: Trophy },
   { kind: "dumbbellCurls", label: "Dumbbell curls", detail: "weight and each arm", icon: Dumbbell },
   { kind: "strength", label: "Strength lift", detail: "exercise, load, reps", icon: Dumbbell },
   { kind: "kettlebell", label: "Kettlebell", detail: "exercise, weight, reps", icon: Dumbbell },
