@@ -5,6 +5,14 @@ import type { AppView, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import { getTodaysBikeMinutes } from "@/lib/rebuild-data";
 import { formatMinutes, formatWeight } from "@/lib/metrics";
 
+const quotes = [
+  { line: "Stay hard.", source: "David Goggins" },
+  { line: "Discipline is the shortcut.", source: "REBUILD" },
+  { line: "The obstacle is the way.", source: "Marcus Aurelius" },
+  { line: "Nobody cares. Work harder.", source: "Cameron Hanes" },
+  { line: "Make the next right move.", source: "REBUILD" },
+];
+
 export function HeroDashboard({
   data,
   onNavigate,
@@ -20,6 +28,9 @@ export function HeroDashboard({
 }) {
   const todayWeight = data.weights[0]?.weight ?? 0;
   const todaysBikeMinutes = getTodaysBikeMinutes(data);
+  const firstName = profile?.firstName?.trim();
+  const goalLabel = profile?.goals?.length ? profile.goals.slice(0, 2).join(" + ") : profile?.goal ?? "Fresh start";
+  const quote = quotes[(new Date().getDate() + data.behaviorWins.length + data.bikeSessions.length) % quotes.length];
   const hasLogs =
     data.weights.length +
       data.bikeSessions.length +
@@ -53,12 +64,12 @@ export function HeroDashboard({
               />
             </div>
             <p className="rounded-full border border-white/10 bg-black/50 px-3 py-2 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-white/70 backdrop-blur">
-              {profile?.goal ?? "Fresh start"}
+              {goalLabel}
             </p>
           </div>
 
           <div>
-            <p className="metric-label text-white/60">Today</p>
+            <p className="metric-label text-white/60">{firstName ? `Hi, ${firstName}` : "Today"}</p>
             <h2 className="mt-2 text-3xl font-semibold leading-none text-porcelain">
               {hasLogs ? "Next rep." : "Blank slate."}
             </h2>
@@ -113,6 +124,23 @@ export function HeroDashboard({
           </div>
         </div>
       </div>
+
+      <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+        <p className="metric-label mb-2">Operating thought</p>
+        <p className="text-lg font-semibold leading-snug text-porcelain">
+          <span aria-hidden>&ldquo;</span>
+          {quote.line}
+          <span aria-hidden>&rdquo;</span>
+        </p>
+        <p className="mt-2 text-sm font-semibold text-champagne">{quote.source}</p>
+      </div>
+
+      {profile?.why ? (
+        <div className="mt-3 rounded-2xl border border-white/10 bg-carbon/70 p-4">
+          <p className="metric-label mb-2">Why</p>
+          <p className="text-sm leading-5 text-white/62">{profile.why}</p>
+        </div>
+      ) : null}
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} icon={Scale} />

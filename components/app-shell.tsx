@@ -15,14 +15,17 @@ export function AppShell({
   activeView,
   children,
   onNavigate,
+  showNavigation = true,
 }: {
   activeView: AppView;
   children: ReactNode;
   onNavigate: (view: AppView) => void;
+  showNavigation?: boolean;
 }) {
   return (
-    <main className="mx-auto min-h-screen w-full max-w-md pb-24">
+    <main className={`mx-auto min-h-screen w-full max-w-md ${showNavigation ? "pb-24" : "pb-8"}`}>
       {children}
+      {showNavigation ? (
       <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md border-t border-white/10 bg-carbon/90 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
         <div className="grid grid-cols-6 gap-1">
           {navigation.map((item) => {
@@ -44,6 +47,7 @@ export function AppShell({
           })}
         </div>
       </nav>
+      ) : null}
     </main>
   );
 }

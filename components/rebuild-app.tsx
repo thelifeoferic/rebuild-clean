@@ -73,7 +73,7 @@ export function RebuildApp() {
 
   if (!profile?.completed) {
     return (
-      <AppShell activeView="home" onNavigate={setActiveView}>
+      <AppShell activeView="home" onNavigate={setActiveView} showNavigation={false}>
         <Onboarding onComplete={completeOnboarding} />
       </AppShell>
     );

@@ -121,11 +121,15 @@ export type LogKind =
 export type AppView = "home" | "log" | "training" | "progress" | "reset" | "library";
 
 export type OnboardingProfile = {
+  firstName?: string;
   goal: string;
+  goals?: string[];
   currentWeight?: number;
   targetWeight?: number;
+  why?: string;
   equipment: string[];
   behaviorFocus: string[];
-  resetPlan: string;
+  pressurePlan?: string;
+  resetPlan?: string;
   completed: boolean;
 };
