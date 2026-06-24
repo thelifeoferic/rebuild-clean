@@ -21,18 +21,43 @@ const equipment = [
   "StairMaster",
   "Jacob's Ladder",
   "Treadmill",
+  "Incline treadmill",
   "Row machine",
+  "Air bike",
   "Elliptical",
+  "SkiErg",
   "Kettlebells",
   "Dumbbells",
+  "Adjustable dumbbells",
   "Barbell",
+  "EZ curl bar",
+  "Trap bar",
   "Weight bench",
+  "Incline bench",
+  "Squat rack",
+  "Power rack",
   "Cable machine",
   "Smith machine",
+  "Leg press",
+  "Hack squat",
+  "Leg extension",
+  "Hamstring curl",
+  "Chest press",
+  "Shoulder press",
+  "Lat pulldown",
+  "Seated row",
+  "Pec deck",
   "Pull-up bar",
+  "Dip station",
+  "TRX straps",
   "Resistance bands",
+  "Battle ropes",
+  "Sled",
+  "Plyo box",
   "Jump rope",
   "Medicine ball",
+  "Sandbag",
+  "Foam roller",
   "Bodyweight",
   "Farmer carry space",
 ];
@@ -47,11 +72,11 @@ export function Onboarding({
   const [firstName, setFirstName] = useState("");
   const [selectedGoals, setSelectedGoals] = useState<string[]>(["Lose weight", "Rebuild discipline"]);
   const [currentWeight, setCurrentWeight] = useState("");
+  const [height, setHeight] = useState("");
   const [targetWeight, setTargetWeight] = useState("");
   const [why, setWhy] = useState("");
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>(["Bike", "Kettlebells", "Dumbbells", "Weight bench"]);
   const [selectedFocus, setSelectedFocus] = useState<string[]>(["Smoking", "Avoidance"]);
-  const [pressurePlan, setPressurePlan] = useState("Train first. Decide later.");
 
   function toggle(value: string, values: string[], update: (next: string[]) => void) {
     update(values.includes(value) ? values.filter((item) => item !== value) : [...values, value]);
@@ -100,10 +125,11 @@ export function Onboarding({
             <Field label="First name" value={firstName} onChange={setFirstName} placeholder="Eric" />
             <div className="grid grid-cols-2 gap-3">
               <Field label="Current weight" value={currentWeight} onChange={setCurrentWeight} placeholder="227" inputMode="decimal" suffix="lb" />
+              <Field label="Height" value={height} onChange={setHeight} placeholder={`5'10"`} />
               <Field label="Target weight" value={targetWeight} onChange={setTargetWeight} placeholder="210" inputMode="decimal" suffix="lb" />
             </div>
             <TextArea
-              label="Why this matters"
+              label="Why I'm doing this"
               value={why}
               onChange={setWhy}
               placeholder="A short sentence you want REBUILD to keep in view."
@@ -124,6 +150,7 @@ export function Onboarding({
           options={equipment}
           selected={selectedEquipment}
           onSelect={(value) => toggle(value, selectedEquipment, setSelectedEquipment)}
+          scrollable
         />
         <ChoiceGroup
           title="Behavior loops to replace"
@@ -132,14 +159,6 @@ export function Onboarding({
           selected={selectedFocus}
           onSelect={(value) => toggle(value, selectedFocus, setSelectedFocus)}
         />
-
-        <div className="panel p-4">
-          <p className="metric-label mb-2">Pressure protocol</p>
-          <p className="mb-3 text-sm leading-5 text-white/50">
-            One line for the moment when stress, boredom, anger, or craving tries to make the decision.
-          </p>
-          <TextArea label="When pressure hits" value={pressurePlan} onChange={setPressurePlan} />
-        </div>
       </div>
 
       <button
@@ -153,7 +172,7 @@ export function Onboarding({
             firstName: firstName.trim(),
             goal: selectedGoals[0] ?? "Rebuild discipline",
             goals: selectedGoals,
-            pressurePlan: pressurePlan.trim(),
+            height: height.trim(),
             targetWeight: numberOrUndefined(targetWeight),
             why: why.trim(),
           })
@@ -170,12 +189,14 @@ function ChoiceGroup({
   helper,
   onSelect,
   options,
+  scrollable,
   selected,
   title,
 }: {
   helper?: string;
   onSelect: (value: string) => void;
   options: string[];
+  scrollable?: boolean;
   selected: string[];
   title: string;
 }) {
@@ -183,7 +204,7 @@ function ChoiceGroup({
     <div className="panel p-4">
       <p className="metric-label mb-2">{title}</p>
       {helper ? <p className="mb-3 text-sm leading-5 text-white/45">{helper}</p> : null}
-      <div className="flex flex-wrap gap-2">
+      <div className={`flex flex-wrap gap-2 ${scrollable ? "max-h-60 overflow-y-auto pr-1" : ""}`}>
         {options.map((option) => {
           const isSelected = selected.includes(option);
           return (

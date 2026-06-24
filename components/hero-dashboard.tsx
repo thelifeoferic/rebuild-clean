@@ -6,11 +6,19 @@ import { getTodaysBikeMinutes } from "@/lib/rebuild-data";
 import { formatMinutes, formatWeight } from "@/lib/metrics";
 
 const quotes = [
-  { line: "Stay hard.", source: "David Goggins" },
-  { line: "Discipline is the shortcut.", source: "REBUILD" },
-  { line: "The obstacle is the way.", source: "Marcus Aurelius" },
-  { line: "Nobody cares. Work harder.", source: "Cameron Hanes" },
-  { line: "Make the next right move.", source: "REBUILD" },
+  {
+    line: "You are in danger of living a life so comfortable and soft, that you will die without ever realizing your true potential.",
+    source: "David Goggins",
+  },
+  { line: "No one is going to come help you. No one's coming to save you.", source: "David Goggins" },
+  { line: "The most important conversations you'll ever have are the ones you'll have with yourself.", source: "David Goggins" },
+  { line: "We're either getting better or we're getting worse.", source: "David Goggins" },
+  { line: "I don't stop when I'm tired. I stop when I'm done.", source: "David Goggins" },
+  {
+    line: "Pain unlocks a secret doorway in the mind, one that leads to both peak performance, and beautiful silence.",
+    source: "David Goggins",
+  },
+  { line: "Analyze your schedule, kill your empty habits, burn out the bullshit, and see what's left.", source: "David Goggins" },
 ];
 
 export function HeroDashboard({
@@ -29,7 +37,6 @@ export function HeroDashboard({
   const todayWeight = data.weights[0]?.weight ?? 0;
   const todaysBikeMinutes = getTodaysBikeMinutes(data);
   const firstName = profile?.firstName?.trim();
-  const goalLabel = profile?.goals?.length ? profile.goals.slice(0, 2).join(" + ") : profile?.goal ?? "Fresh start";
   const quote = quotes[(new Date().getDate() + data.behaviorWins.length + data.bikeSessions.length) % quotes.length];
   const hasLogs =
     data.weights.length +
@@ -52,7 +59,7 @@ export function HeroDashboard({
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.40),rgba(0,0,0,0.20)_34%,rgba(0,0,0,0.90))]" />
         <div className="relative flex min-h-[360px] flex-col justify-between p-5">
-          <div className="flex items-start justify-between gap-3">
+          <div>
             <div className="w-40 overflow-hidden rounded-xl border border-white/10 bg-black/70 backdrop-blur">
               <Image
                 src="/rebuild-logo.png"
@@ -63,9 +70,6 @@ export function HeroDashboard({
                 className="aspect-[2.4/1] w-full object-cover object-center"
               />
             </div>
-            <p className="rounded-full border border-white/10 bg-black/50 px-3 py-2 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-white/70 backdrop-blur">
-              {goalLabel}
-            </p>
           </div>
 
           <div>
@@ -96,30 +100,6 @@ export function HeroDashboard({
                 <Headphones size={17} strokeWidth={2.2} aria-hidden />
                 Start TIDAL playlist
               </a>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={onQuickAdd}
-                  className="min-h-11 rounded-2xl bg-black/55 px-3 text-sm font-semibold text-porcelain backdrop-blur"
-                >
-                  Log reset
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onNavigate("progress")}
-                  className="min-h-11 rounded-2xl bg-black/55 px-3 text-sm font-semibold text-porcelain backdrop-blur"
-                >
-                  View progress
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={onReset}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl bg-black/35 px-3 text-xs font-bold uppercase tracking-[0.14em] text-white/62 backdrop-blur"
-              >
-                <RotateCcw size={14} aria-hidden />
-                Reset data
-              </button>
             </div>
           </div>
         </div>
@@ -146,6 +126,31 @@ export function HeroDashboard({
         <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} icon={Scale} />
         <MiniStat label="Bike" value={formatMinutes(todaysBikeMinutes)} icon={Bike} />
         <MiniStat label="Wins" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
+      </div>
+
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        <button
+          type="button"
+          onClick={onQuickAdd}
+          className="min-h-11 rounded-2xl bg-white/[0.055] px-2 text-xs font-bold text-porcelain"
+        >
+          Log reset
+        </button>
+        <button
+          type="button"
+          onClick={() => onNavigate("progress")}
+          className="min-h-11 rounded-2xl bg-white/[0.055] px-2 text-xs font-bold text-porcelain"
+        >
+          Progress
+        </button>
+        <button
+          type="button"
+          onClick={onReset}
+          className="inline-flex min-h-11 items-center justify-center gap-1 rounded-2xl bg-white/[0.055] px-2 text-xs font-bold text-white/62"
+        >
+          <RotateCcw size={13} aria-hidden />
+          Reset
+        </button>
       </div>
     </section>
   );

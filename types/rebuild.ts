@@ -125,11 +125,11 @@ export type OnboardingProfile = {
   goal: string;
   goals?: string[];
   currentWeight?: number;
+  height?: string;
   targetWeight?: number;
   why?: string;
   equipment: string[];
   behaviorFocus: string[];
-  pressurePlan?: string;
   resetPlan?: string;
   completed: boolean;
 };
