@@ -1,6 +1,5 @@
 "use client";
 
-import { RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { BikeDashboard } from "@/components/bike-dashboard";
@@ -11,6 +10,7 @@ import { Onboarding } from "@/components/onboarding";
 import { ProgressTrends } from "@/components/progress-trends";
 import { QuickAdd } from "@/components/quick-add";
 import { RebuildTimeline } from "@/components/rebuild-timeline";
+import { TrainingOverview } from "@/components/training-overview";
 import { VideoLibrary } from "@/components/video-library";
 import { buildTimeline, cloneSeedData, createId, normalizeRebuildData, storageKey } from "@/lib/rebuild-data";
 import type { AppView, LogKind, MoodReason, OnboardingProfile, RebuildData } from "@/types/rebuild";
@@ -23,7 +23,7 @@ export function RebuildApp() {
   const [activeView, setActiveView] = useState<AppView>("home");
   const [activeLog, setActiveLog] = useState<LogKind | null>(null);
   const [profile, setProfile] = useState<OnboardingProfile | null>(null);
-  const [savedMessage, setSavedMessage] = useState("Ready");
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(storageKey);
@@ -33,11 +33,10 @@ export function RebuildApp() {
       if (stored) {
         const restored = normalizeRebuildData(JSON.parse(stored) as Partial<RebuildData>);
         setData(restored);
-        setSavedMessage(totalLogs(restored) ? "Loaded saved logs" : "Fresh slate");
       }
       if (storedProfile) setProfile(JSON.parse(storedProfile) as OnboardingProfile);
     } catch {
-      setSavedMessage("Using seed data");
+      setToast("Using fresh local data");
     }
   }, []);
 
@@ -45,25 +44,31 @@ export function RebuildApp() {
     window.localStorage.setItem(storageKey, JSON.stringify(data));
   }, [data]);
 
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 2400);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
   const timeline = useMemo(() => buildTimeline(data), [data]);
 
   function completeOnboarding(nextProfile: OnboardingProfile) {
     setProfile(nextProfile);
     window.localStorage.setItem(profileKey, JSON.stringify(nextProfile));
-    setSavedMessage("Fresh start ready");
+    setToast("Fresh start ready");
   }
 
   function saveLog(kind: LogKind, draft: Draft) {
     setData((current) => appendLog(current, kind, draft));
     setActiveLog(null);
-    setSavedMessage(`${labelFor(kind)} saved`);
+    setToast(`${labelFor(kind)} saved`);
   }
 
   function resetData() {
     const fresh = cloneSeedData();
     setData(fresh);
     window.localStorage.setItem(storageKey, JSON.stringify(fresh));
-    setSavedMessage("Fresh zero state restored");
+    setToast("Fresh zero state restored");
   }
 
   if (!profile?.completed) {
@@ -76,25 +81,19 @@ export function RebuildApp() {
 
   return (
     <AppShell activeView={activeView} onNavigate={setActiveView}>
-      <div className="px-4 pt-5">
-        <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
-          <p className="text-sm font-semibold text-white/60">{savedMessage}</p>
-          <button
-            type="button"
-            onClick={resetData}
-            className="inline-flex min-h-9 items-center gap-2 rounded-full bg-white/10 px-3 text-xs font-bold text-white/70"
-          >
-            <RotateCcw size={14} aria-hidden />
-            Reset
-          </button>
-        </div>
-      </div>
       {activeView === "home" ? (
-        <HeroDashboard data={data} onNavigate={setActiveView} onQuickAdd={() => setActiveLog("mood")} profile={profile} />
+        <HeroDashboard
+          data={data}
+          onNavigate={setActiveView}
+          onQuickAdd={() => setActiveLog("mood")}
+          onReset={resetData}
+          profile={profile}
+        />
       ) : null}
       {activeView === "log" ? <QuickAdd onSelect={setActiveLog} /> : null}
       {activeView === "training" ? (
         <>
+          <TrainingOverview data={data} />
           <BikeDashboard data={data} />
           <KettlebellPrograms data={data} />
         </>
@@ -102,6 +101,11 @@ export function RebuildApp() {
       {activeView === "progress" ? <ProgressTrends data={data} /> : null}
       {activeView === "reset" ? <RebuildTimeline timeline={timeline} /> : null}
       {activeView === "library" ? <VideoLibrary /> : null}
+      {toast ? (
+        <div className="fixed inset-x-4 bottom-24 z-[70] mx-auto max-w-sm rounded-2xl border border-white/10 bg-carbon/92 px-4 py-3 text-sm font-semibold text-porcelain shadow-panel backdrop-blur-xl">
+          {toast}
+        </div>
+      ) : null}
       <LogModal kind={activeLog} onClose={() => setActiveLog(null)} onSave={saveLog} />
     </AppShell>
   );
@@ -239,19 +243,4 @@ function labelFor(kind: LogKind) {
   };
 
   return labels[kind];
-}
-
-function totalLogs(data: RebuildData) {
-  return (
-    data.weights.length +
-    data.bikeSessions.length +
-    data.jacobsLadderSessions.length +
-    data.pushUpSessions.length +
-    data.dumbbellCurlSessions.length +
-    data.kettlebellSessions.length +
-    data.farmerCarrySessions.length +
-    data.strengthAccessorySessions.length +
-    data.meals.length +
-    data.behaviorWins.length
-  );
 }

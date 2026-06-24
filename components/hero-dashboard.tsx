@@ -1,4 +1,4 @@
-import { Bike, Headphones, Scale, ShieldCheck } from "lucide-react";
+import { Bike, Headphones, RotateCcw, Scale, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import type { AppView, OnboardingProfile, RebuildData } from "@/types/rebuild";
@@ -9,11 +9,13 @@ export function HeroDashboard({
   data,
   onNavigate,
   onQuickAdd,
+  onReset,
   profile,
 }: {
   data: RebuildData;
   onNavigate: (view: AppView) => void;
   onQuickAdd: () => void;
+  onReset: () => void;
   profile: OnboardingProfile | null;
 }) {
   const todayWeight = data.weights[0]?.weight ?? 0;
@@ -99,6 +101,14 @@ export function HeroDashboard({
                   View progress
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={onReset}
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl bg-black/35 px-3 text-xs font-bold uppercase tracking-[0.14em] text-white/62 backdrop-blur"
+              >
+                <RotateCcw size={14} aria-hidden />
+                Reset data
+              </button>
             </div>
           </div>
         </div>

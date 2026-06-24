@@ -77,6 +77,16 @@ export function getRecentLowWeight(data: RebuildData) {
 export function buildTimeline(data: RebuildData): TimelineItem[] {
   const items: TimelineItem[] = [];
 
+  data.weights.slice(0, 4).forEach((entry) => {
+    items.push({
+      id: `tl-${entry.id ?? `${entry.date}-${entry.weight}`}`,
+      date: entry.date,
+      title: "Weight logged",
+      detail: `${entry.weight.toFixed(1)} lb saved as a ${entry.moment ?? "check-in"} entry.`,
+      tone: "steel",
+    });
+  });
+
   data.behaviorWins.slice(0, 4).forEach((win) => {
     items.push({
       id: `tl-${win.id}`,
@@ -94,6 +104,67 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: "Bike session logged",
       detail: `${ride.minutes} minutes at resistance ${ride.resistance} with ${ride.calories} calories.`,
       tone: "gold",
+    });
+  });
+
+  data.pushUpSessions.slice(0, 3).forEach((session) => {
+    const total = session.sets.reduce((sum, reps) => sum + reps, 0);
+    items.push({
+      id: `tl-${session.id}`,
+      date: session.date,
+      title: "Push-ups logged",
+      detail: `${total} total reps across ${session.sets.length} sets.`,
+      tone: "green",
+    });
+  });
+
+  data.kettlebellSessions.slice(0, 3).forEach((move) => {
+    items.push({
+      id: `tl-${move.id}`,
+      date: move.date,
+      title: `${move.exercise} logged`,
+      detail: `${move.reps} reps at ${move.weight} lb.`,
+      tone: "gold",
+    });
+  });
+
+  data.dumbbellCurlSessions.slice(0, 2).forEach((curl) => {
+    items.push({
+      id: `tl-${curl.id}`,
+      date: curl.date,
+      title: "Dumbbell curls logged",
+      detail: `${curl.weight} lb for ${curl.repsEachArm * 2} total reps.`,
+      tone: "ember",
+    });
+  });
+
+  data.farmerCarrySessions.slice(0, 2).forEach((carry) => {
+    items.push({
+      id: `tl-${carry.id}`,
+      date: carry.date,
+      title: "Farmer carries logged",
+      detail: `${carry.weightEachHand} lb each hand for ${carry.distanceFeet * carry.rounds} total feet.`,
+      tone: "green",
+    });
+  });
+
+  data.strengthAccessorySessions.slice(0, 2).forEach((move) => {
+    items.push({
+      id: `tl-${move.id}`,
+      date: move.date,
+      title: `${move.exercise} logged`,
+      detail: `${move.reps} reps at ${move.weight} lb. ${move.notes}`,
+      tone: "steel",
+    });
+  });
+
+  data.meals.slice(0, 2).forEach((meal) => {
+    items.push({
+      id: `tl-${meal.id}`,
+      date: "Nutrition",
+      title: meal.name,
+      detail: `${meal.calories} calories · ${meal.protein}g protein. ${meal.notes}`,
+      tone: "steel",
     });
   });
 
