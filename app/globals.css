@@ -9,7 +9,7 @@
   --color-steel: 32 36 41;
   --color-accent: 216 177 95;
   --color-ember: 225 95 63;
-  --color-signal: 46 230 166;
+  --color-signal: 242 238 231;
   --color-porcelain: 242 238 231;
   --app-bg: #08090a;
   background: #08090a;
@@ -58,29 +58,39 @@ select {
   --app-bg: #f6f1e8;
   background:
     linear-gradient(180deg, rgba(var(--color-accent), 0.18), transparent 22rem),
-    radial-gradient(circle at 86% 2%, rgba(var(--color-signal), 0.16), transparent 17rem),
+    radial-gradient(circle at 86% 2%, rgba(var(--color-signal), 0.08), transparent 17rem),
     var(--app-bg);
   color: rgb(var(--color-porcelain));
 }
 
 .accent-champagne {
   --color-accent: 216 177 95;
-  --color-signal: 46 230 166;
+  --color-signal: 242 238 231;
+}
+
+.accent-white {
+  --color-accent: 242 238 231;
+  --color-signal: 242 238 231;
+}
+
+.accent-ember {
+  --color-accent: 225 95 63;
+  --color-signal: 242 238 231;
 }
 
 .accent-teal {
-  --color-accent: 0 181 181;
-  --color-signal: 46 230 166;
+  --color-accent: 242 238 231;
+  --color-signal: 242 238 231;
 }
 
 .accent-cobalt {
-  --color-accent: 42 108 255;
-  --color-signal: 28 201 214;
+  --color-accent: 242 238 231;
+  --color-signal: 242 238 231;
 }
 
 .accent-volt {
   --color-accent: 182 255 63;
-  --color-signal: 46 230 166;
+  --color-signal: 242 238 231;
 }
 
 .theme-light .panel {

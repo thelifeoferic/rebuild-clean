@@ -24,6 +24,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "Inter", "system-ui", "sans-serif"],
+        display: ["Impact", "Arial Black", "var(--font-geist-sans)", "system-ui", "sans-serif"],
       },
     },
   },

@@ -68,7 +68,7 @@ const equipment = [
 
 const behaviorFocus = ["Smoking", "Anger", "Stress", "Boredom", "Stress eating", "Avoidance", "Late-night scrolling"];
 const themeOptions = ["dark", "light", "auto"] as const;
-const accentOptions = ["teal", "cobalt", "volt", "champagne"] as const;
+const accentOptions = ["champagne", "white", "ember", "volt"] as const;
 const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
 const quoteOptions = ["goggins", "calm", "athlete", "none"] as const;
 const locationOptions = ["home", "gym", "travel", "pool"] as const;
@@ -98,7 +98,7 @@ export function Onboarding({
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>(["Bike", "Kettlebells", "Dumbbells", "Weight bench"]);
   const [equipmentQuery, setEquipmentQuery] = useState("");
   const [themePreference, setThemePreference] = useState<NonNullable<OnboardingProfile["themePreference"]>>("dark");
-  const [accentColor, setAccentColor] = useState<NonNullable<OnboardingProfile["accentColor"]>>("teal");
+  const [accentColor, setAccentColor] = useState<NonNullable<OnboardingProfile["accentColor"]>>("champagne");
   const [coachingTone, setCoachingTone] = useState<NonNullable<OnboardingProfile["coachingTone"]>>("calm");
   const [quoteStyle, setQuoteStyle] = useState<NonNullable<OnboardingProfile["quoteStyle"]>>("goggins");
   const [defaultLocation, setDefaultLocation] = useState<NonNullable<OnboardingProfile["defaultLocation"]>>("gym");
@@ -249,7 +249,7 @@ export function Onboarding({
                   value={equipmentQuery}
                   onChange={(event) => setEquipmentQuery(event.target.value)}
                   placeholder="Search equipment..."
-                  className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-porcelain outline-none placeholder:text-white/28"
+                  className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-white outline-none placeholder:text-white/58"
                 />
               </label>
               <ChoiceGroup
@@ -483,15 +483,15 @@ function Field({
   return (
     <label className="block">
       <span className="metric-label mb-2 block">{label}</span>
-      <div className="flex min-h-12 items-center rounded-2xl border border-white/10 bg-carbon px-4 focus-within:border-champagne">
+      <div className="flex min-h-12 items-center rounded-2xl border border-white/15 bg-white/[0.075] px-4 focus-within:border-champagne">
         <input
           value={value}
           inputMode={inputMode}
           placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}
-          className="min-w-0 flex-1 bg-transparent text-base text-porcelain outline-none placeholder:text-white/25"
+          className="min-w-0 flex-1 bg-transparent text-base font-semibold text-white outline-none placeholder:text-white/58"
         />
-        {suffix ? <span className="text-sm font-semibold text-white/40">{suffix}</span> : null}
+        {suffix ? <span className="text-sm font-semibold text-white/70">{suffix}</span> : null}
       </div>
     </label>
   );
@@ -515,7 +515,7 @@ function TextArea({
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-24 w-full rounded-2xl border border-white/10 bg-carbon px-4 py-3 text-base text-porcelain outline-none placeholder:text-white/25 focus:border-champagne"
+        className="min-h-24 w-full rounded-2xl border border-white/15 bg-white/[0.075] px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-white/58 focus:border-champagne"
       />
     </label>
   );

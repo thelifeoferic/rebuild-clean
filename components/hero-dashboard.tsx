@@ -91,18 +91,18 @@ export function HeroDashboard({
           sizes="(max-width: 768px) 100vw, 448px"
           className="object-cover object-[52%_40%]"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.40),rgba(0,0,0,0.20)_34%,rgba(0,0,0,0.90))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.62),rgba(0,0,0,0.38)_34%,rgba(0,0,0,0.96))]" />
         <div className="relative flex min-h-[360px] flex-col justify-between p-5">
           <div>
             <RebuildWordmark className="mx-auto drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]" />
           </div>
 
-          <div>
-            <p className="metric-label text-white/60">{firstName ? `Hi, ${firstName}` : "Today"}</p>
-            <h2 className="mt-2 text-3xl font-semibold leading-none text-porcelain">
+          <div className="-mx-1 rounded-[1.5rem] bg-black/52 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-[2px]">
+            <p className="metric-label text-white/78">{firstName ? `Hi, ${firstName}` : "Today"}</p>
+            <h2 className="mt-2 font-display text-5xl font-black uppercase leading-[0.88] tracking-normal text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.8)]">
               {hasLogs ? "Next rep." : "Blank slate."}
             </h2>
-            <p className="mt-2 max-w-[18rem] text-sm leading-5 text-white/68">
+            <p className="mt-3 max-w-[18rem] text-sm font-semibold leading-5 text-white/82">
               {hasLogs
                 ? "Log the next action and let the numbers stay honest."
                 : "Start with one clean entry when tomorrow begins."}

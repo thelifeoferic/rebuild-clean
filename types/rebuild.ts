@@ -144,7 +144,7 @@ export type LogKind =
 export type AppView = "home" | "log" | "training" | "progress" | "reset" | "library";
 
 export type OnboardingProfile = {
-  accentColor?: "champagne" | "teal" | "cobalt" | "volt";
+  accentColor?: "champagne" | "white" | "ember" | "volt" | "teal" | "cobalt";
   firstName?: string;
   goal: string;
   goals?: string[];
