@@ -4,6 +4,7 @@ import { Bike, Dumbbell, Headphones, RefreshCw, Scale, ShieldCheck, Sparkles } f
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
+import { LoginPanel } from "@/components/login-panel";
 import { NutritionTracker } from "@/components/nutrition-tracker";
 import { TodayPlan } from "@/components/today-plan";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
@@ -132,6 +133,8 @@ export function HeroDashboard({
           </div>
         </div>
       </div>
+
+      <LoginPanel className="mt-4" compact />
 
       {profile?.quoteStyle !== "none" ? (
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4">

@@ -112,8 +112,8 @@ export function AccountSync({ data, onRestore, profile }: AccountSyncProps) {
     <div className="mx-4 mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <p className="metric-label">Account backup</p>
-          <h3 className="mt-1 text-lg font-semibold text-porcelain">{session ? "Signed in" : "Protect your logs"}</h3>
+          <p className="metric-label">Account and backup</p>
+          <h3 className="mt-1 text-lg font-semibold text-porcelain">{session ? "Signed in" : "Sign in to sync"}</h3>
           <p className="mt-1 text-sm leading-5 text-white/45">{status}</p>
         </div>
         <div className={`grid size-10 shrink-0 place-items-center rounded-full ${session ? "bg-signal/10 text-signal" : "bg-champagne/10 text-champagne"}`}>
@@ -176,7 +176,7 @@ export function AccountSync({ data, onRestore, profile }: AccountSyncProps) {
       ) : (
         <div className="space-y-2">
           <p className="rounded-2xl bg-carbon/70 p-3 text-xs leading-5 text-white/45">
-            Sign in by email to back up this device and restore your logs on another phone or browser.
+            Sign in by email to back up this device and restore your logs on another phone or browser. New members can use the same email link to create an account.
           </p>
           <label className="flex min-h-11 items-center rounded-2xl border border-white/10 bg-carbon px-3 focus-within:border-champagne">
             <Mail size={16} className="mr-2 shrink-0 text-white/35" aria-hidden />
@@ -184,7 +184,7 @@ export function AccountSync({ data, onRestore, profile }: AccountSyncProps) {
               value={email}
               inputMode="email"
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="Email for magic link"
+              placeholder="Email address"
               className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-porcelain outline-none placeholder:text-white/28"
             />
           </label>
@@ -195,7 +195,7 @@ export function AccountSync({ data, onRestore, profile }: AccountSyncProps) {
             className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-bold text-carbon disabled:opacity-50"
           >
             <Send size={16} strokeWidth={2.2} aria-hidden />
-            Send sign-in link
+            Send secure link
           </button>
         </div>
       )}

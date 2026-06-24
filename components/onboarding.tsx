@@ -3,6 +3,7 @@
 import { ArrowLeft, ArrowRight, CheckCircle2, Cloud, Dumbbell, Scale, ShieldCheck, Target } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { LoginPanel } from "@/components/login-panel";
 import type { OnboardingProfile } from "@/types/rebuild";
 
 const goals = [
@@ -217,7 +218,7 @@ export function Onboarding({
               <div className="grid gap-2">
                 <IntroPoint icon={Scale} title="Baseline" detail="Weight, height, target, and why." />
                 <IntroPoint icon={Target} title="Training logic" detail="Goals and equipment shape the recommendations." />
-                <IntroPoint icon={Cloud} title="Cloud ready" detail="After setup, sign in from Progress to back up your logs." />
+                <IntroPoint icon={Cloud} title="Account optional" detail="Sign in with email for cloud backup, or start local first." />
               </div>
             </div>
           ) : null}
@@ -318,9 +319,10 @@ export function Onboarding({
               <div className="rounded-2xl border border-signal/20 bg-signal/10 p-4">
                 <p className="metric-label mb-2 text-signal">Account backup</p>
                 <p className="text-sm leading-5 text-white/58">
-                  After you enter REBUILD, go to Progress to sign in and sync your local logs to Supabase.
+                  Sign in now to connect this device to Supabase. You can also enter REBUILD first and sign in from Home or Progress later.
                 </p>
               </div>
+              <LoginPanel />
             </div>
           ) : null}
         </div>
