@@ -3,7 +3,8 @@
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, HTMLAttributes } from "react";
-import { foodGroups, foodPresets } from "@/data/food-presets";
+import { FoodPresetPicker } from "@/components/food-preset-picker";
+import type { FoodPreset } from "@/data/food-presets";
 import type { LogKind, MoodReason } from "@/types/rebuild";
 
 type Draft = Record<string, string | boolean>;
@@ -74,13 +75,13 @@ export function LogModal({
     onSave(activeKind, draft);
   }
 
-  function applyFoodPreset(name: string, calories: number, protein: number, notes: string) {
+  function applyFoodPreset(preset: FoodPreset) {
     setDraft((current) => ({
       ...current,
-      name,
-      calories: String(calories),
-      protein: String(protein),
-      notes,
+      name: preset.name,
+      calories: String(preset.calories),
+      protein: String(preset.protein),
+      notes: preset.notes,
     }));
   }
 
@@ -192,30 +193,7 @@ export function LogModal({
 
           {activeKind === "meal" ? (
             <>
-              <div className="rounded-2xl bg-white/[0.055] p-3">
-                <p className="metric-label mb-3">Tap a common option</p>
-                <div className="space-y-3">
-                  {foodGroups.map((group) => (
-                    <div key={group.id}>
-                      <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-white/35">{group.label}</p>
-                      <div className="flex max-h-36 flex-wrap gap-2 overflow-y-auto pr-1">
-                        {foodPresets
-                          .filter((preset) => preset.group === group.id)
-                          .map((preset) => (
-                            <button
-                              key={preset.name}
-                              type="button"
-                              onClick={() => applyFoodPreset(preset.name, preset.calories, preset.protein, preset.notes)}
-                              className="rounded-full border border-white/10 px-3 py-2 text-left text-xs font-semibold text-white/65"
-                            >
-                              {preset.name}
-                            </button>
-                          ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <FoodPresetPicker onApply={applyFoodPreset} />
               <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
               <Field label="Name" name="name" value={String(draft.name)} onChange={update} />
               <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />

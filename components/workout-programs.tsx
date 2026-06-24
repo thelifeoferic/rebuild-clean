@@ -1,11 +1,41 @@
-import { ClipboardList } from "lucide-react";
-import Image from "next/image";
-import { workoutPrograms } from "@/data/workout-programs";
-import { Section } from "@/components/section";
+"use client";
 
-export function WorkoutPrograms() {
+import { ClipboardList, Search } from "lucide-react";
+import Image from "next/image";
+import { useMemo, useState } from "react";
+import { workoutPrograms, type ProgramLocation, type WorkoutProgram } from "@/data/workout-programs";
+import { Section } from "@/components/section";
+import type { OnboardingProfile } from "@/types/rebuild";
+
+const filters = ["Recommended", "Home", "Gym", "Recovery", "All"] as const;
+type ProgramFilter = (typeof filters)[number];
+
+export function WorkoutPrograms({ profile }: { profile: OnboardingProfile | null }) {
+  const [filter, setFilter] = useState<ProgramFilter>("Recommended");
+  const [query, setQuery] = useState("");
+
+  const visiblePrograms = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return workoutPrograms
+      .filter((program) => {
+        if (filter === "All") return true;
+        if (filter === "Recommended") return scoreProgram(program, profile) > 2;
+        if (filter === "Recovery") return program.location === "Recovery" || program.location === "Pool";
+        return program.location === filter;
+      })
+      .filter((program) => {
+        if (!normalizedQuery) return true;
+        return [program.title, program.intent, program.location, ...program.focus, ...program.equipment, ...program.blocks]
+          .join(" ")
+          .toLowerCase()
+          .includes(normalizedQuery);
+      })
+      .sort((a, b) => (filter === "Recommended" ? scoreProgram(b, profile) - scoreProgram(a, profile) : 0));
+  }, [filter, profile, query]);
+
   return (
-    <Section id="programs" eyebrow="Decision support" title="Workout Templates">
+    <Section id="programs" eyebrow="Expandable library" title="Workout Templates">
       <div className="panel p-4">
         <div className="relative mb-4 min-h-40 overflow-hidden rounded-2xl bg-black">
           <Image
@@ -21,31 +51,102 @@ export function WorkoutPrograms() {
             <p className="mt-1 text-2xl font-semibold text-porcelain">Pick the next block.</p>
           </div>
         </div>
-        <div className="space-y-3">
-          {workoutPrograms.map((program) => (
-            <article key={program.title} className="rounded-2xl bg-white/[0.055] p-4">
-              <div className="mb-3 flex items-start justify-between gap-3">
-                <div>
-                  <p className="metric-label">{program.time}</p>
-                  <h3 className="mt-1 text-lg font-semibold text-porcelain">{program.title}</h3>
-                  <p className="mt-1 text-sm leading-5 text-white/50">{program.intent}</p>
-                </div>
-                <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
-                  <ClipboardList size={18} strokeWidth={2.2} aria-hidden />
-                </div>
-              </div>
-              <div className="space-y-2">
-                {program.blocks.map((block, index) => (
-                  <div key={block} className="flex gap-3 rounded-xl bg-carbon/70 p-3">
-                    <span className="text-xs font-bold text-champagne">{index + 1}</span>
-                    <p className="text-sm leading-5 text-white/62">{block}</p>
-                  </div>
-                ))}
-              </div>
-            </article>
+
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {filters.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setFilter(item)}
+              className={`min-h-10 shrink-0 rounded-full border px-4 text-sm font-bold ${
+                filter === item ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-white/[0.055] text-white/62"
+              }`}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        <label className="mt-2 flex min-h-11 items-center gap-2 rounded-2xl border border-white/10 bg-carbon px-3 focus-within:border-champagne">
+          <Search size={16} className="shrink-0 text-white/36" aria-hidden />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search programs, equipment, focus..."
+            className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-porcelain outline-none placeholder:text-white/28"
+          />
+        </label>
+
+        <div className="mt-4 space-y-3">
+          {visiblePrograms.map((program) => (
+            <ProgramCard key={program.title} program={program} />
           ))}
         </div>
       </div>
     </Section>
   );
+}
+
+function ProgramCard({ program }: { program: WorkoutProgram }) {
+  return (
+    <article className="rounded-2xl bg-white/[0.055] p-4">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <p className="metric-label">
+            {program.location} · {program.time}
+          </p>
+          <h3 className="mt-1 text-lg font-semibold text-porcelain">{program.title}</h3>
+          <p className="mt-1 text-sm leading-5 text-white/50">{program.intent}</p>
+        </div>
+        <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+          <ClipboardList size={18} strokeWidth={2.2} aria-hidden />
+        </div>
+      </div>
+      <div className="mb-3 flex flex-wrap gap-2">
+        {program.equipment.slice(0, 4).map((item) => (
+          <span key={item} className="rounded-full bg-carbon/70 px-3 py-1 text-xs font-bold text-white/42">
+            {item}
+          </span>
+        ))}
+      </div>
+      <div className="space-y-2">
+        {program.blocks.map((block, index) => (
+          <div key={`${program.title}-${block}`} className="flex gap-3 rounded-xl bg-carbon/70 p-3">
+            <span className="text-xs font-bold text-champagne">{index + 1}</span>
+            <p className="text-sm leading-5 text-white/62">{block}</p>
+          </div>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function scoreProgram(program: WorkoutProgram, profile: OnboardingProfile | null) {
+  const goals = (profile?.goals?.length ? profile.goals : profile?.goal ? [profile.goal] : []).map(normalize);
+  const equipment = (profile?.equipment ?? []).map(normalize);
+  let score = 0;
+
+  for (const goal of goals) {
+    if (goal.includes("lose") || goal.includes("weight")) score += hasAny(program.focus, ["weight loss", "cardio", "conditioning"]) ? 4 : 0;
+    if (goal.includes("strength") || goal.includes("muscle")) score += hasAny(program.focus, ["strength", "muscle"]) ? 4 : 0;
+    if (goal.includes("cardio")) score += hasAny(program.focus, ["cardio", "conditioning"]) ? 4 : 0;
+    if (goal.includes("smok") || goal.includes("spiral") || goal.includes("discipline")) score += hasAny(program.focus, ["discipline", "behavior"]) ? 3 : 0;
+    if (goal.includes("sleep") || goal.includes("stress")) score += hasAny(program.focus, ["recovery", "mobility", "stress", "sleep"]) ? 3 : 0;
+  }
+
+  for (const item of program.equipment) {
+    const normalized = normalize(item);
+    if (normalized === "bodyweight") score += 1;
+    if (equipment.some((owned) => owned.includes(normalized) || normalized.includes(owned))) score += 2;
+  }
+
+  return score;
+}
+
+function hasAny(values: string[], targets: string[]) {
+  return targets.some((target) => values.includes(target));
+}
+
+function normalize(value: ProgramLocation | string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }

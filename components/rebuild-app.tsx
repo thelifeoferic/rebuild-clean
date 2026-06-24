@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { AccountSync } from "@/components/account-sync";
 import { AppShell } from "@/components/app-shell";
 import { BikeDashboard } from "@/components/bike-dashboard";
 import { ExerciseGuides } from "@/components/exercise-guides";
 import { FuelGuide } from "@/components/fuel-guide";
 import { FormVisuals } from "@/components/form-visuals";
+import { GoalTrainingPlan } from "@/components/goal-training-plan";
 import { HeroDashboard } from "@/components/hero-dashboard";
 import { KettlebellPrograms } from "@/components/kettlebell-programs";
 import { LogModal } from "@/components/log-modal";
@@ -75,6 +77,21 @@ export function RebuildApp() {
     setToast("Fresh zero state restored");
   }
 
+  function restoreFromCloud(nextProfile: OnboardingProfile | null, nextData: RebuildData | null) {
+    if (nextProfile) {
+      setProfile(nextProfile);
+      window.localStorage.setItem(profileKey, JSON.stringify(nextProfile));
+    }
+
+    if (nextData) {
+      const restored = normalizeRebuildData(nextData);
+      setData(restored);
+      window.localStorage.setItem(storageKey, JSON.stringify(restored));
+    }
+
+    setToast("Cloud data restored");
+  }
+
   if (!profile?.completed) {
     return (
       <AppShell activeView="home" onNavigate={setActiveView} showNavigation={false}>
@@ -95,12 +112,14 @@ export function RebuildApp() {
           profile={profile}
         />
       ) : null}
+      {activeView === "home" ? <AccountSync data={data} onRestore={restoreFromCloud} profile={profile} /> : null}
       {activeView === "log" ? <QuickAdd onSelect={setActiveLog} /> : null}
       {activeView === "training" ? (
         <>
+          <GoalTrainingPlan data={data} onOpenLog={setActiveLog} profile={profile} />
           <TrainingOverview data={data} />
-          <WorkoutPrograms />
           <FormVisuals />
+          <WorkoutPrograms profile={profile} />
           <FuelGuide />
           <ExerciseGuides />
           <BikeDashboard data={data} />
