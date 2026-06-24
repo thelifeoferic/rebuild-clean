@@ -21,7 +21,7 @@ export function BikeDashboard({ data }: { data: RebuildData }) {
       <div className="mt-3 panel p-4">
         <p className="metric-label mb-3">Recent rides</p>
         <div className="space-y-3">
-          {data.bikeSessions.map((session) => (
+          {data.bikeSessions.length ? data.bikeSessions.map((session) => (
             <article key={session.id} className="rounded-2xl bg-white/[0.055] p-3">
               <div className="flex items-center justify-between">
                 <p className="font-semibold text-porcelain">{session.date}</p>
@@ -32,7 +32,11 @@ export function BikeDashboard({ data }: { data: RebuildData }) {
               </p>
               <p className="mt-2 text-sm leading-5 text-white/62">{session.notes}</p>
             </article>
-          ))}
+          )) : (
+            <p className="rounded-2xl bg-white/[0.055] p-3 text-sm leading-5 text-white/55">
+              No rides logged yet. Add the first bike session from the Log tab.
+            </p>
+          )}
         </div>
       </div>
     </Section>

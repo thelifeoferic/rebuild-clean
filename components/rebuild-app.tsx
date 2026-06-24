@@ -7,26 +7,31 @@ import { BikeDashboard } from "@/components/bike-dashboard";
 import { HeroDashboard } from "@/components/hero-dashboard";
 import { KettlebellPrograms } from "@/components/kettlebell-programs";
 import { LogModal } from "@/components/log-modal";
+import { Onboarding } from "@/components/onboarding";
 import { ProgressTrends } from "@/components/progress-trends";
 import { QuickAdd } from "@/components/quick-add";
 import { RebuildTimeline } from "@/components/rebuild-timeline";
 import { VideoLibrary } from "@/components/video-library";
 import { buildTimeline, cloneSeedData, createId, normalizeRebuildData, storageKey } from "@/lib/rebuild-data";
-import type { LogKind, MoodReason, RebuildData } from "@/types/rebuild";
+import type { AppView, LogKind, MoodReason, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
 type Draft = Record<string, string | boolean>;
+const profileKey = "rebuild:profile:v1";
 
 export function RebuildApp() {
   const [data, setData] = useState<RebuildData>(() => cloneSeedData());
+  const [activeView, setActiveView] = useState<AppView>("home");
   const [activeLog, setActiveLog] = useState<LogKind | null>(null);
+  const [profile, setProfile] = useState<OnboardingProfile | null>(null);
   const [savedMessage, setSavedMessage] = useState("Ready");
 
   useEffect(() => {
     const stored = window.localStorage.getItem(storageKey);
-    if (!stored) return;
+    const storedProfile = window.localStorage.getItem(profileKey);
 
     try {
-      setData(normalizeRebuildData(JSON.parse(stored) as Partial<RebuildData>));
+      if (stored) setData(normalizeRebuildData(JSON.parse(stored) as Partial<RebuildData>));
+      if (storedProfile) setProfile(JSON.parse(storedProfile) as OnboardingProfile);
       setSavedMessage("Loaded saved logs");
     } catch {
       setSavedMessage("Using seed data");
@@ -39,6 +44,12 @@ export function RebuildApp() {
 
   const timeline = useMemo(() => buildTimeline(data), [data]);
 
+  function completeOnboarding(nextProfile: OnboardingProfile) {
+    setProfile(nextProfile);
+    window.localStorage.setItem(profileKey, JSON.stringify(nextProfile));
+    setSavedMessage("Fresh start ready");
+  }
+
   function saveLog(kind: LogKind, draft: Draft) {
     setData((current) => appendLog(current, kind, draft));
     setActiveLog(null);
@@ -49,14 +60,21 @@ export function RebuildApp() {
     const fresh = cloneSeedData();
     setData(fresh);
     window.localStorage.setItem(storageKey, JSON.stringify(fresh));
-    setSavedMessage("Seed data restored");
+    setSavedMessage("Fresh zero state restored");
+  }
+
+  if (!profile?.completed) {
+    return (
+      <AppShell activeView="home" onNavigate={setActiveView}>
+        <Onboarding onComplete={completeOnboarding} />
+      </AppShell>
+    );
   }
 
   return (
-    <AppShell>
-      <HeroDashboard data={data} onQuickAdd={() => setActiveLog("mood")} />
+    <AppShell activeView={activeView} onNavigate={setActiveView}>
       <div className="px-4">
-        <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
+        <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
           <p className="text-sm font-semibold text-white/60">{savedMessage}</p>
           <button
             type="button"
@@ -68,12 +86,19 @@ export function RebuildApp() {
           </button>
         </div>
       </div>
-      <QuickAdd onSelect={setActiveLog} />
-      <BikeDashboard data={data} />
-      <KettlebellPrograms data={data} />
-      <ProgressTrends data={data} />
-      <RebuildTimeline timeline={timeline} />
-      <VideoLibrary />
+      {activeView === "home" ? (
+        <HeroDashboard data={data} onNavigate={setActiveView} onQuickAdd={() => setActiveLog("mood")} profile={profile} />
+      ) : null}
+      {activeView === "log" ? <QuickAdd onSelect={setActiveLog} /> : null}
+      {activeView === "training" ? (
+        <>
+          <BikeDashboard data={data} />
+          <KettlebellPrograms data={data} />
+        </>
+      ) : null}
+      {activeView === "progress" ? <ProgressTrends data={data} /> : null}
+      {activeView === "reset" ? <RebuildTimeline timeline={timeline} /> : null}
+      {activeView === "library" ? <VideoLibrary /> : null}
       <LogModal kind={activeLog} onClose={() => setActiveLog(null)} onSave={saveLog} />
     </AppShell>
   );

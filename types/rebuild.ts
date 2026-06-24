@@ -118,3 +118,15 @@ export type LogKind =
   | "farmerCarries"
   | "meal"
   | "mood";
+
+export type AppView = "home" | "log" | "training" | "progress" | "reset" | "library";
+
+export type OnboardingProfile = {
+  goal: string;
+  currentWeight?: number;
+  targetWeight?: number;
+  equipment: string[];
+  behaviorFocus: string[];
+  resetPlan: string;
+  completed: boolean;
+};

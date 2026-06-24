@@ -108,6 +108,18 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
     });
   }
 
+  if (!items.length) {
+    return [
+      {
+        id: "tl-fresh-start",
+        date: "Tomorrow",
+        title: "Fresh start queued",
+        detail: "Log the first weight, workout, meal, or reset win to begin the new timeline.",
+        tone: "steel",
+      },
+    ];
+  }
+
   return items.slice(0, 8);
 }
 

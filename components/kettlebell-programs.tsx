@@ -11,7 +11,7 @@ export function KettlebellPrograms({ data }: { data: RebuildData }) {
     <Section id="kettlebell" eyebrow="Strength circuit" title="Kettlebell Programs">
       <div className="panel p-4">
         <div className="space-y-3">
-          {data.kettlebellSessions.map((move) => (
+          {data.kettlebellSessions.length ? data.kettlebellSessions.map((move) => (
             <article key={move.id} className="flex items-center gap-3 rounded-2xl bg-white/[0.055] p-3">
               <div className="grid size-11 place-items-center rounded-full bg-champagne/10 text-champagne">
                 <Repeat2 size={20} strokeWidth={2.2} aria-hidden />
@@ -21,7 +21,11 @@ export function KettlebellPrograms({ data }: { data: RebuildData }) {
                 <p className="text-sm text-white/50">{move.weight} lb · {move.reps} reps</p>
               </div>
             </article>
-          ))}
+          )) : (
+            <p className="rounded-2xl bg-white/[0.055] p-3 text-sm leading-5 text-white/55">
+              No kettlebell work logged yet. Start fresh with one clean set.
+            </p>
+          )}
         </div>
       </div>
 

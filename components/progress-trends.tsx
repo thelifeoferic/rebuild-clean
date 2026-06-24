@@ -13,8 +13,8 @@ import { Section } from "@/components/section";
 
 export function ProgressTrends({ data }: { data: RebuildData }) {
   const weights = data.weights.slice(0, 7);
-  const maxWeight = Math.max(...weights.map((entry) => entry.weight));
-  const minWeight = Math.min(...weights.map((entry) => entry.weight));
+  const maxWeight = weights.length ? Math.max(...weights.map((entry) => entry.weight)) : 0;
+  const minWeight = weights.length ? Math.min(...weights.map((entry) => entry.weight)) : 0;
   const sevenDayAverageWeight = getSevenDayAverageWeight(data);
 
   return (
@@ -28,7 +28,7 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
           <LineChart className="text-champagne" size={22} strokeWidth={2.1} aria-hidden />
         </div>
         <div className="flex h-36 items-end gap-2">
-          {weights.toReversed().map((entry) => {
+          {weights.length ? weights.toReversed().map((entry) => {
             const height = 32 + ((entry.weight - minWeight) / Math.max(maxWeight - minWeight, 1)) * 72;
             return (
               <div key={entry.date} className="flex flex-1 flex-col items-center gap-2">
@@ -42,7 +42,11 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
                 <span className="text-[0.62rem] font-semibold text-white/45">{entry.date}</span>
               </div>
             );
-          })}
+          }) : (
+            <div className="grid h-28 w-full place-items-center rounded-2xl bg-white/[0.055] px-4 text-center text-sm leading-5 text-white/55">
+              Log tomorrow morning weight to start the trend.
+            </div>
+          )}
         </div>
       </div>
 
