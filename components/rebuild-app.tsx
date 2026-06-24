@@ -14,6 +14,7 @@ import { InstallPrompt } from "@/components/install-prompt";
 import { KettlebellPrograms } from "@/components/kettlebell-programs";
 import { LogModal } from "@/components/log-modal";
 import { Onboarding } from "@/components/onboarding";
+import { ProfileCard } from "@/components/profile-card";
 import { ProgressTrends } from "@/components/progress-trends";
 import { QuickAdd } from "@/components/quick-add";
 import { RebuildTimeline } from "@/components/rebuild-timeline";
@@ -80,6 +81,12 @@ export function RebuildApp() {
     setToast("Fresh zero state restored");
   }
 
+  function restartOnboarding() {
+    setProfile(null);
+    window.localStorage.removeItem(profileKey);
+    setToast("Setup reopened. Your logs stayed saved.");
+  }
+
   function restoreFromCloud(nextProfile: OnboardingProfile | null, nextData: RebuildData | null) {
     if (nextProfile) {
       setProfile(nextProfile);
@@ -131,6 +138,7 @@ export function RebuildApp() {
         <>
           <ProgressTrends data={data} />
           <StreakSummary data={data} />
+          <ProfileCard onRestart={restartOnboarding} profile={profile} />
           <AccountSync data={data} onRestore={restoreFromCloud} profile={profile} />
           <AppleHealthRoadmap />
         </>
