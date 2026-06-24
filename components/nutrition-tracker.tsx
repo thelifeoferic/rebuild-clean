@@ -20,6 +20,8 @@ export function NutritionTracker({
   const calorieProgress = Math.min((calories / calorieGuide) * 100, 100);
   const proteinProgress = Math.min((protein / proteinGuide) * 100, 100);
   const calorieDelta = calorieGuide - calories;
+  const proteinRemaining = Math.max(proteinGuide - protein, 0);
+  const proteinAnchorsLeft = Math.ceil(proteinRemaining / 35);
   const todaysMeals = data.meals.filter((meal) => !meal.date || isToday(meal.date)).slice(0, 3);
 
   return (
@@ -43,7 +45,9 @@ export function NutritionTracker({
             {Math.abs(calorieDelta)} <span className="text-sm text-white/40">cal</span>
           </p>
           <p className="mt-1 text-xs leading-5 text-white/40">
-            Protein is the anchor. Calories are the guardrail. Keep both honest enough to see the trend.
+            {proteinRemaining > 0
+              ? `${proteinRemaining}g protein left, roughly ${proteinAnchorsLeft} solid anchor${proteinAnchorsLeft === 1 ? "" : "s"}.`
+              : "Protein target cleared. Keep the rest of the day boring and honest."}
           </p>
         </div>
         {todaysMeals.length ? (

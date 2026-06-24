@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AccountSync } from "@/components/account-sync";
+import { AppleHealthRoadmap } from "@/components/apple-health-roadmap";
 import { AppShell } from "@/components/app-shell";
 import { BikeDashboard } from "@/components/bike-dashboard";
 import { ExerciseGuides } from "@/components/exercise-guides";
@@ -9,12 +10,14 @@ import { FuelGuide } from "@/components/fuel-guide";
 import { FormVisuals } from "@/components/form-visuals";
 import { GoalTrainingPlan } from "@/components/goal-training-plan";
 import { HeroDashboard } from "@/components/hero-dashboard";
+import { InstallPrompt } from "@/components/install-prompt";
 import { KettlebellPrograms } from "@/components/kettlebell-programs";
 import { LogModal } from "@/components/log-modal";
 import { Onboarding } from "@/components/onboarding";
 import { ProgressTrends } from "@/components/progress-trends";
 import { QuickAdd } from "@/components/quick-add";
 import { RebuildTimeline } from "@/components/rebuild-timeline";
+import { StreakSummary } from "@/components/streak-summary";
 import { TrainingOverview } from "@/components/training-overview";
 import { VideoLibrary } from "@/components/video-library";
 import { WorkoutPrograms } from "@/components/workout-programs";
@@ -107,12 +110,10 @@ export function RebuildApp() {
           data={data}
           onNavigate={setActiveView}
           onOpenLog={setActiveLog}
-          onQuickAdd={() => setActiveLog("mood")}
-          onReset={resetData}
           profile={profile}
         />
       ) : null}
-      {activeView === "home" ? <AccountSync data={data} onRestore={restoreFromCloud} profile={profile} /> : null}
+      {activeView === "home" ? <InstallPrompt /> : null}
       {activeView === "log" ? <QuickAdd onSelect={setActiveLog} /> : null}
       {activeView === "training" ? (
         <>
@@ -126,7 +127,14 @@ export function RebuildApp() {
           <KettlebellPrograms data={data} />
         </>
       ) : null}
-      {activeView === "progress" ? <ProgressTrends data={data} /> : null}
+      {activeView === "progress" ? (
+        <>
+          <ProgressTrends data={data} />
+          <StreakSummary data={data} />
+          <AccountSync data={data} onRestore={restoreFromCloud} profile={profile} />
+          <AppleHealthRoadmap />
+        </>
+      ) : null}
       {activeView === "reset" ? <RebuildTimeline timeline={timeline} /> : null}
       {activeView === "library" ? <VideoLibrary /> : null}
       {toast ? (

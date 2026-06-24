@@ -1,4 +1,4 @@
-import { Bike, Brain, Dumbbell, Flame, Footprints, Salad, Scale, Trophy, Waves } from "lucide-react";
+import { Bike, Brain, Dumbbell, Flame, Footprints, Home, Salad, Scale, Trophy, Waves, Zap } from "lucide-react";
 import { Section } from "@/components/section";
 import type { LogKind } from "@/types/rebuild";
 
@@ -19,10 +19,62 @@ const logTypes = [
 
 const moods = ["stress", "anger", "boredom", "energy", "habit"];
 
+const routineShortcuts = [
+  {
+    title: "Reset 20",
+    detail: "Home circuit: push-ups, squats, carries",
+    kind: "pushUps",
+    icon: Home,
+  },
+  {
+    title: "Bike + Bells",
+    detail: "Bike minutes plus kettlebell finisher",
+    kind: "bike",
+    icon: Bike,
+  },
+  {
+    title: "Strength A",
+    detail: "Full-body gym lift, then log load",
+    kind: "strength",
+    icon: Dumbbell,
+  },
+  {
+    title: "Low-energy win",
+    detail: "Protect the day with one reset log",
+    kind: "mood",
+    icon: Zap,
+  },
+] as const;
+
 export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind) => void }) {
   return (
     <Section id="quick-add" eyebrow="Capture fast" title="Quick Add">
       <div className="panel p-4">
+        <div className="mb-4">
+          <p className="metric-label mb-3">Saved routines</p>
+          <div className="grid gap-2">
+            {routineShortcuts.map((routine) => {
+              const Icon = routine.icon;
+              return (
+                <button
+                  key={routine.title}
+                  type="button"
+                  onClick={() => onSelect(routine.kind)}
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.055] p-3 text-left transition hover:border-champagne/50"
+                >
+                  <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+                    <Icon size={18} strokeWidth={2.2} aria-hidden />
+                  </div>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-semibold text-porcelain">{routine.title}</span>
+                    <span className="mt-1 block text-sm leading-5 text-white/45">{routine.detail}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-2">
           {logTypes.map((item) => {
             const Icon = item.icon;

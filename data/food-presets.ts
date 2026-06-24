@@ -3,7 +3,7 @@ export type FoodPreset = {
   calories: number;
   protein: number;
   notes: string;
-  group: "ready" | "fruit" | "protein" | "carb" | "pre" | "post";
+  group: "ready" | "fruit" | "protein" | "carb" | "vegetable" | "snack" | "hydration" | "pre" | "post";
 };
 
 export const foodPresets: FoodPreset[] = [
@@ -50,6 +50,8 @@ export const foodPresets: FoodPreset[] = [
   { name: "Turkey slices, 6 oz", calories: 180, protein: 36, notes: "Simple sandwich or snack plate protein.", group: "protein" },
   { name: "Protein cereal + milk", calories: 320, protein: 30, notes: "Convenient breakfast-style protein hit.", group: "protein" },
   { name: "Lentils, 1 cup cooked", calories: 230, protein: 18, notes: "Plant protein plus fiber.", group: "protein" },
+  { name: "Beef jerky, 2 oz", calories: 180, protein: 22, notes: "Portable protein. Sodium is high, which can be useful after heavy sweat.", group: "protein" },
+  { name: "Sardines, 1 can", calories: 190, protein: 23, notes: "Protein plus omega-3 fats. Strong recovery pantry food.", group: "protein" },
   { name: "White rice, 1 cup cooked", calories: 205, protein: 4, notes: "Easy post-workout carbs.", group: "carb" },
   { name: "Brown rice, 1 cup cooked", calories: 216, protein: 5, notes: "Fiber-forward carb base.", group: "carb" },
   { name: "Sweet potato", calories: 115, protein: 2, notes: "Easy carb with potassium.", group: "carb" },
@@ -86,6 +88,22 @@ export const foodPresets: FoodPreset[] = [
   { name: "Pomegranate seeds, 1/2 cup", calories: 72, protein: 1, notes: "Good bowl topping.", group: "fruit" },
   { name: "Dates, 2", calories: 132, protein: 1, notes: "Fast pre-workout sugar. Dense, so count them.", group: "fruit" },
   { name: "Figs, 2", calories: 74, protein: 1, notes: "Sweet carb snack.", group: "fruit" },
+  { name: "Broccoli, 2 cups", calories: 110, protein: 7, notes: "High-volume vegetable. Good with chicken, rice, or beans.", group: "vegetable" },
+  { name: "Spinach, 3 cups", calories: 20, protein: 2, notes: "Easy volume for eggs, bowls, wraps, or smoothies.", group: "vegetable" },
+  { name: "Mixed salad greens", calories: 25, protein: 2, notes: "Low-calorie meal volume. Add protein so it actually holds you.", group: "vegetable" },
+  { name: "Baby carrots, 2 cups", calories: 100, protein: 2, notes: "Crunchy snack when you need volume more than calories.", group: "vegetable" },
+  { name: "Bell peppers, 2", calories: 75, protein: 2, notes: "Easy vitamin C and crunch for bowls or snack plates.", group: "vegetable" },
+  { name: "Roasted vegetables, 2 cups", calories: 180, protein: 5, notes: "Good meal-prep base. Oil changes calories quickly.", group: "vegetable" },
+  { name: "Almonds, 1 oz", calories: 165, protein: 6, notes: "Useful fats. Easy to overdo; count the portion.", group: "snack" },
+  { name: "Peanut butter, 2 tbsp", calories: 190, protein: 7, notes: "Dense calories. Best used intentionally, not casually.", group: "snack" },
+  { name: "String cheese", calories: 80, protein: 7, notes: "Small protein snack with almost no prep.", group: "snack" },
+  { name: "Air-popped popcorn, 4 cups", calories: 125, protein: 4, notes: "High-volume snack when you want crunch.", group: "snack" },
+  { name: "Dark chocolate, 1 oz", calories: 170, protein: 2, notes: "Treat portion. Log it and move on.", group: "snack" },
+  { name: "Apple + string cheese", calories: 175, protein: 8, notes: "Easy snack with fiber and a little protein.", group: "snack" },
+  { name: "Water + electrolytes", calories: 0, protein: 0, notes: "Good before long cardio, heavy sweat, or hot gym sessions.", group: "hydration" },
+  { name: "Gatorade Zero", calories: 5, protein: 0, notes: "Low-calorie electrolyte option for sweaty sessions.", group: "hydration" },
+  { name: "Coconut water, 12 oz", calories: 60, protein: 0, notes: "Carbs plus potassium. Useful after sweat, not magic.", group: "hydration" },
+  { name: "Coffee, black", calories: 5, protein: 0, notes: "Simple pre-workout caffeine if sleep is not getting punished.", group: "hydration" },
   { name: "Greek yogurt + banana", calories: 245, protein: 20, notes: "Pre-workout: protein plus easy carbs.", group: "pre" },
   { name: "Oats + berries", calories: 260, protein: 9, notes: "Pre-workout: steady carbs before cardio or lifting.", group: "pre" },
   { name: "Rice cakes + peanut butter", calories: 240, protein: 8, notes: "Pre-workout: light, quick energy.", group: "pre" },
@@ -104,6 +122,9 @@ export const foodGroups = [
   { id: "ready", label: "Ready-made" },
   { id: "protein", label: "Protein" },
   { id: "carb", label: "Carbs" },
+  { id: "vegetable", label: "Vegetables" },
+  { id: "snack", label: "Snacks" },
+  { id: "hydration", label: "Hydration" },
   { id: "pre", label: "Pre-workout" },
   { id: "post", label: "Post-workout" },
   { id: "fruit", label: "Fruit" },

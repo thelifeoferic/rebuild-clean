@@ -1,6 +1,6 @@
 "use client";
 
-import { Bike, Headphones, RefreshCw, RotateCcw, Scale, ShieldCheck } from "lucide-react";
+import { Bike, Headphones, RefreshCw, Scale, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
@@ -37,15 +37,11 @@ export function HeroDashboard({
   data,
   onNavigate,
   onOpenLog,
-  onQuickAdd,
-  onReset,
   profile,
 }: {
   data: RebuildData;
   onNavigate: (view: AppView) => void;
   onOpenLog: (kind: LogKind) => void;
-  onQuickAdd: () => void;
-  onReset: () => void;
   profile: OnboardingProfile | null;
 }) {
   const todayWeight = data.weights[0]?.weight ?? 0;
@@ -164,31 +160,6 @@ export function HeroDashboard({
         <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} detail={weightDetail} icon={Scale} />
         <MiniStat label="Bike" value={formatMinutes(todaysBikeMinutes)} icon={Bike} />
         <MiniStat label="Wins" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
-      </div>
-
-      <div className="mt-3 grid grid-cols-3 gap-2">
-        <button
-          type="button"
-          onClick={onQuickAdd}
-          className="min-h-11 rounded-2xl bg-white/[0.055] px-2 text-xs font-bold text-porcelain"
-        >
-          Log reset
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("progress")}
-          className="min-h-11 rounded-2xl bg-white/[0.055] px-2 text-xs font-bold text-porcelain"
-        >
-          Progress
-        </button>
-        <button
-          type="button"
-          onClick={onReset}
-          className="inline-flex min-h-11 items-center justify-center gap-1 rounded-2xl bg-white/[0.055] px-2 text-xs font-bold text-white/62"
-        >
-          <RotateCcw size={13} aria-hidden />
-          Reset
-        </button>
       </div>
     </section>
   );
