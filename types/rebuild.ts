@@ -10,6 +10,7 @@ export type WeightEntry = {
   id?: string;
   date: string;
   weight: number;
+  moment?: "morning" | "bedtime" | "check-in";
 };
 
 export type BikeSession = {
@@ -19,6 +20,7 @@ export type BikeSession = {
   resistance: number;
   calories: number;
   notes: string;
+  location?: "home" | "gym";
 };
 
 export type JacobsLadderSession = {
@@ -26,6 +28,8 @@ export type JacobsLadderSession = {
   date: string;
   duration: string;
   longestContinuous: string;
+  rounds?: number;
+  notes?: string;
 };
 
 export type PushUpSession = {
@@ -55,6 +59,15 @@ export type FarmerCarrySession = {
   weightEachHand: number;
   distanceFeet: number;
   rounds: number;
+};
+
+export type StrengthAccessorySession = {
+  id: string;
+  date: string;
+  exercise: string;
+  weight: number;
+  reps: number;
+  notes: string;
 };
 
 export type MealLog = {
@@ -90,6 +103,7 @@ export type RebuildData = {
   dumbbellCurlSessions: DumbbellCurlSession[];
   kettlebellSessions: KettlebellSession[];
   farmerCarrySessions: FarmerCarrySession[];
+  strengthAccessorySessions: StrengthAccessorySession[];
   meals: MealLog[];
   behaviorWins: BehaviorWin[];
 };

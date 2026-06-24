@@ -2,6 +2,7 @@ import { seedData } from "@/data/mock-data";
 import type { RebuildData, TimelineItem } from "@/types/rebuild";
 
 export const storageKey = "rebuild:data:v1";
+export const todayLabel = "June 24, 2026";
 
 export function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -15,6 +16,23 @@ export function cloneSeedData(): RebuildData {
   return JSON.parse(JSON.stringify(seedData)) as RebuildData;
 }
 
+export function normalizeRebuildData(data: Partial<RebuildData>): RebuildData {
+  const seed = cloneSeedData();
+
+  return {
+    weights: data.weights ?? seed.weights,
+    bikeSessions: data.bikeSessions ?? seed.bikeSessions,
+    jacobsLadderSessions: data.jacobsLadderSessions ?? seed.jacobsLadderSessions,
+    pushUpSessions: data.pushUpSessions ?? seed.pushUpSessions,
+    dumbbellCurlSessions: data.dumbbellCurlSessions ?? seed.dumbbellCurlSessions,
+    kettlebellSessions: data.kettlebellSessions ?? seed.kettlebellSessions,
+    farmerCarrySessions: data.farmerCarrySessions ?? seed.farmerCarrySessions,
+    strengthAccessorySessions: data.strengthAccessorySessions ?? seed.strengthAccessorySessions,
+    meals: data.meals ?? seed.meals,
+    behaviorWins: data.behaviorWins ?? seed.behaviorWins,
+  };
+}
+
 export function getSevenDayAverageWeight(data: RebuildData) {
   const entries = data.weights.slice(0, 7);
   if (!entries.length) return 0;
@@ -26,7 +44,7 @@ export function getWeeklyBikeMinutes(data: RebuildData) {
 }
 
 export function getTodaysBikeMinutes(data: RebuildData) {
-  return data.bikeSessions.filter((session) => session.date === "Today").reduce((sum, session) => sum + session.minutes, 0);
+  return data.bikeSessions.filter((session) => isToday(session.date)).reduce((sum, session) => sum + session.minutes, 0);
 }
 
 export function getBestJacobsLadderTime(data: RebuildData) {
@@ -42,9 +60,13 @@ export function getPushUpMaxSet(data: RebuildData) {
 
 export function getTodaysPushUps(data: RebuildData) {
   return data.pushUpSessions
-    .filter((session) => session.date === "Today")
+    .filter((session) => isToday(session.date))
     .flatMap((session) => session.sets)
     .reduce((sum, reps) => sum + reps, 0);
+}
+
+export function isToday(date: string) {
+  return date === "Today" || date === todayLabel;
 }
 
 export function getRecentLowWeight(data: RebuildData) {

@@ -11,7 +11,7 @@ import { ProgressTrends } from "@/components/progress-trends";
 import { QuickAdd } from "@/components/quick-add";
 import { RebuildTimeline } from "@/components/rebuild-timeline";
 import { VideoLibrary } from "@/components/video-library";
-import { buildTimeline, cloneSeedData, createId, storageKey } from "@/lib/rebuild-data";
+import { buildTimeline, cloneSeedData, createId, normalizeRebuildData, storageKey } from "@/lib/rebuild-data";
 import type { LogKind, MoodReason, RebuildData } from "@/types/rebuild";
 
 type Draft = Record<string, string | boolean>;
@@ -26,7 +26,7 @@ export function RebuildApp() {
     if (!stored) return;
 
     try {
-      setData(JSON.parse(stored) as RebuildData);
+      setData(normalizeRebuildData(JSON.parse(stored) as Partial<RebuildData>));
       setSavedMessage("Loaded saved logs");
     } catch {
       setSavedMessage("Using seed data");
@@ -88,6 +88,7 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
     dumbbellCurlSessions: [...data.dumbbellCurlSessions],
     kettlebellSessions: [...data.kettlebellSessions],
     farmerCarrySessions: [...data.farmerCarrySessions],
+    strengthAccessorySessions: [...(data.strengthAccessorySessions ?? [])],
     meals: [...data.meals],
     behaviorWins: [...data.behaviorWins],
   };
@@ -97,6 +98,7 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
       id: createId("weight"),
       date: text(draft.date, "Today"),
       weight: number(draft.weight),
+      moment: "check-in",
     });
   }
 
@@ -108,6 +110,7 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
       resistance: number(draft.resistance),
       calories: number(draft.calories),
       notes: text(draft.notes, "Logged from Quick Add."),
+      location: "gym",
     });
   }
 
