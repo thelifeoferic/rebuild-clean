@@ -69,6 +69,23 @@ export type StrengthAccessorySession = {
   notes: string;
 };
 
+export type SwimSession = {
+  id: string;
+  date: string;
+  minutes: number;
+  distance: number;
+  stroke: string;
+  notes: string;
+};
+
+export type YogaSession = {
+  id: string;
+  date: string;
+  minutes: number;
+  focus: string;
+  notes: string;
+};
+
 export type MealLog = {
   id: string;
   name: string;
@@ -103,6 +120,8 @@ export type RebuildData = {
   kettlebellSessions: KettlebellSession[];
   farmerCarrySessions: FarmerCarrySession[];
   strengthAccessorySessions: StrengthAccessorySession[];
+  swimSessions: SwimSession[];
+  yogaSessions: YogaSession[];
   meals: MealLog[];
   behaviorWins: BehaviorWin[];
 };
@@ -115,6 +134,8 @@ export type LogKind =
   | "dumbbellCurls"
   | "kettlebell"
   | "farmerCarries"
+  | "swim"
+  | "yoga"
   | "meal"
   | "mood";
 

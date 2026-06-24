@@ -9,8 +9,10 @@ import type {
   PushUpSession,
   RebuildData,
   StrengthAccessorySession,
+  SwimSession,
   TimelineItem,
   WeightEntry,
+  YogaSession,
 } from "@/types/rebuild";
 
 export const tidalPlaylistUrl =
@@ -31,6 +33,10 @@ export const kettlebellSessions: KettlebellSession[] = [];
 export const farmerCarrySessions: FarmerCarrySession[] = [];
 
 export const strengthAccessorySessions: StrengthAccessorySession[] = [];
+
+export const swimSessions: SwimSession[] = [];
+
+export const yogaSessions: YogaSession[] = [];
 
 export const meals: MealLog[] = [];
 
@@ -55,6 +61,8 @@ export const seedData: RebuildData = {
   kettlebellSessions,
   farmerCarrySessions,
   strengthAccessorySessions,
+  swimSessions,
+  yogaSessions,
   meals,
   behaviorWins,
 };

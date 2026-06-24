@@ -1,4 +1,4 @@
-import { Activity, Bike, Dumbbell, Flame, Footprints, Salad, Trophy } from "lucide-react";
+import { Activity, Bike, Dumbbell, Flame, Footprints, Salad, Trophy, Waves } from "lucide-react";
 import type { RebuildData } from "@/types/rebuild";
 import {
   getBestJacobsLadderTime,
@@ -45,6 +45,8 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
   const latestCurl = data.dumbbellCurlSessions[0];
   const latestKettlebell = data.kettlebellSessions[0];
   const latestMeal = data.meals[0];
+  const latestSwim = data.swimSessions[0];
+  const latestYoga = data.yogaSessions[0];
 
   return (
     <Section id="train-overview" eyebrow="Training hub" title="Today's Work">
@@ -100,6 +102,18 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
           value={`${data.meals.length}`}
           detail={latestMeal ? `${latestMeal.protein}g protein` : "none logged"}
           icon={Salad}
+        />
+        <TrainingStat
+          label="Swim"
+          value={latestSwim ? `${latestSwim.minutes} min` : "--"}
+          detail={latestSwim ? `${latestSwim.distance} yd · ${latestSwim.stroke}` : "none logged"}
+          icon={Waves}
+        />
+        <TrainingStat
+          label="Yoga"
+          value={latestYoga ? `${latestYoga.minutes} min` : "--"}
+          detail={latestYoga ? latestYoga.focus : "none logged"}
+          icon={Flame}
         />
       </div>
     </Section>

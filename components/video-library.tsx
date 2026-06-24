@@ -32,6 +32,72 @@ const videos = [
     meta: "Juice & Toya",
     id: "eiMOxvZKyvM",
   },
+  {
+    title: "Yoga For Complete Beginners",
+    category: "Yoga",
+    meta: "Yoga With Adriene",
+    id: "v7AYKMP6rOE",
+  },
+  {
+    title: "Learn To Swim Freestyle",
+    category: "Swim",
+    meta: "Global Triathlon Network",
+    id: "6_vXycbD2TM",
+  },
+  {
+    title: "How To Swim Freestyle",
+    category: "Swim",
+    meta: "Global Triathlon Network",
+    id: "AQy_c30lNjI",
+  },
+  {
+    title: "Freestyle Breathing Technique",
+    category: "Swim",
+    meta: "Rocket Swimming",
+    id: "Gq2asyrI0MI",
+  },
+  {
+    title: "How to Do a Dumbbell Biceps Curl",
+    category: "Curls",
+    meta: "Howcast",
+    id: "ykJmrZ5v0Oo",
+  },
+  {
+    title: "Squats for Beginners",
+    category: "Squat",
+    meta: "Bowflex",
+    id: "aclHkVaku9U",
+  },
+  {
+    title: "How to Perform the Deadlift",
+    category: "Deadlift",
+    meta: "Jeremy Ethier",
+    id: "ytGaGIn3SjE",
+  },
+  {
+    title: "Kettlebell Swing",
+    category: "Kettlebell",
+    meta: "Men's Health",
+    id: "YSxHifyI6s8",
+  },
+  {
+    title: "30-Minute HIIT Cardio Workout",
+    category: "HIIT",
+    meta: "SELF",
+    id: "ml6cT4AZdqI",
+  },
+  {
+    title: "20 MIN FULL BODY WORKOUT - Beginner Version",
+    category: "Bodyweight",
+    meta: "Pamela Reif",
+    id: "UItWltVZZmE",
+  },
+  {
+    title: "Yoga For Anxiety and Stress",
+    category: "Yoga",
+    meta: "Yoga With Adriene",
+    id: "hJbRpHZr_d0",
+  },
 ];
 
 const quickSearches = [
@@ -39,6 +105,8 @@ const quickSearches = [
   { label: "Jacob's Ladder", href: "https://www.youtube.com/results?search_query=jacobs+ladder+machine+workout" },
   { label: "Air bike", href: "https://www.youtube.com/results?search_query=beginner+air+bike+workout" },
   { label: "Dumbbell curls", href: "https://www.youtube.com/results?search_query=dumbbell+curl+proper+form" },
+  { label: "Swim drills", href: "https://www.youtube.com/results?search_query=freestyle+swim+drills+beginner" },
+  { label: "Yoga mobility", href: "https://www.youtube.com/results?search_query=beginner+yoga+mobility" },
 ];
 
 export function VideoLibrary() {
@@ -110,7 +178,7 @@ export function VideoLibrary() {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="mt-4 grid max-h-80 grid-cols-2 gap-2 overflow-y-auto pr-1">
             {videos.map((item, index) => (
               <button
                 key={item.id}

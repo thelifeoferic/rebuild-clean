@@ -1,4 +1,4 @@
-import { Bike, Dumbbell, Flame, Footprints, RotateCcw, Scale, Trophy } from "lucide-react";
+import { Bike, Dumbbell, Flame, Footprints, RotateCcw, Scale, Trophy, Waves } from "lucide-react";
 
 export const exerciseGuides = [
   {
@@ -56,5 +56,19 @@ export const exerciseGuides = [
     load: "3-5 sets",
     icon: Dumbbell,
     cues: ["Shoulders packed", "Feet planted", "Add weight only after clean reps"],
+  },
+  {
+    title: "Freestyle swim",
+    focus: "Low-impact conditioning",
+    load: "10-30 min",
+    icon: Waves,
+    cues: ["Long body line", "Exhale underwater", "Count relaxed laps before chasing speed"],
+  },
+  {
+    title: "Yoga reset",
+    focus: "Mobility and nervous system",
+    load: "10-30 min",
+    icon: Flame,
+    cues: ["Nasal breathing", "Move slower than you want", "Leave with less tension than you started"],
   },
 ];

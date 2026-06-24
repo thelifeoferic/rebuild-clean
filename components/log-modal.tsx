@@ -16,6 +16,8 @@ const titles: Record<LogKind, string> = {
   dumbbellCurls: "Dumbbell Curls",
   kettlebell: "Kettlebell Work",
   farmerCarries: "Farmer Carries",
+  swim: "Swim Session",
+  yoga: "Yoga Session",
   meal: "Meal",
   mood: "Mood Reset",
 };
@@ -28,6 +30,8 @@ const defaults: Record<LogKind, Draft> = {
   dumbbellCurls: { date: "Today", weight: "35", repsEachArm: "20" },
   kettlebell: { date: "Today", exercise: "Pass-arounds", weight: "25", reps: "60" },
   farmerCarries: { date: "Today", weightEachHand: "20", distanceFeet: "60", rounds: "4" },
+  swim: { date: "Today", minutes: "20", distance: "500", stroke: "Freestyle", notes: "" },
+  yoga: { date: "Today", minutes: "20", focus: "Mobility", notes: "" },
   meal: { name: "", calories: "500", protein: "35", notes: "" },
   mood: {
     date: "Today",
@@ -152,6 +156,25 @@ export function LogModal({
               <Field label="Weight each hand" name="weightEachHand" value={String(draft.weightEachHand)} onChange={update} inputMode="numeric" suffix="lb" />
               <Field label="Distance" name="distanceFeet" value={String(draft.distanceFeet)} onChange={update} inputMode="numeric" suffix="ft" />
               <Field label="Rounds" name="rounds" value={String(draft.rounds)} onChange={update} inputMode="numeric" />
+            </>
+          ) : null}
+
+          {activeKind === "swim" ? (
+            <>
+              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
+              <Field label="Distance" name="distance" value={String(draft.distance)} onChange={update} inputMode="numeric" suffix="yd" />
+              <Field label="Stroke" name="stroke" value={String(draft.stroke)} onChange={update} />
+              <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
+            </>
+          ) : null}
+
+          {activeKind === "yoga" ? (
+            <>
+              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
+              <Field label="Focus" name="focus" value={String(draft.focus)} onChange={update} />
+              <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
             </>
           ) : null}
 

@@ -1,4 +1,4 @@
-import { Bike, Brain, Dumbbell, Flame, Footprints, Salad, Scale, Trophy } from "lucide-react";
+import { Bike, Brain, Dumbbell, Flame, Footprints, Salad, Scale, Trophy, Waves } from "lucide-react";
 import { Section } from "@/components/section";
 import type { LogKind } from "@/types/rebuild";
 
@@ -10,6 +10,8 @@ const logTypes = [
   { kind: "dumbbellCurls", label: "Dumbbell curls", detail: "weight and each arm", icon: Dumbbell },
   { kind: "kettlebell", label: "Kettlebell", detail: "exercise, weight, reps", icon: Dumbbell },
   { kind: "farmerCarries", label: "Farmer carries", detail: "load, distance, rounds", icon: Footprints },
+  { kind: "swim", label: "Swim", detail: "minutes, distance, stroke", icon: Waves },
+  { kind: "yoga", label: "Yoga", detail: "minutes, focus, notes", icon: Flame },
   { kind: "meal", label: "Meal", detail: "calories, protein, notes", icon: Salad },
   { kind: "mood", label: "Mood reset", detail: "stress, anger, boredom", icon: Brain },
 ];

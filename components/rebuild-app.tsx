@@ -123,6 +123,8 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
     kettlebellSessions: [...data.kettlebellSessions],
     farmerCarrySessions: [...data.farmerCarrySessions],
     strengthAccessorySessions: [...(data.strengthAccessorySessions ?? [])],
+    swimSessions: [...(data.swimSessions ?? [])],
+    yogaSessions: [...(data.yogaSessions ?? [])],
     meals: [...data.meals],
     behaviorWins: [...data.behaviorWins],
   };
@@ -197,6 +199,27 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
     });
   }
 
+  if (kind === "swim") {
+    next.swimSessions.unshift({
+      id: createId("swim"),
+      date: text(draft.date, "Today"),
+      minutes: number(draft.minutes),
+      distance: number(draft.distance),
+      stroke: text(draft.stroke, "Freestyle"),
+      notes: text(draft.notes, "Technique work."),
+    });
+  }
+
+  if (kind === "yoga") {
+    next.yogaSessions.unshift({
+      id: createId("yoga"),
+      date: text(draft.date, "Today"),
+      minutes: number(draft.minutes),
+      focus: text(draft.focus, "Mobility"),
+      notes: text(draft.notes, "Recovery session."),
+    });
+  }
+
   if (kind === "meal") {
     next.meals.unshift({
       id: createId("meal"),
@@ -240,6 +263,8 @@ function labelFor(kind: LogKind) {
     dumbbellCurls: "Dumbbell curls",
     kettlebell: "Kettlebell work",
     farmerCarries: "Farmer carries",
+    swim: "Swim",
+    yoga: "Yoga",
     meal: "Meal",
     mood: "Mood reset",
   };

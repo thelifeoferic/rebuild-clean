@@ -28,6 +28,8 @@ export function normalizeRebuildData(data: Partial<RebuildData>): RebuildData {
     kettlebellSessions: data.kettlebellSessions ?? seed.kettlebellSessions,
     farmerCarrySessions: data.farmerCarrySessions ?? seed.farmerCarrySessions,
     strengthAccessorySessions: data.strengthAccessorySessions ?? seed.strengthAccessorySessions,
+    swimSessions: data.swimSessions ?? seed.swimSessions,
+    yogaSessions: data.yogaSessions ?? seed.yogaSessions,
     meals: data.meals ?? seed.meals,
     behaviorWins: data.behaviorWins ?? seed.behaviorWins,
   };
@@ -159,6 +161,26 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       date: move.date,
       title: `${move.exercise} logged`,
       detail: `${move.reps} reps at ${move.weight} lb. ${move.notes}`,
+      tone: "steel",
+    });
+  });
+
+  data.swimSessions.slice(0, 2).forEach((swim) => {
+    items.push({
+      id: `tl-${swim.id}`,
+      date: swim.date,
+      title: "Swim logged",
+      detail: `${swim.minutes} minutes · ${swim.distance} yd · ${swim.stroke}. ${swim.notes}`,
+      tone: "green",
+    });
+  });
+
+  data.yogaSessions.slice(0, 2).forEach((yoga) => {
+    items.push({
+      id: `tl-${yoga.id}`,
+      date: yoga.date,
+      title: "Yoga logged",
+      detail: `${yoga.minutes} minutes focused on ${yoga.focus}. ${yoga.notes}`,
       tone: "steel",
     });
   });

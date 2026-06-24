@@ -122,11 +122,11 @@ export function Onboarding({
         <div className="panel p-4">
           <p className="metric-label mb-3">Your baseline</p>
           <div className="space-y-3">
-            <Field label="First name" value={firstName} onChange={setFirstName} placeholder="Eric" />
+            <Field label="First name" value={firstName} onChange={setFirstName} placeholder="First name" />
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Current weight" value={currentWeight} onChange={setCurrentWeight} placeholder="227" inputMode="decimal" suffix="lb" />
+              <Field label="Current weight" value={currentWeight} onChange={setCurrentWeight} placeholder="Current" inputMode="decimal" suffix="lb" />
               <Field label="Height" value={height} onChange={setHeight} placeholder={`5'10"`} />
-              <Field label="Target weight" value={targetWeight} onChange={setTargetWeight} placeholder="210" inputMode="decimal" suffix="lb" />
+              <Field label="Target weight" value={targetWeight} onChange={setTargetWeight} placeholder="Goal" inputMode="decimal" suffix="lb" />
             </div>
             <TextArea
               label="Why I'm doing this"
@@ -159,6 +159,13 @@ export function Onboarding({
           selected={selectedFocus}
           onSelect={(value) => toggle(value, selectedFocus, setSelectedFocus)}
         />
+
+        <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+          <p className="metric-label mb-2">Local-first privacy</p>
+          <p className="text-sm leading-5 text-white/55">
+            This version saves logs in this browser on this device. A different phone, browser, or private window starts fresh until cloud sync is connected.
+          </p>
+        </div>
       </div>
 
       <button
