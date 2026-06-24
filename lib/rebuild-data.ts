@@ -67,6 +67,14 @@ export function getTodaysPushUps(data: RebuildData) {
     .reduce((sum, reps) => sum + reps, 0);
 }
 
+export function getTodaysCalories(data: RebuildData) {
+  return data.meals.filter((meal) => !meal.date || isToday(meal.date)).reduce((sum, meal) => sum + meal.calories, 0);
+}
+
+export function getTodaysProtein(data: RebuildData) {
+  return data.meals.filter((meal) => !meal.date || isToday(meal.date)).reduce((sum, meal) => sum + meal.protein, 0);
+}
+
 export function isToday(date: string) {
   return date === "Today" || date === todayLabel;
 }

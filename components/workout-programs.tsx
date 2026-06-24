@@ -1,4 +1,5 @@
 import { ClipboardList } from "lucide-react";
+import Image from "next/image";
 import { workoutPrograms } from "@/data/workout-programs";
 import { Section } from "@/components/section";
 
@@ -6,6 +7,20 @@ export function WorkoutPrograms() {
   return (
     <Section id="programs" eyebrow="Decision support" title="Workout Templates">
       <div className="panel p-4">
+        <div className="relative mb-4 min-h-40 overflow-hidden rounded-2xl bg-black">
+          <Image
+            src="/rebuild-bodyweight.jpg"
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 448px"
+            className="object-cover object-center opacity-70"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4">
+            <p className="metric-label text-white/60">No confusion</p>
+            <p className="mt-1 text-2xl font-semibold text-porcelain">Pick the next block.</p>
+          </div>
+        </div>
         <div className="space-y-3">
           {workoutPrograms.map((program) => (
             <article key={program.title} className="rounded-2xl bg-white/[0.055] p-4">

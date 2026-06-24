@@ -88,6 +88,7 @@ export type YogaSession = {
 
 export type MealLog = {
   id: string;
+  date?: string;
   name: string;
   calories: number;
   protein: number;
@@ -132,6 +133,7 @@ export type LogKind =
   | "jacobsLadder"
   | "pushUps"
   | "dumbbellCurls"
+  | "strength"
   | "kettlebell"
   | "farmerCarries"
   | "swim"

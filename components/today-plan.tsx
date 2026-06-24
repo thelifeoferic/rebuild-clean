@@ -21,10 +21,14 @@ export function TodayPlan({
     movement:
       getTodaysBikeMinutes(data) > 0 ||
       getTodaysPushUps(data) > 0 ||
+      data.jacobsLadderSessions.some((entry) => isToday(entry.date)) ||
+      data.dumbbellCurlSessions.some((entry) => isToday(entry.date)) ||
+      data.strengthAccessorySessions.some((entry) => isToday(entry.date)) ||
       data.kettlebellSessions.some((entry) => isToday(entry.date)) ||
+      data.farmerCarrySessions.some((entry) => isToday(entry.date)) ||
       data.swimSessions.some((entry) => isToday(entry.date)) ||
       data.yogaSessions.some((entry) => isToday(entry.date)),
-    protein: data.meals.some((meal) => meal.protein >= 25),
+    protein: data.meals.some((meal) => (!meal.date || isToday(meal.date)) && meal.protein >= 25),
     reset: data.behaviorWins.some((win) => isToday(win.date)),
   };
 

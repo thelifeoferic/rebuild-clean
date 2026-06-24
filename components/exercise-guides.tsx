@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { exerciseGuides } from "@/data/exercise-guides";
 import { Section } from "@/components/section";
 
@@ -5,6 +6,20 @@ export function ExerciseGuides() {
   return (
     <Section id="exercise-guides" eyebrow="Execution" title="Exercise Guides">
       <div className="panel p-4">
+        <div className="relative mb-4 min-h-36 overflow-hidden rounded-2xl bg-black">
+          <Image
+            src="/rebuild-dumbbell-close.jpg"
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 448px"
+            className="object-cover object-center opacity-70"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4">
+            <p className="metric-label text-white/60">Form before load</p>
+            <p className="mt-1 text-xl font-semibold text-porcelain">Make reps count.</p>
+          </div>
+        </div>
         <div className="flex gap-3 overflow-x-auto pb-1">
           {exerciseGuides.map((guide) => {
             const Icon = guide.icon;

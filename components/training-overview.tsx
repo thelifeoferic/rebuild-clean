@@ -52,6 +52,7 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
   const latestCurl = data.dumbbellCurlSessions[0];
   const latestKettlebell = data.kettlebellSessions[0];
   const latestMeal = data.meals[0];
+  const latestStrength = data.strengthAccessorySessions[0];
   const latestSwim = data.swimSessions[0];
   const latestYoga = data.yogaSessions[0];
 
@@ -102,6 +103,12 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
           label="Curls"
           value={latestCurl ? `${latestCurl.weight} lb` : "--"}
           detail={latestCurl ? `${latestCurl.repsEachArm * 2} reps` : "none logged"}
+          icon={Dumbbell}
+        />
+        <TrainingStat
+          label="Strength"
+          value={latestStrength ? `${latestStrength.weight} lb` : "--"}
+          detail={latestStrength ? `${latestStrength.exercise} · ${latestStrength.reps} reps` : "none logged"}
           icon={Dumbbell}
         />
         <TrainingStat

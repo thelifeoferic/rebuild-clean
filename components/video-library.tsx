@@ -178,20 +178,21 @@ export function VideoLibrary() {
             </div>
           </div>
 
-          <div className="mt-4 grid max-h-80 grid-cols-2 gap-2 overflow-y-auto pr-1">
+          <div className="mt-4 grid max-h-96 grid-cols-2 gap-2 overflow-y-auto pr-1">
             {videos.map((item, index) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`min-h-14 rounded-2xl border px-3 text-left transition ${
+                className={`min-h-20 rounded-2xl border px-3 py-3 text-left transition ${
                   activeIndex === index
                     ? "border-champagne bg-champagne text-carbon"
                     : "border-white/10 bg-white/[0.055] text-white/64"
                 }`}
               >
                 <span className="block text-xs font-bold uppercase tracking-[0.14em]">{item.category}</span>
-                <span className="mt-1 block text-xs font-semibold">{item.meta}</span>
+                <span className="mt-1 block text-sm font-semibold leading-tight">{item.title}</span>
+                <span className="mt-1 block text-xs font-semibold opacity-70">{item.meta}</span>
               </button>
             ))}
           </div>

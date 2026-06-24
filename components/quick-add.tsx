@@ -8,6 +8,7 @@ const logTypes = [
   { kind: "jacobsLadder", label: "Jacob's Ladder", detail: "duration and longest attempt", icon: Flame },
   { kind: "pushUps", label: "Push-ups", detail: "sets and reps", icon: Trophy },
   { kind: "dumbbellCurls", label: "Dumbbell curls", detail: "weight and each arm", icon: Dumbbell },
+  { kind: "strength", label: "Strength lift", detail: "exercise, load, reps", icon: Dumbbell },
   { kind: "kettlebell", label: "Kettlebell", detail: "exercise, weight, reps", icon: Dumbbell },
   { kind: "farmerCarries", label: "Farmer carries", detail: "load, distance, rounds", icon: Footprints },
   { kind: "swim", label: "Swim", detail: "minutes, distance, stroke", icon: Waves },

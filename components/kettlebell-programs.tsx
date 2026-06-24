@@ -12,7 +12,7 @@ export function KettlebellPrograms({ data }: { data: RebuildData }) {
     <Section id="kettlebell" eyebrow="Strength circuit" title="Kettlebell Programs">
       <div className="relative mb-3 min-h-40 overflow-hidden rounded-2xl border border-white/10 bg-black">
         <Image
-          src="/rebuild-strength.jpg"
+          src="/rebuild-kettlebell-plank.jpg"
           alt=""
           fill
           sizes="(max-width: 768px) 100vw, 448px"

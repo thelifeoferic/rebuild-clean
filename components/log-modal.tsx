@@ -14,6 +14,7 @@ const titles: Record<LogKind, string> = {
   jacobsLadder: "Jacob's Ladder",
   pushUps: "Push-ups",
   dumbbellCurls: "Dumbbell Curls",
+  strength: "Strength Lift",
   kettlebell: "Kettlebell Work",
   farmerCarries: "Farmer Carries",
   swim: "Swim Session",
@@ -28,11 +29,12 @@ const defaults: Record<LogKind, Draft> = {
   jacobsLadder: { date: "Today", duration: "", longestContinuous: "" },
   pushUps: { date: "Today", sets: "" },
   dumbbellCurls: { date: "Today", weight: "", repsEachArm: "" },
+  strength: { date: "Today", exercise: "", weight: "", reps: "", notes: "" },
   kettlebell: { date: "Today", exercise: "Pass-arounds", weight: "", reps: "" },
   farmerCarries: { date: "Today", weightEachHand: "", distanceFeet: "", rounds: "" },
   swim: { date: "Today", minutes: "", distance: "", stroke: "Freestyle", notes: "" },
   yoga: { date: "Today", minutes: "", focus: "Mobility", notes: "" },
-  meal: { name: "", calories: "", protein: "", notes: "" },
+  meal: { date: "Today", name: "", calories: "", protein: "", notes: "" },
   mood: {
     date: "Today",
     reason: "stress",
@@ -141,6 +143,16 @@ export function LogModal({
             </>
           ) : null}
 
+          {activeKind === "strength" ? (
+            <>
+              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <Field label="Exercise" name="exercise" value={String(draft.exercise)} onChange={update} placeholder="Bench, row, leg press..." />
+              <Field label="Weight" name="weight" value={String(draft.weight)} onChange={update} inputMode="numeric" suffix="lb" />
+              <Field label="Reps" name="reps" value={String(draft.reps)} onChange={update} inputMode="numeric" />
+              <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
+            </>
+          ) : null}
+
           {activeKind === "kettlebell" ? (
             <>
               <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
@@ -204,6 +216,7 @@ export function LogModal({
                   ))}
                 </div>
               </div>
+              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
               <Field label="Name" name="name" value={String(draft.name)} onChange={update} />
               <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
               <Field label="Protein" name="protein" value={String(draft.protein)} onChange={update} inputMode="numeric" suffix="g" />
@@ -249,6 +262,7 @@ function Field({
   value,
   onChange,
   inputMode,
+  placeholder,
   suffix,
 }: {
   label: string;
@@ -256,6 +270,7 @@ function Field({
   value: string;
   onChange: (name: string, value: string) => void;
   inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
+  placeholder?: string;
   suffix?: string;
 }) {
   return (
@@ -266,8 +281,9 @@ function Field({
           name={name}
           value={value}
           inputMode={inputMode}
+          placeholder={placeholder}
           onChange={(event) => onChange(name, event.target.value)}
-          className="min-w-0 flex-1 bg-transparent text-base text-porcelain outline-none"
+          className="min-w-0 flex-1 bg-transparent text-base text-porcelain outline-none placeholder:text-white/25"
         />
         {suffix ? <span className="text-sm font-semibold text-white/40">{suffix}</span> : null}
       </div>

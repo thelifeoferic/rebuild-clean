@@ -5,6 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { BikeDashboard } from "@/components/bike-dashboard";
 import { ExerciseGuides } from "@/components/exercise-guides";
 import { FuelGuide } from "@/components/fuel-guide";
+import { FormVisuals } from "@/components/form-visuals";
 import { HeroDashboard } from "@/components/hero-dashboard";
 import { KettlebellPrograms } from "@/components/kettlebell-programs";
 import { LogModal } from "@/components/log-modal";
@@ -99,6 +100,7 @@ export function RebuildApp() {
         <>
           <TrainingOverview data={data} />
           <WorkoutPrograms />
+          <FormVisuals />
           <FuelGuide />
           <ExerciseGuides />
           <BikeDashboard data={data} />
@@ -184,6 +186,17 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
     });
   }
 
+  if (kind === "strength") {
+    next.strengthAccessorySessions.unshift({
+      id: createId("strength"),
+      date: text(draft.date, "Today"),
+      exercise: text(draft.exercise, "Strength lift"),
+      weight: number(draft.weight),
+      reps: number(draft.reps),
+      notes: text(draft.notes, "Logged strength work."),
+    });
+  }
+
   if (kind === "kettlebell") {
     next.kettlebellSessions.unshift({
       id: createId("kb"),
@@ -228,6 +241,7 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
   if (kind === "meal") {
     next.meals.unshift({
       id: createId("meal"),
+      date: text(draft.date, "Today"),
       name: text(draft.name, "Meal"),
       calories: number(draft.calories),
       protein: number(draft.protein),
@@ -266,6 +280,7 @@ function labelFor(kind: LogKind) {
     jacobsLadder: "Jacob's Ladder",
     pushUps: "Push-ups",
     dumbbellCurls: "Dumbbell curls",
+    strength: "Strength lift",
     kettlebell: "Kettlebell work",
     farmerCarries: "Farmer carries",
     swim: "Swim",

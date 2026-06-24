@@ -1,6 +1,10 @@
-import { Bike, Headphones, RotateCcw, Scale, ShieldCheck } from "lucide-react";
+"use client";
+
+import { Bike, Headphones, RefreshCw, RotateCcw, Scale, ShieldCheck } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
+import { NutritionTracker } from "@/components/nutrition-tracker";
 import { TodayPlan } from "@/components/today-plan";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import { getTodaysBikeMinutes, getWeightChangeFromLast } from "@/lib/rebuild-data";
@@ -42,7 +46,8 @@ export function HeroDashboard({
   const weightDetail = data.weights.length > 1 ? `${weightChange > 0 ? "+" : ""}${weightChange.toFixed(1)} lb` : "weigh-in";
   const todaysBikeMinutes = getTodaysBikeMinutes(data);
   const firstName = profile?.firstName?.trim();
-  const quote = quotes[(new Date().getDate() + data.behaviorWins.length + data.bikeSessions.length) % quotes.length];
+  const [quoteIndex, setQuoteIndex] = useState(() => new Date().getMinutes() % quotes.length);
+  const quote = quotes[quoteIndex];
   const hasLogs =
     data.weights.length +
       data.bikeSessions.length +
@@ -50,6 +55,14 @@ export function HeroDashboard({
       data.behaviorWins.length +
       data.meals.length >
     0;
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setQuoteIndex((current) => (current + 1) % quotes.length);
+    }, 12000);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
     <section className="px-4 pb-4 pt-5">
@@ -111,7 +124,17 @@ export function HeroDashboard({
       </div>
 
       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-        <p className="metric-label mb-2">Operating thought</p>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <p className="metric-label">Operating thought</p>
+          <button
+            type="button"
+            onClick={() => setQuoteIndex((current) => (current + 1) % quotes.length)}
+            className="grid size-8 place-items-center rounded-full bg-white/10 text-white/62"
+            aria-label="Show next quote"
+          >
+            <RefreshCw size={14} strokeWidth={2.2} aria-hidden />
+          </button>
+        </div>
         <p className="text-lg font-semibold leading-snug text-porcelain">
           <span aria-hidden>&ldquo;</span>
           {quote.line}
@@ -128,6 +151,7 @@ export function HeroDashboard({
       ) : null}
 
       <TodayPlan data={data} onOpenLog={onOpenLog} />
+      <NutritionTracker data={data} onOpenLog={onOpenLog} profile={profile} />
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} detail={weightDetail} icon={Scale} />
