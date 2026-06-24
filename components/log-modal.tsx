@@ -23,16 +23,16 @@ const titles: Record<LogKind, string> = {
 };
 
 const defaults: Record<LogKind, Draft> = {
-  weight: { date: "Today", weight: "227.0" },
-  bike: { date: "Today", minutes: "30", resistance: "8", calories: "300", notes: "" },
-  jacobsLadder: { date: "Today", duration: "8:00", longestContinuous: "3:30" },
-  pushUps: { date: "Today", sets: "14, 12, 10" },
-  dumbbellCurls: { date: "Today", weight: "35", repsEachArm: "20" },
-  kettlebell: { date: "Today", exercise: "Pass-arounds", weight: "25", reps: "60" },
-  farmerCarries: { date: "Today", weightEachHand: "20", distanceFeet: "60", rounds: "4" },
-  swim: { date: "Today", minutes: "20", distance: "500", stroke: "Freestyle", notes: "" },
-  yoga: { date: "Today", minutes: "20", focus: "Mobility", notes: "" },
-  meal: { name: "", calories: "500", protein: "35", notes: "" },
+  weight: { date: "Today", weight: "" },
+  bike: { date: "Today", minutes: "", resistance: "", calories: "", notes: "" },
+  jacobsLadder: { date: "Today", duration: "", longestContinuous: "" },
+  pushUps: { date: "Today", sets: "" },
+  dumbbellCurls: { date: "Today", weight: "", repsEachArm: "" },
+  kettlebell: { date: "Today", exercise: "Pass-arounds", weight: "", reps: "" },
+  farmerCarries: { date: "Today", weightEachHand: "", distanceFeet: "", rounds: "" },
+  swim: { date: "Today", minutes: "", distance: "", stroke: "Freestyle", notes: "" },
+  yoga: { date: "Today", minutes: "", focus: "Mobility", notes: "" },
+  meal: { name: "", calories: "", protein: "", notes: "" },
   mood: {
     date: "Today",
     reason: "stress",

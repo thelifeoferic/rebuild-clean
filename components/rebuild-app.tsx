@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { BikeDashboard } from "@/components/bike-dashboard";
 import { ExerciseGuides } from "@/components/exercise-guides";
+import { FuelGuide } from "@/components/fuel-guide";
 import { HeroDashboard } from "@/components/hero-dashboard";
 import { KettlebellPrograms } from "@/components/kettlebell-programs";
 import { LogModal } from "@/components/log-modal";
@@ -13,6 +14,7 @@ import { QuickAdd } from "@/components/quick-add";
 import { RebuildTimeline } from "@/components/rebuild-timeline";
 import { TrainingOverview } from "@/components/training-overview";
 import { VideoLibrary } from "@/components/video-library";
+import { WorkoutPrograms } from "@/components/workout-programs";
 import { buildTimeline, cloneSeedData, createId, normalizeRebuildData, storageKey } from "@/lib/rebuild-data";
 import type { AppView, LogKind, MoodReason, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
@@ -86,6 +88,7 @@ export function RebuildApp() {
         <HeroDashboard
           data={data}
           onNavigate={setActiveView}
+          onOpenLog={setActiveLog}
           onQuickAdd={() => setActiveLog("mood")}
           onReset={resetData}
           profile={profile}
@@ -95,6 +98,8 @@ export function RebuildApp() {
       {activeView === "training" ? (
         <>
           <TrainingOverview data={data} />
+          <WorkoutPrograms />
+          <FuelGuide />
           <ExerciseGuides />
           <BikeDashboard data={data} />
           <KettlebellPrograms data={data} />

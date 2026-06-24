@@ -38,6 +38,13 @@ const trainingBlocks = [
     icon: Dumbbell,
     tone: "text-white/75 bg-white/10",
   },
+  {
+    title: "Recovery lane",
+    detail: "Swim or yoga when joints need lower impact",
+    target: "10-30 min",
+    icon: Waves,
+    tone: "text-signal bg-signal/10",
+  },
 ];
 
 export function TrainingOverview({ data }: { data: RebuildData }) {

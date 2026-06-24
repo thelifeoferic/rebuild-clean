@@ -1,7 +1,8 @@
 import { Bike, Headphones, RotateCcw, Scale, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { tidalPlaylistUrl } from "@/data/mock-data";
-import type { AppView, OnboardingProfile, RebuildData } from "@/types/rebuild";
+import { TodayPlan } from "@/components/today-plan";
+import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import { getTodaysBikeMinutes, getWeightChangeFromLast } from "@/lib/rebuild-data";
 import { formatMinutes, formatWeight } from "@/lib/metrics";
 
@@ -24,12 +25,14 @@ const quotes = [
 export function HeroDashboard({
   data,
   onNavigate,
+  onOpenLog,
   onQuickAdd,
   onReset,
   profile,
 }: {
   data: RebuildData;
   onNavigate: (view: AppView) => void;
+  onOpenLog: (kind: LogKind) => void;
   onQuickAdd: () => void;
   onReset: () => void;
   profile: OnboardingProfile | null;
@@ -123,6 +126,8 @@ export function HeroDashboard({
           <p className="text-sm leading-5 text-white/62">{profile.why}</p>
         </div>
       ) : null}
+
+      <TodayPlan data={data} onOpenLog={onOpenLog} />
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} detail={weightDetail} icon={Scale} />
