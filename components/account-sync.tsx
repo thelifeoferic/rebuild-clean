@@ -1,7 +1,7 @@
 "use client";
 
 import type { Session } from "@supabase/supabase-js";
-import { CheckCircle2, Cloud, DownloadCloud, LogOut, Mail, Send, ShieldCheck, UploadCloud } from "lucide-react";
+import { CheckCircle2, Cloud, DownloadCloud, LockKeyhole, LogOut, Mail, ShieldCheck, UploadCloud, UserPlus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { loadCloudSnapshot, saveCloudSnapshot } from "@/lib/supabase-sync";
@@ -18,8 +18,10 @@ const lastSyncKey = "rebuild:last-sync";
 export function AccountSync({ data, onRestore, profile }: AccountSyncProps) {
   const client = useMemo(() => getSupabaseClient(), []);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [session, setSession] = useState<Session | null>(null);
   const [status, setStatus] = useState(isSupabaseConfigured ? "Cloud sync ready" : "Add Supabase keys to enable cloud sync");
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [isWorking, setIsWorking] = useState(false);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
 
@@ -28,11 +30,15 @@ export function AccountSync({ data, onRestore, profile }: AccountSyncProps) {
   }, []);
 
   useEffect(() => {
-    if (!client) return;
+    if (!client) {
+      setIsCheckingSession(false);
+      return;
+    }
 
     client.auth.getSession().then(({ data: sessionData }) => {
       setSession(sessionData.session);
       if (sessionData.session?.user?.email) setStatus("Signed in. Ready to back up or restore logs.");
+      setIsCheckingSession(false);
     });
 
     const {
@@ -40,27 +46,66 @@ export function AccountSync({ data, onRestore, profile }: AccountSyncProps) {
     } = client.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
       setStatus(nextSession?.user?.email ? "Signed in. Ready to back up or restore logs." : "Cloud sync ready");
+      setIsCheckingSession(false);
     });
 
     return () => subscription.unsubscribe();
   }, [client]);
 
-  async function sendMagicLink() {
-    if (!client || !email.trim()) return;
+  async function signIn() {
+    if (!client || !email.trim() || !password) return;
 
     setIsWorking(true);
     try {
-      const { error } = await client.auth.signInWithOtp({
+      const { error } = await client.auth.signInWithPassword({
         email: email.trim(),
+        password,
+      });
+
+      if (error) throw error;
+      setStatus("Signed in. Ready to back up or restore logs.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Could not sign in.");
+    } finally {
+      setIsWorking(false);
+    }
+  }
+
+  async function createAccount() {
+    if (!client || !email.trim() || !password) return;
+
+    setIsWorking(true);
+    try {
+      const { data: signupData, error } = await client.auth.signUp({
+        email: email.trim(),
+        password,
         options: {
           emailRedirectTo: window.location.origin,
         },
       });
 
       if (error) throw error;
-      setStatus("Check your email for the sign-in link.");
+      setStatus(signupData.session ? "Account created and ready to sync." : "Account created. Confirm email once if Supabase asks, then use your password.");
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Could not send sign-in link.");
+      setStatus(error instanceof Error ? error.message : "Could not create account.");
+    } finally {
+      setIsWorking(false);
+    }
+  }
+
+  async function resetPassword() {
+    if (!client || !email.trim()) return;
+
+    setIsWorking(true);
+    try {
+      const { error } = await client.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: window.location.origin,
+      });
+
+      if (error) throw error;
+      setStatus("Password reset email sent.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Could not send password reset.");
     } finally {
       setIsWorking(false);
     }
@@ -125,6 +170,10 @@ export function AccountSync({ data, onRestore, profile }: AccountSyncProps) {
         <p className="rounded-2xl bg-carbon/70 p-3 text-xs leading-5 text-white/45">
           Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel, then run `supabase/schema.sql` in Supabase.
         </p>
+      ) : isCheckingSession ? (
+        <div className="rounded-2xl bg-carbon/70 p-3 text-sm font-semibold text-white/45">
+          Checking account...
+        </div>
       ) : session ? (
         <div className="space-y-3">
           <div className="rounded-2xl border border-signal/20 bg-signal/10 p-3">
@@ -176,7 +225,7 @@ export function AccountSync({ data, onRestore, profile }: AccountSyncProps) {
       ) : (
         <div className="space-y-2">
           <p className="rounded-2xl bg-carbon/70 p-3 text-xs leading-5 text-white/45">
-            Sign in by email to back up this device and restore your logs on another phone or browser. New members can use the same email link to create an account.
+            Sign in with your email and password to back up this device and restore your logs on another phone or browser.
           </p>
           <label className="flex min-h-11 items-center rounded-2xl border border-white/10 bg-carbon px-3 focus-within:border-champagne">
             <Mail size={16} className="mr-2 shrink-0 text-white/35" aria-hidden />
@@ -188,14 +237,43 @@ export function AccountSync({ data, onRestore, profile }: AccountSyncProps) {
               className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-porcelain outline-none placeholder:text-white/28"
             />
           </label>
+          <label className="flex min-h-11 items-center rounded-2xl border border-white/10 bg-carbon px-3 focus-within:border-champagne">
+            <LockKeyhole size={16} className="mr-2 shrink-0 text-white/35" aria-hidden />
+            <input
+              value={password}
+              type="password"
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Password"
+              className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-porcelain outline-none placeholder:text-white/28"
+            />
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={signIn}
+              disabled={isWorking || !email.trim() || !password}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-bold text-carbon disabled:opacity-50"
+            >
+              <ShieldCheck size={16} strokeWidth={2.2} aria-hidden />
+              Sign in
+            </button>
+            <button
+              type="button"
+              onClick={createAccount}
+              disabled={isWorking || !email.trim() || password.length < 6}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white/[0.075] px-3 text-sm font-bold text-porcelain disabled:opacity-50"
+            >
+              <UserPlus size={16} strokeWidth={2.2} aria-hidden />
+              Create
+            </button>
+          </div>
           <button
             type="button"
-            onClick={sendMagicLink}
+            onClick={resetPassword}
             disabled={isWorking || !email.trim()}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-bold text-carbon disabled:opacity-50"
+            className="min-h-9 text-center text-xs font-bold text-white/42 underline-offset-4 hover:text-white/70 hover:underline disabled:opacity-40"
           >
-            <Send size={16} strokeWidth={2.2} aria-hidden />
-            Send secure link
+            Forgot password?
           </button>
         </div>
       )}

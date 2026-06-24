@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import { LoginPanel } from "@/components/login-panel";
 import { NutritionTracker } from "@/components/nutrition-tracker";
+import { RebuildWordmark } from "@/components/rebuild-wordmark";
 import { TodayPlan } from "@/components/today-plan";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import { getTodaysBikeMinutes, getWeightChangeFromLast } from "@/lib/rebuild-data";
@@ -54,7 +55,7 @@ export function HeroDashboard({
   const todaysBikeMinutes = getTodaysBikeMinutes(data);
   const firstName = profile?.firstName?.trim();
   const activeQuotes = getQuotesForStyle(profile?.quoteStyle);
-  const [quoteIndex, setQuoteIndex] = useState(() => new Date().getMinutes() % quotes.length);
+  const [quoteIndex, setQuoteIndex] = useState(() => randomQuoteIndex(quotes.length));
   const quote = activeQuotes[quoteIndex % activeQuotes.length];
   const recommendation = getHomeRecommendation(profile, data);
   const hasLogs =
@@ -69,10 +70,14 @@ export function HeroDashboard({
     if (profile?.quoteStyle === "none") return;
 
     const timer = window.setInterval(() => {
-      setQuoteIndex((current) => (current + 1) % activeQuotes.length);
+      setQuoteIndex((current) => randomQuoteIndex(activeQuotes.length, current));
     }, 12000);
 
     return () => window.clearInterval(timer);
+  }, [activeQuotes.length, profile?.quoteStyle]);
+
+  useEffect(() => {
+    setQuoteIndex(randomQuoteIndex(activeQuotes.length));
   }, [activeQuotes.length, profile?.quoteStyle]);
 
   return (
@@ -89,16 +94,7 @@ export function HeroDashboard({
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.40),rgba(0,0,0,0.20)_34%,rgba(0,0,0,0.90))]" />
         <div className="relative flex min-h-[360px] flex-col justify-between p-5">
           <div>
-            <div className="w-40 overflow-hidden rounded-xl border border-white/10 bg-black/70 backdrop-blur">
-              <Image
-                src="/rebuild-logo.png"
-                alt="REBUILD. Better every day."
-                width={1774}
-                height={887}
-                priority
-                className="aspect-[2.4/1] w-full object-cover object-center"
-              />
-            </div>
+            <RebuildWordmark className="mx-auto drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]" />
           </div>
 
           <div>
@@ -142,7 +138,7 @@ export function HeroDashboard({
             <p className="metric-label">Operating thought</p>
             <button
               type="button"
-              onClick={() => setQuoteIndex((current) => (current + 1) % activeQuotes.length)}
+              onClick={() => setQuoteIndex((current) => randomQuoteIndex(activeQuotes.length, current))}
               className="grid size-8 place-items-center rounded-full bg-white/10 text-white/62"
               aria-label="Show next quote"
             >
@@ -218,7 +214,17 @@ export function HeroDashboard({
 function getQuotesForStyle(style: OnboardingProfile["quoteStyle"]) {
   if (style === "none") return [quotes[0]];
   if (!style || style === "goggins") return quotes.filter((quote) => quote.style === "goggins");
+  if (style === "athlete") return quotes.filter((quote) => quote.style === "athlete" || quote.style === "calm");
   return quotes.filter((quote) => quote.style === style);
+}
+
+function randomQuoteIndex(length: number, current?: number) {
+  if (length <= 1) return 0;
+  let next = Math.floor(Math.random() * length);
+  if (typeof current === "number") {
+    while (next === current % length) next = Math.floor(Math.random() * length);
+  }
+  return next;
 }
 
 function homeHeroImage(profile: OnboardingProfile | null) {

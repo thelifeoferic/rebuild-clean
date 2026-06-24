@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Cloud, Dumbbell, Scale, ShieldChec
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { LoginPanel } from "@/components/login-panel";
+import { RebuildWordmark } from "@/components/rebuild-wordmark";
 import type { OnboardingProfile } from "@/types/rebuild";
 
 const goals = [
@@ -194,16 +195,7 @@ export function Onboarding({
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.22),rgba(0,0,0,0.35)_42%,rgba(0,0,0,0.92))]" />
           <div className="absolute bottom-4 left-4 right-4">
-            <div className="mb-4 w-44 overflow-hidden rounded-2xl border border-white/10 bg-black/72 backdrop-blur">
-              <Image
-                src="/rebuild-logo.png"
-                alt="REBUILD. Better every day."
-                width={1774}
-                height={887}
-                priority
-                className="aspect-[2.4/1] w-full object-cover object-center"
-              />
-            </div>
+            <RebuildWordmark align="left" className="mb-5 drop-shadow-[0_2px_18px_rgba(0,0,0,0.65)]" />
             <p className="metric-label text-white/62">{currentMeta.eyebrow}</p>
             <h1 className="mt-1 text-3xl font-semibold leading-none text-porcelain">{headlineFor(step)}</h1>
           </div>
