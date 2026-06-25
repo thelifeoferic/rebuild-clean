@@ -41,6 +41,8 @@ export const foodPresets: FoodPreset[] = [
   { name: "Sushi roll, spicy tuna", calories: 300, protein: 18, notes: "Rough estimate per roll. Add edamame if protein is low.", group: "ready" },
   { name: "Poke bowl, spicy tuna", calories: 650, protein: 36, notes: "Estimate varies heavily with rice, sauces, and toppings.", group: "ready" },
   { name: "Chicken burrito", calories: 780, protein: 42, notes: "Dense meal. Great after hard training, easy to overshoot on a rest day.", group: "ready" },
+  { name: "Taco Bell Vegetarian Mexican Pizza", calories: 470, protein: 15, notes: "Rough custom estimate: Mexican Pizza with beans subbed for meat. Sauce, cheese, and location prep can shift this.", group: "ready" },
+  { name: "Taco Bell Veggie Enchirito", calories: 360, protein: 14, notes: "Rough custom estimate: Enchirito-style order with beans instead of beef. Availability and build may vary by location.", group: "ready" },
   { name: "Greek yogurt, plain 1 cup", calories: 130, protein: 23, notes: "High-protein base for fruit or oats.", group: "protein" },
   { name: "Cottage cheese, 1 cup", calories: 220, protein: 28, notes: "Slow-digesting protein; useful at night.", group: "protein" },
   { name: "Chicken breast, 6 oz", calories: 280, protein: 52, notes: "Lean anchor meal protein.", group: "protein" },
