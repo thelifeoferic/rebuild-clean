@@ -1,6 +1,6 @@
 "use client";
 
-import { Bike, CheckCircle2, Dumbbell, Headphones, LineChart, RefreshCw, Scale, ShieldCheck, Sparkles, Trophy } from "lucide-react";
+import { Bike, CheckCircle2, Dumbbell, Flame, Headphones, LineChart, Scale, ShieldCheck, Sparkles, Trophy } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
@@ -8,8 +8,9 @@ import { CountUp } from "@/components/count-up";
 import { NutritionTracker } from "@/components/nutrition-tracker";
 import { TodayPlan } from "@/components/today-plan";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
+import { getTodaysActivityCalories } from "@/lib/activity-calories";
 import { getTodaysBikeMinutes, getWeightChangeFromLast, isToday } from "@/lib/rebuild-data";
-import { getCoachInsight, getPersonalRecords, getRebuildDay, getRebuildScore, getRecentQuickWin, getWeeklyConsistency } from "@/lib/rebuild-insights";
+import { getCoachInsight, getPersonalRecords, getRebuildDay, getRebuildScore, getWeeklyConsistency } from "@/lib/rebuild-insights";
 import { formatMinutes, formatWeight } from "@/lib/metrics";
 
 const quotes = [
@@ -61,20 +62,11 @@ export function HeroDashboard({
   const rebuildScore = getRebuildScore(data, profile);
   const coachInsight = getCoachInsight(data, profile);
   const rebuildDay = getRebuildDay(data);
-  const quickWin = getRecentQuickWin(data);
+  const latestEntry = getLatestHomeEntry(data);
+  const activityBurn = getTodaysActivityCalories(data, profile);
   const weeklyConsistency = getWeeklyConsistency(data, profile);
   const records = getPersonalRecords(data);
   const topRecord = records.find((record) => record.value !== "—") ?? records[0];
-  const recentTimeline = quickWin ?? null;
-  useEffect(() => {
-    if (profile?.quoteStyle === "none") return;
-
-    const timer = window.setInterval(() => {
-      setQuoteIndex((current) => randomQuoteIndex(activeQuotes.length, current));
-    }, 12000);
-
-    return () => window.clearInterval(timer);
-  }, [activeQuotes.length, profile?.quoteStyle]);
 
   useEffect(() => {
     setQuoteIndex(randomQuoteIndex(activeQuotes.length));
@@ -142,7 +134,7 @@ export function HeroDashboard({
             <div className="grid grid-cols-3 gap-2">
               <PlanButton label="Weigh-in" done={data.weights.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("weight")} />
               <PlanButton label="Move" done={hasMovementToday(data)} onClick={() => onNavigate("log")} />
-              <PlanButton label="Pattern" done={data.behaviorWins.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("mood")} />
+              <PlanButton label="Reset" done={data.behaviorWins.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("mood")} />
             </div>
           </div>
         </div>
@@ -150,17 +142,7 @@ export function HeroDashboard({
 
       {profile?.quoteStyle !== "none" ? (
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <p className="metric-label">Operating thought</p>
-            <button
-              type="button"
-              onClick={() => setQuoteIndex((current) => randomQuoteIndex(activeQuotes.length, current))}
-              className="grid size-8 place-items-center rounded-full bg-white/10 text-white/62"
-              aria-label="Show next quote"
-            >
-              <RefreshCw size={14} strokeWidth={2.2} aria-hidden />
-            </button>
-          </div>
+          <p className="metric-label mb-2">Operating thought</p>
           <p className="text-lg font-semibold leading-snug text-porcelain">
             <span aria-hidden>&ldquo;</span>
             {quote.line}
@@ -169,6 +151,12 @@ export function HeroDashboard({
           <p className="mt-2 text-sm font-semibold text-champagne">{quote.source}</p>
         </div>
       ) : null}
+
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        <ImageTile src="/rebuild-air-bike.jpg" label="Cardio" />
+        <ImageTile src="/rebuild-kettlebell-outdoor.jpg" label="Strength" />
+        <ImageTile src="/rebuild-yoga-light.jpg" label="Recovery" />
+      </div>
 
       <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
         <div className="relative min-h-32 bg-black">
@@ -217,18 +205,18 @@ export function HeroDashboard({
 
       <div className="mt-4 grid grid-cols-2 gap-3">
         <HomeSignalCard
-          icon={ShieldCheck}
-          label="Quick win"
-          title={quickWin?.title ?? "Your rebuild starts here."}
-          detail={quickWin?.detail ?? "Log your first session, weigh-in, meal, or pattern interrupt."}
+          icon={CheckCircle2}
+          label="Latest entry"
+          title={latestEntry.title}
+          detail={latestEntry.detail}
           onClick={() => onNavigate("log")}
         />
         <HomeSignalCard
-          icon={CheckCircle2}
-          label="Recent timeline"
-          title={recentTimeline?.title ?? "Story waiting"}
-          detail={recentTimeline?.detail ?? "Your first meaningful entry appears here."}
-          onClick={() => onNavigate("records")}
+          icon={Flame}
+          label="Activity burn"
+          title={`${activityBurn} cal`}
+          detail="Estimated from today's saved workouts using your height and weight."
+          onClick={() => onOpenLog("bike")}
         />
         <HomeSignalCard
           icon={LineChart}
@@ -249,7 +237,7 @@ export function HeroDashboard({
       <div className="mt-4 grid grid-cols-3 gap-2">
         <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} detail={weightDetail} icon={Scale} />
         <MiniStat label="Bike" value={formatMinutes(todaysBikeMinutes)} icon={Bike} />
-        <MiniStat label="Patterns" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
+        <MiniStat label="Choices" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
       </div>
 
       <TodayPlan data={data} onOpenLog={onOpenLog} />
@@ -282,6 +270,38 @@ function randomQuoteIndex(length: number, current?: number) {
     while (next === current % length) next = Math.floor(Math.random() * length);
   }
   return next;
+}
+
+function getLatestHomeEntry(data: RebuildData) {
+  const latestRide = data.bikeSessions[0];
+  if (latestRide) {
+    const distance = latestRide.distanceMiles ? ` · ${latestRide.distanceMiles.toFixed(1)} mi` : "";
+    return {
+      detail: `${latestRide.minutes} minutes${distance} · ${latestRide.calories} calories saved.`,
+      title: "Bike ride saved",
+    };
+  }
+
+  const latestWeight = data.weights[0];
+  if (latestWeight) {
+    return {
+      detail: `${latestWeight.weight.toFixed(1)} lb saved as your latest weigh-in.`,
+      title: "Weigh-in saved",
+    };
+  }
+
+  const latestChoice = data.behaviorWins[0];
+  if (latestChoice) {
+    return {
+      detail: latestChoice.label.replace(/^Pattern interrupted\s*→\s*/i, ""),
+      title: "Better choice logged",
+    };
+  }
+
+  return {
+    detail: "Log your first session, weigh-in, meal, or reset choice.",
+    title: "Your first entry goes here",
+  };
 }
 
 function homeHeroImage(profile: OnboardingProfile | null) {
@@ -386,6 +406,16 @@ function PlanButton({
     >
       {done ? "Done" : label}
     </button>
+  );
+}
+
+function ImageTile({ label, src }: { label: string; src: string }) {
+  return (
+    <div className="relative min-h-24 overflow-hidden rounded-2xl border border-white/10 bg-black">
+      <Image src={src} alt="" fill sizes="33vw" className="object-cover opacity-72" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent" />
+      <p className="absolute bottom-3 left-3 text-[0.62rem] font-black uppercase tracking-[0.16em] text-white/70">{label}</p>
+    </div>
   );
 }
 

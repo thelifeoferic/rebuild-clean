@@ -3,13 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { HeroDashboard } from "@/components/hero-dashboard";
-import { InstallPrompt } from "@/components/install-prompt";
 import { LogModal, type LogDraft } from "@/components/log-modal";
 import { MeHub } from "@/components/me-hub";
 import { Onboarding } from "@/components/onboarding";
 import { ProgramsHub } from "@/components/programs-hub";
 import { QuickAdd } from "@/components/quick-add";
 import { RecordsHub } from "@/components/records-hub";
+import { estimateDraftActivityCalories } from "@/lib/activity-calories";
 import { buildTimeline, cloneSeedData, createId, normalizeRebuildData, storageKey } from "@/lib/rebuild-data";
 import type { AppView, LogKind, MoodReason, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
@@ -75,7 +75,7 @@ export function RebuildApp() {
     const target = editTarget;
 
     setData((current) =>
-      target ? updateLog(current, kind, target.id, draft) : appendLog(current, kind, draft),
+      target ? updateLog(current, kind, target.id, draft, profile) : appendLog(current, kind, draft, profile),
     );
     setActiveLog(null);
     setEditTarget(null);
@@ -143,7 +143,6 @@ export function RebuildApp() {
           profile={profile}
         />
       ) : null}
-      {activeView === "home" ? <InstallPrompt /> : null}
       {activeView === "log" ? <QuickAdd onSelect={setActiveLog} /> : null}
       {activeView === "records" ? (
         <RecordsHub data={data} onEdit={openEditLog} onOpenLog={setActiveLog} timeline={timeline} />
@@ -174,7 +173,7 @@ export function RebuildApp() {
   );
 }
 
-function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData {
+function appendLog(data: RebuildData, kind: LogKind, draft: Draft, profile: OnboardingProfile | null): RebuildData {
   const next = cloneMutableData(data);
 
   if (kind === "weight") {
@@ -182,7 +181,7 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
   }
 
   if (kind === "bike") {
-    next.bikeSessions.unshift(bikeFromDraft(draft));
+    next.bikeSessions.unshift(bikeFromDraft(draft, createId("bike"), "gym", profile, data));
   }
 
   if (kind === "jacobsLadder") {
@@ -236,7 +235,7 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
   return next;
 }
 
-function updateLog(data: RebuildData, kind: LogKind, id: string, draft: Draft): RebuildData {
+function updateLog(data: RebuildData, kind: LogKind, id: string, draft: Draft, profile: OnboardingProfile | null): RebuildData {
   const next = cloneMutableData(data);
 
   if (kind === "weight") {
@@ -247,7 +246,7 @@ function updateLog(data: RebuildData, kind: LogKind, id: string, draft: Draft): 
 
   if (kind === "bike") {
     next.bikeSessions = next.bikeSessions.map((session) =>
-      session.id === id ? bikeFromDraft(draft, id, session.location) : session,
+      session.id === id ? bikeFromDraft(draft, id, session.location, profile, data) : session,
     );
   }
 
@@ -354,14 +353,22 @@ function weightFromDraft(draft: Draft, id = createId("weight"), moment: "morning
   };
 }
 
-function bikeFromDraft(draft: Draft, id = createId("bike"), location: "home" | "gym" = "gym") {
+function bikeFromDraft(
+  draft: Draft,
+  id = createId("bike"),
+  location: "home" | "gym" = "gym",
+  profile: OnboardingProfile | null = null,
+  data?: RebuildData,
+) {
+  const savedCalories = number(draft.calories);
+
   return {
     id,
     date: text(draft.date, "Today"),
     minutes: number(draft.minutes),
     distanceMiles: number(draft.distanceMiles),
     resistance: number(draft.resistance),
-    calories: number(draft.calories),
+    calories: savedCalories > 0 ? savedCalories : estimateDraftActivityCalories("bike", draft, profile, data),
     notes: text(draft.notes, "Logged from Quick Add."),
     location,
   };

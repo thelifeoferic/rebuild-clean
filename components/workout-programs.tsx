@@ -1,18 +1,33 @@
 "use client";
 
-import { ClipboardList, Search } from "lucide-react";
+import { CheckCircle2, ClipboardList, Search } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { workoutPrograms, type ProgramLocation, type WorkoutProgram } from "@/data/workout-programs";
 import { Section } from "@/components/section";
 import type { OnboardingProfile } from "@/types/rebuild";
 
 const filters = ["Recommended", "Home", "Gym", "Recovery", "All"] as const;
 type ProgramFilter = (typeof filters)[number];
+const completedProgramBlocksKey = "rebuild:program-blocks:v1";
 
 export function WorkoutPrograms({ profile }: { profile: OnboardingProfile | null }) {
   const [filter, setFilter] = useState<ProgramFilter>("Recommended");
   const [query, setQuery] = useState("");
+  const [completedBlocks, setCompletedBlocks] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(completedProgramBlocksKey);
+      if (stored) setCompletedBlocks(JSON.parse(stored) as Record<string, boolean>);
+    } catch {
+      setCompletedBlocks({});
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(completedProgramBlocksKey, JSON.stringify(completedBlocks));
+  }, [completedBlocks]);
 
   const visiblePrograms = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -48,7 +63,8 @@ export function WorkoutPrograms({ profile }: { profile: OnboardingProfile | null
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4">
             <p className="metric-label text-white/60">No confusion</p>
-            <p className="mt-1 text-2xl font-semibold text-porcelain">Pick the next block.</p>
+            <p className="mt-1 text-2xl font-semibold text-porcelain">Recommended exercises.</p>
+            <p className="mt-1 text-sm font-semibold text-white/55">Check each block off when it is done.</p>
           </div>
         </div>
 
@@ -79,7 +95,15 @@ export function WorkoutPrograms({ profile }: { profile: OnboardingProfile | null
 
         <div className="mt-4 space-y-3">
           {visiblePrograms.map((program) => (
-            <ProgramCard key={program.title} program={program} />
+            <ProgramCard
+              key={program.title}
+              completedBlocks={completedBlocks}
+              onToggleBlock={(index) => {
+                const key = blockKey(program.title, index);
+                setCompletedBlocks((current) => ({ ...current, [key]: !current[key] }));
+              }}
+              program={program}
+            />
           ))}
         </div>
       </div>
@@ -87,7 +111,15 @@ export function WorkoutPrograms({ profile }: { profile: OnboardingProfile | null
   );
 }
 
-function ProgramCard({ program }: { program: WorkoutProgram }) {
+function ProgramCard({
+  completedBlocks,
+  onToggleBlock,
+  program,
+}: {
+  completedBlocks: Record<string, boolean>;
+  onToggleBlock: (index: number) => void;
+  program: WorkoutProgram;
+}) {
   return (
     <article className="rounded-2xl bg-white/[0.055] p-4">
       <div className="mb-3 flex items-start justify-between gap-3">
@@ -110,15 +142,38 @@ function ProgramCard({ program }: { program: WorkoutProgram }) {
         ))}
       </div>
       <div className="space-y-2">
-        {program.blocks.map((block, index) => (
-          <div key={`${program.title}-${block}`} className="flex gap-3 rounded-xl bg-carbon/70 p-3">
-            <span className="text-xs font-bold text-champagne">{index + 1}</span>
-            <p className="text-sm leading-5 text-white/62">{block}</p>
-          </div>
-        ))}
+        {program.blocks.map((block, index) => {
+          const done = Boolean(completedBlocks[blockKey(program.title, index)]);
+
+          return (
+            <button
+              key={`${program.title}-${block}`}
+              type="button"
+              onClick={() => onToggleBlock(index)}
+              className={`flex w-full gap-3 rounded-xl p-3 text-left transition active:scale-[0.98] ${
+                done ? "bg-signal/12" : "bg-carbon/70"
+              }`}
+            >
+              <span
+                className={`grid size-6 shrink-0 place-items-center rounded-full text-xs font-bold ${
+                  done ? "bg-signal/20 text-signal" : "bg-champagne/10 text-champagne"
+                }`}
+              >
+                {done ? <CheckCircle2 size={15} strokeWidth={2.4} aria-hidden /> : index + 1}
+              </span>
+              <p className={`text-sm leading-5 ${done ? "text-white/40 line-through decoration-signal/70" : "text-white/62"}`}>
+                {block}
+              </p>
+            </button>
+          );
+        })}
       </div>
     </article>
   );
+}
+
+function blockKey(programTitle: string, index: number) {
+  return `${programTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${index}`;
 }
 
 function scoreProgram(program: WorkoutProgram, profile: OnboardingProfile | null) {
