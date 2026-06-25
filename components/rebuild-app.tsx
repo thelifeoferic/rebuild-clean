@@ -1,28 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AccountSync } from "@/components/account-sync";
-import { AppleHealthRoadmap } from "@/components/apple-health-roadmap";
 import { AppShell } from "@/components/app-shell";
-import { BikeDashboard } from "@/components/bike-dashboard";
-import { BodyCheck } from "@/components/body-check";
-import { ExerciseGuides } from "@/components/exercise-guides";
-import { FuelGuide } from "@/components/fuel-guide";
-import { FormVisuals } from "@/components/form-visuals";
-import { GoalTrainingPlan } from "@/components/goal-training-plan";
 import { HeroDashboard } from "@/components/hero-dashboard";
 import { InstallPrompt } from "@/components/install-prompt";
-import { KettlebellPrograms } from "@/components/kettlebell-programs";
 import { LogModal, type LogDraft } from "@/components/log-modal";
+import { MeHub } from "@/components/me-hub";
 import { Onboarding } from "@/components/onboarding";
-import { ProfileCard } from "@/components/profile-card";
-import { ProgressTrends } from "@/components/progress-trends";
+import { ProgramsHub } from "@/components/programs-hub";
 import { QuickAdd } from "@/components/quick-add";
-import { RebuildTimeline } from "@/components/rebuild-timeline";
-import { StreakSummary } from "@/components/streak-summary";
-import { TrainingOverview } from "@/components/training-overview";
-import { VideoLibrary } from "@/components/video-library";
-import { WorkoutPrograms } from "@/components/workout-programs";
+import { RecordsHub } from "@/components/records-hub";
 import { buildTimeline, cloneSeedData, createId, normalizeRebuildData, storageKey } from "@/lib/rebuild-data";
 import type { AppView, LogKind, MoodReason, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
@@ -76,6 +63,12 @@ export function RebuildApp() {
     setProfile(nextProfile);
     window.localStorage.setItem(profileKey, JSON.stringify(nextProfile));
     setToast("Fresh start ready");
+  }
+
+  function updateProfile(nextProfile: OnboardingProfile) {
+    setProfile(nextProfile);
+    window.localStorage.setItem(profileKey, JSON.stringify(nextProfile));
+    setToast("Profile updated");
   }
 
   function saveLog(kind: LogKind, draft: Draft) {
@@ -152,30 +145,19 @@ export function RebuildApp() {
       ) : null}
       {activeView === "home" ? <InstallPrompt /> : null}
       {activeView === "log" ? <QuickAdd onSelect={setActiveLog} /> : null}
-      {activeView === "training" ? (
-        <>
-          <GoalTrainingPlan data={data} onOpenLog={setActiveLog} profile={profile} />
-          <TrainingOverview data={data} />
-          <FormVisuals />
-          <WorkoutPrograms profile={profile} />
-          <FuelGuide />
-          <ExerciseGuides />
-          <BikeDashboard data={data} />
-          <KettlebellPrograms data={data} />
-        </>
+      {activeView === "records" ? (
+        <RecordsHub data={data} onEdit={openEditLog} onOpenLog={setActiveLog} timeline={timeline} />
       ) : null}
-      {activeView === "progress" ? (
-        <>
-          <ProgressTrends data={data} />
-          <StreakSummary data={data} />
-          <ProfileCard onRestart={restartOnboarding} profile={profile} />
-          <AccountSync data={data} onRestore={restoreFromCloud} profile={profile} />
-          <AppleHealthRoadmap />
-        </>
+      {activeView === "programs" ? <ProgramsHub data={data} onOpenLog={setActiveLog} profile={profile} /> : null}
+      {activeView === "me" ? (
+        <MeHub
+          data={data}
+          onRestart={restartOnboarding}
+          onRestore={restoreFromCloud}
+          onUpdateProfile={updateProfile}
+          profile={profile}
+        />
       ) : null}
-      {activeView === "body" ? <BodyCheck profile={profile} /> : null}
-      {activeView === "reset" ? <RebuildTimeline onEdit={openEditLog} timeline={timeline} /> : null}
-      {activeView === "library" ? <VideoLibrary profile={profile} /> : null}
       {toast ? (
         <div className="fixed inset-x-4 bottom-24 z-[70] mx-auto max-w-sm rounded-2xl border border-white/10 bg-carbon/92 px-4 py-3 text-sm font-semibold text-porcelain shadow-panel backdrop-blur-xl">
           {toast}
@@ -237,6 +219,14 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
 
   if (kind === "meal") {
     next.meals.unshift(mealFromDraft(draft));
+  }
+
+  if (kind === "water") {
+    next.waterLogs.unshift(waterFromDraft(draft));
+  }
+
+  if (kind === "sleep") {
+    next.sleepLogs.unshift(sleepFromDraft(draft));
   }
 
   if (kind === "mood") {
@@ -315,6 +305,18 @@ function updateLog(data: RebuildData, kind: LogKind, id: string, draft: Draft): 
     );
   }
 
+  if (kind === "water") {
+    next.waterLogs = next.waterLogs.map((entry) =>
+      entry.id === id ? waterFromDraft(draft, id) : entry,
+    );
+  }
+
+  if (kind === "sleep") {
+    next.sleepLogs = next.sleepLogs.map((entry) =>
+      entry.id === id ? sleepFromDraft(draft, id) : entry,
+    );
+  }
+
   if (kind === "mood") {
     next.behaviorWins = next.behaviorWins.map((win) =>
       win.id === id ? moodFromDraft(draft, id) : win,
@@ -337,6 +339,8 @@ function cloneMutableData(data: RebuildData): RebuildData {
     swimSessions: [...(data.swimSessions ?? [])],
     yogaSessions: [...(data.yogaSessions ?? [])],
     meals: [...data.meals],
+    waterLogs: [...(data.waterLogs ?? [])],
+    sleepLogs: [...(data.sleepLogs ?? [])],
     behaviorWins: [...data.behaviorWins],
   };
 }
@@ -452,14 +456,34 @@ function mealFromDraft(draft: Draft, id = createId("meal")) {
   };
 }
 
+function waterFromDraft(draft: Draft, id = createId("water")) {
+  return {
+    id,
+    date: text(draft.date, "Today"),
+    ounces: number(draft.ounces),
+  };
+}
+
+function sleepFromDraft(draft: Draft, id = createId("sleep")) {
+  const quality = text(draft.quality, "good");
+
+  return {
+    id,
+    date: text(draft.date, "Today"),
+    hours: number(draft.hours),
+    quality: ["low", "okay", "good", "great"].includes(quality) ? quality as "low" | "okay" | "good" | "great" : "good",
+    notes: text(draft.notes, "Sleep logged."),
+  };
+}
+
 function moodFromDraft(draft: Draft, id = createId("win")) {
   return {
     id,
     date: text(draft.date, "Today"),
     reason: text(draft.reason, "stress") as MoodReason,
-    label: text(draft.label, "Chose the reset instead of the old loop"),
-    didntSmoke: Boolean(draft.didntSmoke),
-    didntSpiral: Boolean(draft.didntSpiral),
+    label: text(draft.label, "Stayed present"),
+    didntSmoke: true,
+    didntSpiral: true,
   };
 }
 
@@ -600,6 +624,28 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
       : null;
   }
 
+  if (kind === "water") {
+    const entry = data.waterLogs.find((item) => item.id === id);
+    return entry
+      ? {
+          date: entry.date,
+          ounces: String(entry.ounces),
+        }
+      : null;
+  }
+
+  if (kind === "sleep") {
+    const entry = data.sleepLogs.find((item) => item.id === id);
+    return entry
+      ? {
+          date: entry.date,
+          hours: String(entry.hours),
+          quality: entry.quality,
+          notes: entry.notes,
+        }
+      : null;
+  }
+
   if (kind === "mood") {
     const win = data.behaviorWins.find((item) => item.id === id);
     return win
@@ -655,7 +701,9 @@ function labelFor(kind: LogKind) {
     swim: "Swim",
     yoga: "Yoga",
     meal: "Meal",
-    mood: "Mood reset",
+    water: "Water",
+    sleep: "Sleep",
+    mood: "Pattern interrupt",
   };
 
   return labels[kind];

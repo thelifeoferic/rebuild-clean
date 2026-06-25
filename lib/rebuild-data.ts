@@ -31,6 +31,8 @@ export function normalizeRebuildData(data: Partial<RebuildData>): RebuildData {
     swimSessions: data.swimSessions ?? seed.swimSessions,
     yogaSessions: data.yogaSessions ?? seed.yogaSessions,
     meals: data.meals ?? seed.meals,
+    waterLogs: data.waterLogs ?? seed.waterLogs,
+    sleepLogs: data.sleepLogs ?? seed.sleepLogs,
     behaviorWins: data.behaviorWins ?? seed.behaviorWins,
   };
 }
@@ -87,6 +89,14 @@ export function getTodaysProtein(data: RebuildData) {
   return data.meals.filter((meal) => !meal.date || isToday(meal.date)).reduce((sum, meal) => sum + meal.protein, 0);
 }
 
+export function getTodaysWaterOunces(data: RebuildData) {
+  return data.waterLogs.filter((entry) => isToday(entry.date)).reduce((sum, entry) => sum + entry.ounces, 0);
+}
+
+export function getLatestSleep(data: RebuildData) {
+  return data.sleepLogs[0] ?? null;
+}
+
 export function isToday(date: string) {
   return date === "Today" || date === todayLabel;
 }
@@ -119,8 +129,8 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
     items.push({
       id: `tl-${win.id}`,
       date: win.date,
-      title: win.didntSmoke && win.didntSpiral ? "Protected the reset" : "Logged a reset",
-      detail: win.label,
+      title: "Pattern interrupted",
+      detail: normalizePatternLabel(win.label),
       tone: win.didntSmoke && win.didntSpiral ? "green" : "steel",
       editable: { kind: "mood", id: win.id },
     });
@@ -238,6 +248,28 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
     });
   });
 
+  data.waterLogs.slice(0, 2).forEach((entry) => {
+    items.push({
+      id: `tl-${entry.id}`,
+      date: entry.date,
+      title: "Water logged",
+      detail: `${entry.ounces} oz saved.`,
+      tone: "steel",
+      editable: { kind: "water", id: entry.id },
+    });
+  });
+
+  data.sleepLogs.slice(0, 2).forEach((entry) => {
+    items.push({
+      id: `tl-${entry.id}`,
+      date: entry.date,
+      title: "Sleep logged",
+      detail: `${entry.hours} hours · ${entry.quality} quality. ${entry.notes}`,
+      tone: "steel",
+      editable: { kind: "sleep", id: entry.id },
+    });
+  });
+
   const bestLadder = getBestJacobsLadderTime(data);
   if (bestLadder !== "0:00") {
     items.push({
@@ -261,7 +293,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
     ];
   }
 
-  return items.slice(0, 8);
+  return items;
 }
 
 export function timeToSeconds(value: string) {
@@ -278,4 +310,13 @@ function roundDistance(value: number) {
 
 function formatDistance(value: number) {
   return `${roundDistance(value).toFixed(value >= 10 ? 1 : 2)} mi`;
+}
+
+function normalizePatternLabel(label: string) {
+  const clean = label
+    .replace(/did(n't| not) smoke/gi, "interrupted the old loop")
+    .replace(/did(n't| not) spiral/gi, "stayed present")
+    .replace(/chose the reset instead of the old loop/gi, "Stayed with the better choice");
+
+  return clean.includes("→") ? clean : `Pattern interrupted → ${clean}`;
 }

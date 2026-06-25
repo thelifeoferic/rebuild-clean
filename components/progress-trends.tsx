@@ -22,6 +22,7 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
   const latestWeight = data.weights[0]?.weight ?? 0;
   const weightChange = getWeightChangeFromLast(data);
   const weightChangeLabel = data.weights.length > 1 ? `${weightChange > 0 ? "+" : ""}${weightChange.toFixed(1)} lb` : "first entry";
+  const recentLow = getRecentLowWeight(data);
 
   return (
     <Section id="trends" eyebrow="Proof, not vibes" title="Progress Trends">
@@ -29,9 +30,9 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="metric-label">Weight trend</p>
-            <p className="mt-1 text-lg font-semibold text-porcelain">{formatWeight(sevenDayAverageWeight)} avg</p>
+            <p className="mt-1 text-lg font-semibold text-porcelain">{data.weights.length ? `${formatWeight(sevenDayAverageWeight)} avg` : "Trend waiting"}</p>
             <p className="mt-1 text-sm font-semibold text-white/45">
-              Latest {formatWeight(latestWeight)} · {weightChangeLabel}
+              {data.weights.length ? `Latest ${formatWeight(latestWeight)} · ${weightChangeLabel}` : "Check back after a few weigh-ins."}
             </p>
           </div>
           <LineChart className="text-champagne" size={22} strokeWidth={2.1} aria-hidden />
@@ -69,7 +70,7 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
           icon={Trophy}
           tone="ember"
         />
-        <MetricCard label="Low" value={formatWeight(getRecentLowWeight(data))} detail="recent floor" icon={Scale} tone="steel" />
+        <MetricCard label="Low" value={recentLow ? formatWeight(recentLow) : "—"} detail={recentLow ? "recent floor" : "first weigh-in sets it"} icon={Scale} tone="steel" />
       </div>
     </Section>
   );

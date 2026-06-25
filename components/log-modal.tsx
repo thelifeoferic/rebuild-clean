@@ -21,7 +21,9 @@ const titles: Record<LogKind, string> = {
   swim: "Swim Session",
   yoga: "Yoga Session",
   meal: "Meal",
-  mood: "Mood Reset",
+  water: "Water",
+  sleep: "Sleep",
+  mood: "Pattern Interrupt",
 };
 
 const defaults: Record<LogKind, LogDraft> = {
@@ -36,16 +38,20 @@ const defaults: Record<LogKind, LogDraft> = {
   swim: { date: "Today", minutes: "", distance: "", stroke: "Freestyle", notes: "" },
   yoga: { date: "Today", minutes: "", focus: "Mobility", notes: "" },
   meal: { date: "Today", name: "", calories: "", protein: "", notes: "" },
+  water: { date: "Today", ounces: "24" },
+  sleep: { date: "Today", hours: "", quality: "good", notes: "" },
   mood: {
     date: "Today",
     reason: "stress",
-    label: "Chose the reset instead of the old loop",
+    label: "Went to the gym",
     didntSmoke: true,
     didntSpiral: true,
   },
 };
 
 const moodReasons: MoodReason[] = ["stress", "anger", "boredom", "energy", "habit"];
+const replacementActions = ["Went to the gym", "Read", "Journaled", "Meditated", "Walked", "Called a friend", "Early bedtime", "Healthy meal", "Stayed present"];
+const sleepQualities = ["low", "okay", "good", "great"] as const;
 
 export function LogModal({
   initialDraft,
@@ -218,6 +224,35 @@ export function LogModal({
             </>
           ) : null}
 
+          {activeKind === "water" ? (
+            <>
+              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <Field label="Water" name="ounces" value={String(draft.ounces)} onChange={update} inputMode="numeric" suffix="oz" />
+            </>
+          ) : null}
+
+          {activeKind === "sleep" ? (
+            <>
+              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <Field label="Hours" name="hours" value={String(draft.hours)} onChange={update} inputMode="decimal" />
+              <label className="block">
+                <span className="metric-label mb-2 block">Quality</span>
+                <select
+                  value={String(draft.quality)}
+                  onChange={(event) => update("quality", event.target.value)}
+                  className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base text-porcelain outline-none focus:border-champagne"
+                >
+                  {sleepQualities.map((quality) => (
+                    <option key={quality} value={quality}>
+                      {quality}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
+            </>
+          ) : null}
+
           {activeKind === "mood" ? (
             <>
               <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
@@ -235,9 +270,24 @@ export function LogModal({
                   ))}
                 </select>
               </label>
-              <TextArea label="Reset note" name="label" value={String(draft.label)} onChange={update} />
-              <Check label="Did not smoke" name="didntSmoke" checked={Boolean(draft.didntSmoke)} onChange={update} />
-              <Check label="Did not spiral" name="didntSpiral" checked={Boolean(draft.didntSpiral)} onChange={update} />
+              <div>
+                <p className="metric-label mb-2">What did you do instead?</p>
+                <div className="flex flex-wrap gap-2">
+                  {replacementActions.map((action) => (
+                    <button
+                      key={action}
+                      type="button"
+                      onClick={() => update("label", action)}
+                      className={`min-h-10 rounded-full border px-3 text-sm font-semibold ${
+                        draft.label === action ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-white/[0.055] text-white/62"
+                      }`}
+                    >
+                      {action}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <TextArea label="Custom replacement" name="label" value={String(draft.label)} onChange={update} />
             </>
           ) : null}
         </div>

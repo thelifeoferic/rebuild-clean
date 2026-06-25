@@ -8,9 +8,11 @@ import type {
   MealLog,
   PushUpSession,
   RebuildData,
+  SleepLog,
   StrengthAccessorySession,
   SwimSession,
   TimelineItem,
+  WaterLog,
   WeightEntry,
   YogaSession,
 } from "@/types/rebuild";
@@ -40,6 +42,10 @@ export const yogaSessions: YogaSession[] = [];
 
 export const meals: MealLog[] = [];
 
+export const waterLogs: WaterLog[] = [];
+
+export const sleepLogs: SleepLog[] = [];
+
 export const behaviorWins: BehaviorWin[] = [];
 
 export const timeline: TimelineItem[] = [];
@@ -64,5 +70,7 @@ export const seedData: RebuildData = {
   swimSessions,
   yogaSessions,
   meals,
+  waterLogs,
+  sleepLogs,
   behaviorWins,
 };

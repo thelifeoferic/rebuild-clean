@@ -13,7 +13,7 @@ export type WorkoutProgram = {
 export const workoutPrograms: WorkoutProgram[] = [
   {
     title: "Reset 20",
-    intent: "When the old loop starts talking.",
+    intent: "When pressure needs a replacement action.",
     time: "20 min",
     location: "Home",
     focus: ["discipline", "behavior", "weight loss", "conditioning"],

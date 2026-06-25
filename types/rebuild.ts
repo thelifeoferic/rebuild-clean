@@ -96,6 +96,20 @@ export type MealLog = {
   notes: string;
 };
 
+export type WaterLog = {
+  id: string;
+  date: string;
+  ounces: number;
+};
+
+export type SleepLog = {
+  id: string;
+  date: string;
+  hours: number;
+  quality: "low" | "okay" | "good" | "great";
+  notes: string;
+};
+
 export type BehaviorWin = {
   id: string;
   label: string;
@@ -129,6 +143,8 @@ export type RebuildData = {
   swimSessions: SwimSession[];
   yogaSessions: YogaSession[];
   meals: MealLog[];
+  waterLogs: WaterLog[];
+  sleepLogs: SleepLog[];
   behaviorWins: BehaviorWin[];
 };
 
@@ -144,9 +160,11 @@ export type LogKind =
   | "swim"
   | "yoga"
   | "meal"
+  | "water"
+  | "sleep"
   | "mood";
 
-export type AppView = "home" | "log" | "training" | "progress" | "body" | "reset" | "library";
+export type AppView = "home" | "log" | "records" | "programs" | "me";
 
 export type OnboardingProfile = {
   accentColor?: "champagne" | "white" | "ember" | "volt" | "teal" | "cobalt";

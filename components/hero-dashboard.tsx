@@ -1,15 +1,15 @@
 "use client";
 
-import { Bike, Dumbbell, Headphones, RefreshCw, Scale, ShieldCheck, Sparkles } from "lucide-react";
+import { Bike, CheckCircle2, Dumbbell, Headphones, LineChart, RefreshCw, Scale, ShieldCheck, Sparkles, Trophy } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
-import { LoginPanel } from "@/components/login-panel";
+import { CountUp } from "@/components/count-up";
 import { NutritionTracker } from "@/components/nutrition-tracker";
-import { RebuildWordmark } from "@/components/rebuild-wordmark";
 import { TodayPlan } from "@/components/today-plan";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
-import { getTodaysBikeMinutes, getWeightChangeFromLast } from "@/lib/rebuild-data";
+import { getTodaysBikeMinutes, getWeightChangeFromLast, isToday } from "@/lib/rebuild-data";
+import { getCoachInsight, getPersonalRecords, getRebuildDay, getRebuildScore, getRecentQuickWin, getWeeklyConsistency } from "@/lib/rebuild-insights";
 import { formatMinutes, formatWeight } from "@/lib/metrics";
 
 const quotes = [
@@ -58,14 +58,14 @@ export function HeroDashboard({
   const [quoteIndex, setQuoteIndex] = useState(() => randomQuoteIndex(quotes.length));
   const quote = activeQuotes[quoteIndex % activeQuotes.length];
   const recommendation = getHomeRecommendation(profile, data);
-  const hasLogs =
-    data.weights.length +
-      data.bikeSessions.length +
-      data.pushUpSessions.length +
-      data.behaviorWins.length +
-      data.meals.length >
-    0;
-
+  const rebuildScore = getRebuildScore(data, profile);
+  const coachInsight = getCoachInsight(data, profile);
+  const rebuildDay = getRebuildDay(data);
+  const quickWin = getRecentQuickWin(data);
+  const weeklyConsistency = getWeeklyConsistency(data, profile);
+  const records = getPersonalRecords(data);
+  const topRecord = records.find((record) => record.value !== "—") ?? records[0];
+  const recentTimeline = quickWin ?? null;
   useEffect(() => {
     if (profile?.quoteStyle === "none") return;
 
@@ -82,49 +82,67 @@ export function HeroDashboard({
 
   return (
     <section className="px-4 pb-4 pt-5">
-      <div className="relative min-h-[360px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-panel">
+      <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-panel">
         <Image
           src={homeHeroImage(profile)}
           alt=""
           fill
           priority
           sizes="(max-width: 768px) 100vw, 448px"
-          className="object-cover object-[52%_40%]"
+          className="object-cover object-[52%_40%] opacity-72"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.62),rgba(0,0,0,0.38)_34%,rgba(0,0,0,0.96))]" />
-        <div className="relative flex min-h-[360px] flex-col justify-between p-5">
-          <div>
-            <RebuildWordmark className="mx-auto drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.76),rgba(0,0,0,0.48)_36%,rgba(0,0,0,0.94))]" />
+        <div className="relative p-5">
+          <div className="mb-5">
+            <p className="metric-label text-white/70">{greeting()}, {firstName || "Member"}.</p>
+            <h1 className="mt-2 max-w-[18rem] font-display text-5xl font-black uppercase leading-[0.88] tracking-normal text-white">
+              Day {rebuildDay} of your rebuild.
+            </h1>
           </div>
 
-          <div className="-mx-1 rounded-[1.5rem] bg-black/52 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-[2px]">
-            <p className="metric-label text-white/78">{firstName ? `Hi, ${firstName}` : "Today"}</p>
-            <h2 className="mt-2 font-display text-5xl font-black uppercase leading-[0.88] tracking-normal text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.8)]">
-              {hasLogs ? "Next rep." : "Blank slate."}
-            </h2>
-            <p className="mt-3 max-w-[18rem] text-sm font-semibold leading-5 text-white/82">
-              {hasLogs
-                ? "Log the next action and let the numbers stay honest."
-                : "Start with one clean entry when tomorrow begins."}
-            </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => onNavigate("records")}
+              className="rounded-[1.35rem] border border-champagne/20 bg-black/55 p-4 text-left backdrop-blur"
+            >
+              <p className="metric-label text-white/55">REBUILD Score</p>
+              <p className="mt-2 font-display text-5xl font-black uppercase leading-none text-champagne">
+                {rebuildScore.value === null ? "—" : <CountUp value={rebuildScore.value} />}
+              </p>
+              <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-white/45">{rebuildScore.deltaLabel}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => onOpenLog("weight")}
+              className="rounded-[1.35rem] border border-white/10 bg-black/55 p-4 text-left backdrop-blur"
+            >
+              <p className="metric-label text-white/55">Current Weight</p>
+              <p className="mt-2 font-display text-4xl font-black uppercase leading-none text-white">
+                {data.weights.length ? formatWeight(todayWeight) : "—"}
+              </p>
+              <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-white/45">{weightDetail}</p>
+            </button>
+          </div>
 
-            <div className="mt-5 grid gap-2">
-              <button
-                type="button"
-                onClick={() => onNavigate("log")}
-                className="min-h-12 rounded-2xl bg-champagne px-4 text-base font-bold text-carbon shadow-glow"
-              >
-                Log workout
-              </button>
-              <a
-                href={tidalPlaylistUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-signal px-3 text-sm font-bold text-carbon"
-              >
-                <Headphones size={17} strokeWidth={2.2} aria-hidden />
-                Start TIDAL playlist
-              </a>
+          <button
+            type="button"
+            onClick={() => onNavigate("records")}
+            className="mt-3 w-full rounded-[1.35rem] border border-white/10 bg-black/55 p-4 text-left backdrop-blur"
+          >
+            <p className="metric-label text-white/55">Coach insight</p>
+            <p className="mt-2 text-sm font-semibold leading-5 text-white/82">{coachInsight}</p>
+          </button>
+
+          <div className="mt-3 rounded-[1.35rem] border border-white/10 bg-black/55 p-4 backdrop-blur">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="metric-label text-white/55">Today&apos;s plan</p>
+              <span className="text-xs font-bold text-champagne">{todayCompletion(data)}/3</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <PlanButton label="Weigh-in" done={data.weights.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("weight")} />
+              <PlanButton label="Move" done={hasMovementToday(data)} onClick={() => onNavigate("log")} />
+              <PlanButton label="Pattern" done={data.behaviorWins.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("mood")} />
             </div>
           </div>
         </div>
@@ -197,16 +215,55 @@ export function HeroDashboard({
         </div>
       ) : null}
 
-      <TodayPlan data={data} onOpenLog={onOpenLog} />
-      <NutritionTracker data={data} onOpenLog={onOpenLog} profile={profile} />
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <HomeSignalCard
+          icon={ShieldCheck}
+          label="Quick win"
+          title={quickWin?.title ?? "Your rebuild starts here."}
+          detail={quickWin?.detail ?? "Log your first session, weigh-in, meal, or pattern interrupt."}
+          onClick={() => onNavigate("log")}
+        />
+        <HomeSignalCard
+          icon={CheckCircle2}
+          label="Recent timeline"
+          title={recentTimeline?.title ?? "Story waiting"}
+          detail={recentTimeline?.detail ?? "Your first meaningful entry appears here."}
+          onClick={() => onNavigate("records")}
+        />
+        <HomeSignalCard
+          icon={LineChart}
+          label="Consistency"
+          title={`${weeklyConsistency.sessions}/${weeklyConsistency.goal} sessions`}
+          detail={weeklyConsistency.summary}
+          onClick={() => onNavigate("records")}
+        />
+        <HomeSignalCard
+          icon={Trophy}
+          label="Record"
+          title={topRecord ? topRecord.label : "First record"}
+          detail={topRecord ? `${topRecord.value}${topRecord.unit ? ` ${topRecord.unit}` : ""} · ${topRecord.detail}` : "Your first workout sets it."}
+          onClick={() => onNavigate("records")}
+        />
+      </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} detail={weightDetail} icon={Scale} />
         <MiniStat label="Bike" value={formatMinutes(todaysBikeMinutes)} icon={Bike} />
-        <MiniStat label="Wins" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
+        <MiniStat label="Patterns" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
       </div>
 
-      <LoginPanel className="mt-4" compact />
+      <TodayPlan data={data} onOpenLog={onOpenLog} />
+      <NutritionTracker data={data} onOpenLog={onOpenLog} profile={profile} />
+
+      <a
+        href={tidalPlaylistUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-signal px-3 text-base font-bold text-carbon"
+      >
+        <Headphones size={18} strokeWidth={2.2} aria-hidden />
+        Start TIDAL playlist
+      </a>
     </section>
   );
 }
@@ -307,5 +364,83 @@ function MiniStat({
       <p className="mt-1 text-base font-semibold text-porcelain">{value}</p>
       {detail ? <p className="mt-1 text-xs font-semibold text-white/35">{detail}</p> : null}
     </div>
+  );
+}
+
+function PlanButton({
+  done,
+  label,
+  onClick,
+}: {
+  done: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`min-h-16 rounded-2xl border px-2 text-center text-xs font-black uppercase tracking-[0.08em] active:scale-[0.97] ${
+        done ? "border-signal/30 bg-signal/15 text-signal" : "border-white/10 bg-white/10 text-white/68"
+      }`}
+    >
+      {done ? "Done" : label}
+    </button>
+  );
+}
+
+function HomeSignalCard({
+  detail,
+  icon: Icon,
+  label,
+  onClick,
+  title,
+}: {
+  detail: string;
+  icon: typeof Scale;
+  label: string;
+  onClick: () => void;
+  title: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="min-h-40 rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-left shadow-panel transition active:scale-[0.97]"
+    >
+      <Icon className="mb-3 text-champagne" size={18} strokeWidth={2.1} aria-hidden />
+      <p className="metric-label">{label}</p>
+      <h3 className="mt-2 text-base font-semibold leading-tight text-porcelain">{title}</h3>
+      <p className="mt-2 line-clamp-3 text-xs leading-4 text-white/45">{detail}</p>
+    </button>
+  );
+}
+
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function todayCompletion(data: RebuildData) {
+  return [
+    data.weights.some((entry) => isToday(entry.date)),
+    hasMovementToday(data),
+    data.behaviorWins.some((entry) => isToday(entry.date)),
+  ].filter(Boolean).length;
+}
+
+function hasMovementToday(data: RebuildData) {
+  return (
+    data.bikeSessions.some((entry) => isToday(entry.date)) ||
+    data.jacobsLadderSessions.some((entry) => isToday(entry.date)) ||
+    data.pushUpSessions.some((entry) => isToday(entry.date)) ||
+    data.dumbbellCurlSessions.some((entry) => isToday(entry.date)) ||
+    data.strengthAccessorySessions.some((entry) => isToday(entry.date)) ||
+    data.kettlebellSessions.some((entry) => isToday(entry.date)) ||
+    data.farmerCarrySessions.some((entry) => isToday(entry.date)) ||
+    data.swimSessions.some((entry) => isToday(entry.date)) ||
+    data.yogaSessions.some((entry) => isToday(entry.date))
   );
 }

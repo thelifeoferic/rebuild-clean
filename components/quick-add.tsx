@@ -1,4 +1,4 @@
-import { Bike, Brain, Dumbbell, Flame, Footprints, Home, Salad, Scale, Trophy, Waves, Zap } from "lucide-react";
+import { Bike, Brain, Droplets, Dumbbell, Flame, Footprints, Home, Moon, Salad, Scale, Trophy, Waves, Zap } from "lucide-react";
 import { Section } from "@/components/section";
 import type { LogKind } from "@/types/rebuild";
 
@@ -14,10 +14,13 @@ const logTypes = [
   { kind: "swim", label: "Swim", detail: "minutes, distance, stroke", icon: Waves },
   { kind: "yoga", label: "Yoga", detail: "minutes, focus, notes", icon: Flame },
   { kind: "meal", label: "Meal", detail: "calories, protein, notes", icon: Salad },
-  { kind: "mood", label: "Mood reset", detail: "stress, anger, boredom", icon: Brain },
+  { kind: "water", label: "Water", detail: "ounces and date", icon: Droplets },
+  { kind: "sleep", label: "Sleep", detail: "hours, quality, notes", icon: Moon },
+  { kind: "mood", label: "Pattern Interrupt", detail: "what you did instead", icon: Brain },
 ];
 
 const moods = ["stress", "anger", "boredom", "energy", "habit"];
+const replacementActions = ["Went to the gym", "Walked", "Journaled", "Meditated", "Called a friend", "Early bedtime"];
 
 const routineShortcuts = [
   {
@@ -40,7 +43,7 @@ const routineShortcuts = [
   },
   {
     title: "Low-energy win",
-    detail: "Protect the day with one reset log",
+    detail: "Protect the day with one pattern interrupt",
     kind: "mood",
     icon: Zap,
   },
@@ -94,7 +97,8 @@ export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind) => void }) {
         </div>
 
         <div className="mt-4 rounded-2xl bg-white/[0.055] p-3">
-          <p className="metric-label mb-3">Reset reason</p>
+          <p className="metric-label mb-3">Pattern interrupt</p>
+          <p className="mb-3 text-sm leading-5 text-white/45">Log what replaced the pressure pattern. The private context stays private; the replacement becomes the record.</p>
           <div className="flex flex-wrap gap-2">
             {moods.map((mood) => (
               <button
@@ -108,12 +112,16 @@ export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind) => void }) {
             ))}
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => onSelect("mood")} className="rounded-2xl bg-signal px-3 py-3 text-sm font-bold text-carbon">
-              Did not smoke
-            </button>
-            <button type="button" onClick={() => onSelect("mood")} className="rounded-2xl bg-champagne px-3 py-3 text-sm font-bold text-carbon">
-              Did not spiral
-            </button>
+            {replacementActions.map((action, index) => (
+              <button
+                key={action}
+                type="button"
+                onClick={() => onSelect("mood")}
+                className={`rounded-2xl px-3 py-3 text-sm font-bold text-carbon ${index === 0 ? "bg-signal" : "bg-champagne"}`}
+              >
+                {action}
+              </button>
+            ))}
           </div>
         </div>
       </div>

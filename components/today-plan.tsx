@@ -9,7 +9,7 @@ const items = [
   { key: "weight", label: "Weigh in", detail: "Start with the truth.", icon: Scale },
   { key: "movement", label: "Move", detail: "Choose the work that fits today.", icon: Bike },
   { key: "protein", label: "Fuel", detail: "Log one protein anchor.", icon: Salad },
-  { key: "reset", label: "Protect", detail: "Track the better choice.", icon: Flame },
+  { key: "reset", label: "Pattern", detail: "Track the better choice.", icon: Flame },
 ] as const;
 
 const movementChoices: { kind: LogKind; label: string; icon: typeof Bike }[] = [

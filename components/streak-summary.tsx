@@ -30,7 +30,7 @@ export function StreakSummary({ data }: { data: RebuildData }) {
     data.yogaSessions.length;
 
   const proteinHits = data.meals.filter((meal) => meal.protein >= 25).length;
-  const protectedWins = data.behaviorWins.filter((win) => win.didntSmoke || win.didntSpiral).length;
+  const patternWins = data.behaviorWins.length;
 
   return (
     <Section id="streaks" eyebrow="Proof, not vibes" title="Consistency">
@@ -38,7 +38,7 @@ export function StreakSummary({ data }: { data: RebuildData }) {
         <ProofCard label="Show-up days" value={`${proofDays}`} detail="days with any saved proof" icon={CalendarCheck2} />
         <ProofCard label="Training" value={`${trainingSessions}`} detail="movement sessions logged" icon={Activity} />
         <ProofCard label="Protein hits" value={`${proteinHits}`} detail="meals at 25g+" icon={Salad} />
-        <ProofCard label="Reset wins" value={`${protectedWins}`} detail="old loop interrupted" icon={ShieldCheck} />
+        <ProofCard label="Pattern wins" value={`${patternWins}`} detail="replacement behavior logged" icon={ShieldCheck} />
       </div>
     </Section>
   );

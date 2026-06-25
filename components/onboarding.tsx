@@ -10,11 +10,11 @@ import type { OnboardingProfile } from "@/types/rebuild";
 const goals = [
   "Lose weight",
   "Build strength",
-  "Quit smoking",
-  "Stop spiraling",
   "Improve cardio",
   "Eat better",
   "Sleep better",
+  "Reduce stress",
+  "Build confidence",
   "Rebuild discipline",
 ];
 
@@ -66,7 +66,19 @@ const equipment = [
   "Farmer carry space",
 ];
 
-const behaviorFocus = ["Smoking", "Anger", "Stress", "Boredom", "Stress eating", "Avoidance", "Late-night scrolling"];
+const behaviorFocus = [
+  "Alcohol",
+  "Marijuana",
+  "Nicotine",
+  "Pornography",
+  "Social Media",
+  "Video Games",
+  "Emotional Eating",
+  "Shopping",
+  "Gambling",
+  "Other",
+  "Prefer not to say",
+];
 const themeOptions = ["dark", "light", "auto"] as const;
 const accentOptions = ["champagne", "white", "ember", "volt"] as const;
 const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
@@ -77,10 +89,8 @@ const durationOptions = [10, 20, 25, 30, 45] as const;
 const stepMeta = [
   { title: "Welcome", eyebrow: "Start here", icon: ShieldCheck },
   { title: "Baseline", eyebrow: "Tell the truth", icon: Scale },
-  { title: "Goals", eyebrow: "Choose the lanes", icon: Target },
+  { title: "Goal", eyebrow: "Choose the lane", icon: Target },
   { title: "Equipment", eyebrow: "Use what is real", icon: Dumbbell },
-  { title: "Style", eyebrow: "Make it yours", icon: Target },
-  { title: "Commit", eyebrow: "Protect the reset", icon: Cloud },
 ];
 
 export function Onboarding({
@@ -90,7 +100,7 @@ export function Onboarding({
 }) {
   const [step, setStep] = useState(0);
   const [firstName, setFirstName] = useState("");
-  const [selectedGoals, setSelectedGoals] = useState<string[]>(["Lose weight", "Rebuild discipline"]);
+  const [selectedGoals, setSelectedGoals] = useState<string[]>(["Lose weight"]);
   const [currentWeight, setCurrentWeight] = useState("");
   const [height, setHeight] = useState("");
   const [targetWeight, setTargetWeight] = useState("");
@@ -103,7 +113,7 @@ export function Onboarding({
   const [quoteStyle, setQuoteStyle] = useState<NonNullable<OnboardingProfile["quoteStyle"]>>("goggins");
   const [defaultLocation, setDefaultLocation] = useState<NonNullable<OnboardingProfile["defaultLocation"]>>("gym");
   const [preferredTrainingMinutes, setPreferredTrainingMinutes] = useState<NonNullable<OnboardingProfile["preferredTrainingMinutes"]>>(25);
-  const [selectedFocus, setSelectedFocus] = useState<string[]>(["Smoking", "Avoidance"]);
+  const [selectedFocus, setSelectedFocus] = useState<string[]>([]);
   const isFinalStep = step === stepMeta.length - 1;
   const currentMeta = stepMeta[step];
   const StepIcon = currentMeta.icon;
@@ -218,27 +228,22 @@ export function Onboarding({
           {step === 1 ? (
             <div className="space-y-3">
               <Field label="First name" value={firstName} onChange={setFirstName} placeholder="First name" />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3">
                 <Field label="Current weight" value={currentWeight} onChange={setCurrentWeight} placeholder="Current" inputMode="decimal" suffix="lb" />
-                <Field label="Height" value={height} onChange={setHeight} placeholder={`5'10"`} />
-                <Field label="Target weight" value={targetWeight} onChange={setTargetWeight} placeholder="Goal" inputMode="decimal" suffix="lb" />
               </div>
-              <TextArea
-                label="Why I'm doing this"
-                value={why}
-                onChange={setWhy}
-                placeholder="A short sentence REBUILD can keep in view."
-              />
+              <p className="rounded-2xl bg-white/[0.055] p-3 text-sm leading-5 text-white/50">
+                Height, target weight, style, and private habit loops move to Me → Setup after you enter the app.
+              </p>
             </div>
           ) : null}
 
           {step === 2 ? (
             <ChoiceGroup
-              title="Primary goals"
-              helper="Select a few. The Train page will rank workouts around these."
+              title="Primary goal"
+              helper="Pick one now. Add more goals later under Me → Setup."
               options={goals}
               selected={selectedGoals}
-              onSelect={(value) => toggle(value, selectedGoals, setSelectedGoals)}
+              onSelect={(value) => setSelectedGoals([value])}
             />
           ) : null}
 
@@ -263,7 +268,7 @@ export function Onboarding({
             </div>
           ) : null}
 
-          {step === 4 ? (
+          {false && step === 4 ? (
             <div className="space-y-4">
               <PreferenceGroup
                 title="Interface"
@@ -298,7 +303,7 @@ export function Onboarding({
             </div>
           ) : null}
 
-          {step === 5 ? (
+          {false && step === 5 ? (
             <div className="space-y-4">
               <ChoiceGroup
                 title="Behavior loops to replace"
