@@ -41,6 +41,7 @@ export type PushUpSession = {
 export type DumbbellCurlSession = {
   id: string;
   date: string;
+  exercise?: string;
   weight: number;
   repsEachArm: number;
 };
@@ -168,6 +169,8 @@ export type AppView = "home" | "log" | "records" | "programs" | "me";
 
 export type OnboardingProfile = {
   accentColor?: "champagne" | "white" | "ember" | "volt" | "teal" | "cobalt";
+  avatarDataUrl?: string;
+  avatarUrl?: string;
   firstName?: string;
   goal: string;
   goals?: string[];

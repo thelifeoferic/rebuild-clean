@@ -46,9 +46,9 @@ export function KettlebellPrograms({ data }: { data: RebuildData }) {
 
       <div className="mt-3 grid grid-cols-2 gap-3">
         <MetricCard
-          label="Curls"
+          label="Dumbbell"
           value={`${latestCurl?.weight ?? 0} lb`}
-          detail={`${latestCurl ? latestCurl.repsEachArm * 2 : 0} total reps`}
+          detail={latestCurl ? `${latestCurl.exercise ?? "Dumbbell curls"} · ${latestCurl.repsEachArm * 2} reps` : "none logged"}
           icon={Dumbbell}
           tone="ember"
         />

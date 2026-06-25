@@ -3,6 +3,7 @@ create extension if not exists pgcrypto;
 create table if not exists public.rebuild_profiles (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade unique,
+  avatar_url text,
   first_name text,
   goal text not null default 'Rebuild discipline',
   goals text[] not null default '{}',
@@ -25,6 +26,7 @@ create table if not exists public.rebuild_profiles (
 );
 
 alter table public.rebuild_profiles add column if not exists theme_preference text not null default 'dark';
+alter table public.rebuild_profiles add column if not exists avatar_url text;
 alter table public.rebuild_profiles add column if not exists accent_color text not null default 'champagne';
 alter table public.rebuild_profiles alter column accent_color set default 'champagne';
 alter table public.rebuild_profiles add column if not exists coaching_tone text not null default 'calm';
@@ -120,3 +122,39 @@ on public.rebuild_data_snapshots
 for delete
 to authenticated
 using (auth.uid() = user_id);
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('avatars', 'avatars', true, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update
+set public = excluded.public,
+    file_size_limit = excluded.file_size_limit,
+    allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "Avatar images are publicly readable" on storage.objects;
+create policy "Avatar images are publicly readable"
+on storage.objects
+for select
+to public
+using (bucket_id = 'avatars');
+
+drop policy if exists "Users can upload own avatar" on storage.objects;
+create policy "Users can upload own avatar"
+on storage.objects
+for insert
+to authenticated
+with check (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
+
+drop policy if exists "Users can update own avatar" on storage.objects;
+create policy "Users can update own avatar"
+on storage.objects
+for update
+to authenticated
+using (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1])
+with check (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
+
+drop policy if exists "Users can delete own avatar" on storage.objects;
+create policy "Users can delete own avatar"
+on storage.objects
+for delete
+to authenticated
+using (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);

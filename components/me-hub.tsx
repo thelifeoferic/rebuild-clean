@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { CheckCircle2, ChevronDown, Cloud, ScanSearch, UserRound, Watch } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AccountSync } from "@/components/account-sync";
@@ -57,13 +59,18 @@ export function MeHub({
 }) {
   const [activeTab, setActiveTab] = useState<MeTab>("Profile");
   const firstName = profile?.firstName?.trim() || "Member";
+  const avatarSrc = profile?.avatarDataUrl || profile?.avatarUrl;
 
   return (
     <>
       <div className="sticky top-0 z-30 bg-carbon/92 px-4 pt-5 backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <div className="grid size-11 place-items-center rounded-full bg-champagne/10 text-champagne">
-            <UserRound size={20} strokeWidth={2.2} aria-hidden />
+          <div className="grid size-11 place-items-center overflow-hidden rounded-full border border-white/10 bg-champagne/10 text-champagne">
+            {avatarSrc ? (
+              <img src={avatarSrc} alt={`${firstName} profile`} className="h-full w-full object-cover" />
+            ) : (
+              <UserRound size={20} strokeWidth={2.2} aria-hidden />
+            )}
           </div>
           <div>
             <p className="metric-label">Identity and backup</p>
@@ -87,7 +94,7 @@ export function MeHub({
         </div>
       </div>
 
-      {activeTab === "Profile" ? <ProfileCard onRestart={onRestart} profile={profile} /> : null}
+      {activeTab === "Profile" ? <ProfileCard onRestart={onRestart} onUpdateProfile={onUpdateProfile} profile={profile} /> : null}
       {activeTab === "Setup" ? <ProgressiveSetup onUpdateProfile={onUpdateProfile} profile={profile} /> : null}
       {activeTab === "Sync" ? <AccountSync data={data} onRestore={onRestore} profile={profile} /> : null}
       {activeTab === "Body Check" ? <BodyCheck profile={profile} /> : null}
@@ -105,6 +112,8 @@ function ProgressiveSetup({
 }) {
   const [draft, setDraft] = useState<OnboardingProfile>(() => ({
     accentColor: profile?.accentColor ?? "ember",
+    avatarDataUrl: profile?.avatarDataUrl,
+    avatarUrl: profile?.avatarUrl,
     behaviorFocus: profile?.behaviorFocus ?? [],
     coachingTone: profile?.coachingTone ?? "calm",
     completed: true,

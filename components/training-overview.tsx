@@ -111,9 +111,9 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
           icon={Footprints}
         />
         <TrainingStat
-          label="Curls"
+          label="Dumbbell"
           value={latestCurl ? `${latestCurl.weight} lb` : "--"}
-          detail={latestCurl ? `${latestCurl.repsEachArm * 2} reps` : "none logged"}
+          detail={latestCurl ? `${latestCurl.exercise ?? "Dumbbell curls"} · ${latestCurl.repsEachArm * 2} reps` : "none logged"}
           icon={Dumbbell}
         />
         <TrainingStat

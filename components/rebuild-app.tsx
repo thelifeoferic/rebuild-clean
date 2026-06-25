@@ -479,6 +479,7 @@ function dumbbellCurlsFromDraft(draft: Draft, id = createId("curl")) {
   return {
     id,
     date: dateFromDraft(draft),
+    exercise: text(draft.exercise, "Dumbbell curls"),
     weight: number(draft.weight),
     repsEachArm: number(draft.repsEachArm),
   };
@@ -488,7 +489,7 @@ function strengthFromDraft(draft: Draft, id = createId("strength")) {
   return {
     id,
     date: dateFromDraft(draft),
-    exercise: text(draft.exercise, "Strength lift"),
+    exercise: text(draft.exercise, "Bench press"),
     weight: number(draft.weight),
     reps: number(draft.reps),
     notes: text(draft.notes, "Logged strength work."),
@@ -499,7 +500,7 @@ function kettlebellFromDraft(draft: Draft, id = createId("kb")) {
   return {
     id,
     date: dateFromDraft(draft),
-    exercise: text(draft.exercise, "Kettlebell work"),
+    exercise: text(draft.exercise, "Pass-arounds"),
     weight: number(draft.weight),
     reps: number(draft.reps),
   };
@@ -633,6 +634,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     return session
       ? {
           date: editDate(session.date),
+          exercise: session.exercise ?? "Dumbbell curls",
           weight: String(session.weight),
           repsEachArm: String(session.repsEachArm),
         }
@@ -793,7 +795,7 @@ function labelFor(kind: LogKind) {
     bike: "Bike session",
     jacobsLadder: "Jacob's Ladder",
     pushUps: "Push-ups",
-    dumbbellCurls: "Dumbbell curls",
+    dumbbellCurls: "Dumbbell work",
     strength: "Strength lift",
     kettlebell: "Kettlebell work",
     farmerCarries: "Farmer carries",

@@ -223,10 +223,12 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   });
 
   data.dumbbellCurlSessions.slice(0, 2).forEach((curl) => {
+    const exercise = curl.exercise ?? "Dumbbell curls";
+
     items.push({
       id: `tl-${curl.id}`,
       date: formatLogDate(curl.date),
-      title: "Dumbbell curls logged",
+      title: `${exercise} logged`,
       detail: `${curl.weight} lb for ${curl.repsEachArm * 2} total reps.`,
       tone: "ember",
       editable: { kind: "dumbbellCurls", id: curl.id },

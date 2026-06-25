@@ -1,17 +1,67 @@
-import { RotateCcw, UserRound } from "lucide-react";
+"use client";
+
+/* eslint-disable @next/next/no-img-element */
+
+import { Camera, Loader2, RotateCcw, Trash2, UserRound } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Section } from "@/components/section";
+import { prepareProfileAvatar, uploadProfileAvatar } from "@/lib/profile-avatar";
+import { getSupabaseClient } from "@/lib/supabase";
+import { saveCloudProfile } from "@/lib/supabase-sync";
 import type { OnboardingProfile } from "@/types/rebuild";
 
 export function ProfileCard({
+  onUpdateProfile,
   onRestart,
   profile,
 }: {
+  onUpdateProfile: (profile: OnboardingProfile) => void;
   onRestart: () => void;
   profile: OnboardingProfile | null;
 }) {
+  const client = useMemo(() => getSupabaseClient(), []);
   const firstName = profile?.firstName?.trim() || "Member";
   const goals = profile?.goals?.length ? profile.goals : profile?.goal ? [profile.goal] : ["Rebuild discipline"];
   const equipmentCount = profile?.equipment?.length ?? 0;
+  const avatarSrc = profile?.avatarDataUrl || profile?.avatarUrl;
+  const [avatarStatus, setAvatarStatus] = useState("");
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  async function changeAvatar(file: File | null) {
+    if (!file || !profile) return;
+
+    setIsUploadingAvatar(true);
+    setAvatarStatus("");
+
+    try {
+      const avatarDataUrl = await prepareProfileAvatar(file);
+      let nextProfile: OnboardingProfile = { ...profile, avatarDataUrl };
+      onUpdateProfile(nextProfile);
+      setAvatarStatus("Profile photo saved on this device.");
+
+      if (!client) return;
+
+      try {
+        const avatarUrl = await uploadProfileAvatar(client, avatarDataUrl);
+        nextProfile = { ...nextProfile, avatarUrl };
+        onUpdateProfile(nextProfile);
+        await saveCloudProfile({ client, profile: nextProfile });
+        setAvatarStatus("Profile photo saved to your account.");
+      } catch (error) {
+        setAvatarStatus(error instanceof Error ? `Saved locally. Cloud photo needs setup: ${error.message}` : "Saved locally. Cloud photo needs setup.");
+      }
+    } catch (error) {
+      setAvatarStatus(error instanceof Error ? error.message : "That photo could not be saved.");
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  }
+
+  function removeAvatar() {
+    if (!profile) return;
+    onUpdateProfile({ ...profile, avatarDataUrl: undefined, avatarUrl: undefined });
+    setAvatarStatus("Profile photo removed from this device.");
+  }
 
   return (
     <Section id="profile" eyebrow="Member profile" title={`Hi, ${firstName}`}>
@@ -24,9 +74,42 @@ export function ProfileCard({
               {equipmentCount} equipment options selected. Training recommendations use this profile first.
             </p>
           </div>
-          <div className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
-            <UserRound size={19} strokeWidth={2.2} aria-hidden />
+          <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-full border border-white/10 bg-champagne/10 text-champagne">
+            {avatarSrc ? (
+              <img src={avatarSrc} alt={`${firstName} profile`} className="h-full w-full object-cover" />
+            ) : (
+              <UserRound size={24} strokeWidth={2.2} aria-hidden />
+            )}
           </div>
+        </div>
+
+        <div className="mb-3 rounded-2xl bg-white/[0.055] p-3">
+          <p className="metric-label mb-2">Profile photo</p>
+          <div className="grid grid-cols-[1fr_auto] gap-2">
+            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-black text-carbon">
+              {isUploadingAvatar ? <Loader2 size={16} className="animate-spin" aria-hidden /> : <Camera size={16} strokeWidth={2.2} aria-hidden />}
+              {avatarSrc ? "Change photo" : "Add photo"}
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(event) => void changeAvatar(event.target.files?.[0] ?? null)}
+              />
+            </label>
+            {avatarSrc ? (
+              <button
+                type="button"
+                onClick={removeAvatar}
+                className="grid size-11 place-items-center rounded-2xl bg-white/[0.075] text-white/62"
+                aria-label="Remove profile photo"
+              >
+                <Trash2 size={16} strokeWidth={2.2} aria-hidden />
+              </button>
+            ) : null}
+          </div>
+          <p className="mt-2 text-xs leading-5 text-white/42">
+            {avatarStatus || "Saved locally first. If you are signed in and the avatars bucket exists, it syncs to Supabase too."}
+          </p>
         </div>
 
         {profile?.why ? (

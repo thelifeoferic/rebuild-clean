@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { Bike, BookOpen, CheckCircle2, Dumbbell, Flame, Headphones, LineChart, PlayCircle, Salad, Scale, ShieldCheck, Sparkles, Trophy, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -57,6 +59,7 @@ export function HeroDashboard({
   const weightDetail = data.weights.length > 1 ? `${weightChange > 0 ? "+" : ""}${weightChange.toFixed(1)} lb` : "weigh-in";
   const todaysBikeMinutes = getTodaysBikeMinutes(data);
   const firstName = profile?.firstName?.trim();
+  const avatarSrc = profile?.avatarDataUrl || profile?.avatarUrl;
   const activeQuotes = getQuotesForStyle(profile?.quoteStyle);
   const [quoteIndex, setQuoteIndex] = useState(() => randomQuoteIndex(quotes.length));
   const [showBurnBreakdown, setShowBurnBreakdown] = useState(false);
@@ -89,11 +92,18 @@ export function HeroDashboard({
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.76),rgba(0,0,0,0.48)_36%,rgba(0,0,0,0.94))]" />
         <div className="relative p-5">
-          <div className="mb-5">
-            <p className="metric-label text-white/70">{greeting()}, {firstName || "Member"}.</p>
-            <h1 className="mt-2 max-w-[18rem] font-display text-5xl font-black uppercase leading-[0.88] tracking-normal text-white">
-              Day {rebuildDay} of your rebuild.
-            </h1>
+          <div className="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <p className="metric-label text-white/70">{greeting()}, {firstName || "Member"}.</p>
+              <h1 className="mt-2 max-w-[18rem] font-display text-5xl font-black uppercase leading-[0.88] tracking-normal text-white">
+                Day {rebuildDay} of your rebuild.
+              </h1>
+            </div>
+            {avatarSrc ? (
+              <div className="size-14 shrink-0 overflow-hidden rounded-full border border-white/20 bg-black/45 shadow-panel">
+                <img src={avatarSrc} alt={`${firstName || "Member"} profile`} className="h-full w-full object-cover" />
+              </div>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-2 gap-3">

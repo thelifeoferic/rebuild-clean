@@ -210,7 +210,7 @@ function getDayEntries(data: RebuildData, selectedDate: string): DayEntry[] {
     id: entry.id,
     kind: "dumbbellCurls",
     stat: `${entry.repsEachArm * 2} reps`,
-    title: "Dumbbell curls",
+    title: entry.exercise ?? "Dumbbell curls",
   }));
 
   data.strengthAccessorySessions.filter((entry) => matches(entry.date)).forEach((entry) => entries.push({

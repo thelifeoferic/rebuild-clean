@@ -15,7 +15,7 @@ const titles: Record<LogKind, string> = {
   bike: "Bike Session",
   jacobsLadder: "Jacob's Ladder",
   pushUps: "Push-ups",
-  dumbbellCurls: "Dumbbell Curls",
+  dumbbellCurls: "Dumbbell Work",
   strength: "Strength Lift",
   kettlebell: "Kettlebell Work",
   farmerCarries: "Farmer Carries",
@@ -32,8 +32,8 @@ const defaults: Record<LogKind, LogDraft> = {
   bike: { date: "", minutes: "", distanceMiles: "", resistance: "", calories: "", notes: "" },
   jacobsLadder: { date: "", duration: "", longestContinuous: "" },
   pushUps: { date: "", set1: "", set2: "", set3: "", set4: "", set5: "", set6: "", extraSets: "" },
-  dumbbellCurls: { date: "", weight: "", repsEachArm: "" },
-  strength: { date: "", exercise: "", weight: "", reps: "", notes: "" },
+  dumbbellCurls: { date: "", exercise: "Dumbbell curls", weight: "", repsEachArm: "" },
+  strength: { date: "", exercise: "Bench press", weight: "", reps: "", notes: "" },
   kettlebell: { date: "", exercise: "Pass-arounds", weight: "", reps: "" },
   farmerCarries: { date: "", weightEachHand: "", distanceFeet: "", rounds: "" },
   swim: { date: "", minutes: "", distance: "", stroke: "Freestyle", notes: "" },
@@ -53,6 +53,58 @@ const defaults: Record<LogKind, LogDraft> = {
 const moodReasons: MoodReason[] = ["stress", "anger", "boredom", "energy", "habit"];
 const replacementActions = ["Went to the gym", "Read", "Journaled", "Meditated", "Walked", "Called a friend", "Early bedtime", "Healthy meal", "Stayed present"];
 const sleepQualities = ["low", "okay", "good", "great"] as const;
+const dumbbellExercises = [
+  "Dumbbell curls",
+  "Hammer curls",
+  "Alternating curls",
+  "Concentration curls",
+  "Shoulder press",
+  "Lateral raises",
+  "Front raises",
+  "Bent-over rows",
+  "One-arm rows",
+  "Chest press",
+  "Floor press",
+  "Goblet squat",
+  "Romanian deadlift",
+  "Triceps kickbacks",
+  "Farmer carry",
+] as const;
+const strengthExercises = [
+  "Bench press",
+  "Chest press",
+  "Shoulder press",
+  "Leg press",
+  "Hack squat",
+  "Squat",
+  "Deadlift",
+  "Romanian deadlift",
+  "Lat pulldown",
+  "Seated row",
+  "Cable row",
+  "Cable fly",
+  "Leg curl",
+  "Leg extension",
+  "Calf raise",
+  "Triceps pressdown",
+  "Biceps curls",
+] as const;
+const kettlebellExercises = [
+  "Pass-arounds",
+  "Around-the-worlds",
+  "Swings",
+  "Goblet squats",
+  "Deadlifts",
+  "Clean",
+  "Clean and press",
+  "Snatches",
+  "Turkish get-ups",
+  "Halos",
+  "Figure 8s",
+  "Rows",
+  "Suitcase carries",
+  "Rack carries",
+] as const;
 
 function defaultDraftFor(kind: LogKind): LogDraft {
   return { ...defaults[kind], date: getTodayIso() };
@@ -176,15 +228,16 @@ export function LogModal({
           {activeKind === "dumbbellCurls" ? (
             <>
               <DateField value={String(draft.date)} onChange={update} />
-              <Field label="Weight" name="weight" value={String(draft.weight)} onChange={update} inputMode="numeric" suffix="lb" />
-              <Field label="Reps each arm" name="repsEachArm" value={String(draft.repsEachArm)} onChange={update} inputMode="numeric" />
+              <SelectField label="Exercise" name="exercise" value={String(draft.exercise || "Dumbbell curls")} options={dumbbellExercises} onChange={update} />
+              <Field label="Weight each dumbbell" name="weight" value={String(draft.weight)} onChange={update} inputMode="numeric" suffix="lb" />
+              <Field label="Reps per arm / side" name="repsEachArm" value={String(draft.repsEachArm)} onChange={update} inputMode="numeric" />
             </>
           ) : null}
 
           {activeKind === "strength" ? (
             <>
               <DateField value={String(draft.date)} onChange={update} />
-              <Field label="Exercise" name="exercise" value={String(draft.exercise)} onChange={update} placeholder="Bench, row, leg press..." />
+              <SelectField label="Exercise" name="exercise" value={String(draft.exercise || "Bench press")} options={strengthExercises} onChange={update} />
               <Field label="Weight" name="weight" value={String(draft.weight)} onChange={update} inputMode="numeric" suffix="lb" />
               <Field label="Reps" name="reps" value={String(draft.reps)} onChange={update} inputMode="numeric" />
               <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
@@ -194,7 +247,7 @@ export function LogModal({
           {activeKind === "kettlebell" ? (
             <>
               <DateField value={String(draft.date)} onChange={update} />
-              <Field label="Exercise" name="exercise" value={String(draft.exercise)} onChange={update} />
+              <SelectField label="Exercise" name="exercise" value={String(draft.exercise || "Pass-arounds")} options={kettlebellExercises} onChange={update} />
               <Field label="Weight" name="weight" value={String(draft.weight)} onChange={update} inputMode="numeric" suffix="lb" />
               <Field label="Reps" name="reps" value={String(draft.reps)} onChange={update} inputMode="numeric" />
             </>
@@ -330,6 +383,38 @@ function DateField({
   onChange: (name: string, value: string) => void;
 }) {
   return <Field label="Date" name="date" type="date" value={normalizeLogDate(value, getTodayIso())} onChange={onChange} />;
+}
+
+function SelectField({
+  label,
+  name,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  options: readonly string[];
+  onChange: (name: string, value: string) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="metric-label mb-2 block">{label}</span>
+      <select
+        name={name}
+        value={value}
+        onChange={(event) => onChange(name, event.target.value)}
+        className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base text-porcelain outline-none focus:border-champagne"
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 }
 
 function Field({

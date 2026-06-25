@@ -76,7 +76,7 @@ export function getActivityCalorieBreakdown(data: RebuildData, profile: Onboardi
     const reps = data.dumbbellCurlSessions
       .filter((session) => isToday(session.date))
       .reduce((sum, session) => sum + session.repsEachArm * 2, 0);
-    items.push({ calories: Math.round(curlCalories), detail: `${reps} curl reps`, label: "Dumbbell curls" });
+    items.push({ calories: Math.round(curlCalories), detail: `${reps} total reps`, label: "Dumbbell work" });
   }
 
   const strengthCalories = data.strengthAccessorySessions
