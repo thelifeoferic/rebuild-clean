@@ -1,6 +1,7 @@
 "use client";
 
-import { Bike, Dumbbell, Flame, Sparkles, Waves } from "lucide-react";
+import { Bike, CheckCircle2, Dumbbell, Flame, Sparkles, Waves } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { workoutPrograms, type WorkoutProgram } from "@/data/workout-programs";
 import { Section } from "@/components/section";
 import type { LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
@@ -12,12 +13,22 @@ type GoalTrainingPlanProps = {
   profile: OnboardingProfile | null;
 };
 
+const todayProgramBlocksKey = "rebuild:today-program-blocks:v1";
+
 export function GoalTrainingPlan({ data, onOpenLog, profile }: GoalTrainingPlanProps) {
-  const recommendations = getRecommendedPrograms(profile);
+  const recommendations = useMemo(() => getRecommendedPrograms(profile), [profile]);
+  const [completedBlocks, setCompletedBlocks] = useState<Record<string, boolean>>({});
+  const [completedLoaded, setCompletedLoaded] = useState(false);
   const primary = recommendations[0];
   const primaryLog = logKindFor(primary);
   const goals = profile?.goals?.length ? profile.goals : profile?.goal ? [profile.goal] : ["Rebuild discipline"];
   const equipment = profile?.equipment?.length ? profile.equipment.slice(0, 4).join(", ") : "bodyweight, bike, dumbbells";
+  const storageKey = `${todayProgramBlocksKey}:${new Date().toISOString().slice(0, 10)}`;
+  const totalBlocks = recommendations.reduce((sum, program) => sum + program.blocks.length, 0);
+  const doneBlocks = recommendations.reduce(
+    (sum, program) => sum + program.blocks.filter((_, index) => completedBlocks[blockKey(program.title, index)]).length,
+    0,
+  );
   const completedSomething =
     getTodaysBikeMinutes(data) > 0 ||
     getTodaysPushUps(data) > 0 ||
@@ -26,16 +37,38 @@ export function GoalTrainingPlan({ data, onOpenLog, profile }: GoalTrainingPlanP
     data.swimSessions.some((entry) => entry.date === "Today") ||
     data.yogaSessions.some((entry) => entry.date === "Today");
 
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(storageKey);
+      if (stored) setCompletedBlocks(JSON.parse(stored) as Record<string, boolean>);
+    } catch {
+      setCompletedBlocks({});
+    } finally {
+      setCompletedLoaded(true);
+    }
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (!completedLoaded) return;
+    window.localStorage.setItem(storageKey, JSON.stringify(completedBlocks));
+  }, [completedBlocks, completedLoaded, storageKey]);
+
+  function toggleBlock(program: WorkoutProgram, index: number) {
+    const key = blockKey(program.title, index);
+    setCompletedBlocks((current) => ({ ...current, [key]: !current[key] }));
+  }
+
   return (
     <Section id="goal-training" eyebrow="Recommended today" title="Train for your goals">
       <div className="panel overflow-hidden">
-        <div className="bg-[linear-gradient(135deg,rgba(216,177,95,0.22),rgba(46,230,166,0.08)_52%,rgba(8,9,10,0.96))] p-4">
+        <div className="bg-[linear-gradient(135deg,rgba(232,91,62,0.24),rgba(246,243,237,0.08)_52%,rgba(8,9,10,0.96))] p-4">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
               <p className="metric-label">Operating mode</p>
               <h3 className="mt-1 text-2xl font-semibold leading-tight text-porcelain">
                 {completedSomething ? "Build on today's proof." : "Start with the highest-return block."}
               </h3>
+              <p className="mt-2 text-sm font-bold text-champagne">{doneBlocks}/{totalBlocks} blocks checked off</p>
             </div>
             <div className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne/15 text-champagne">
               <Sparkles size={19} strokeWidth={2.2} aria-hidden />
@@ -73,6 +106,40 @@ export function GoalTrainingPlan({ data, onOpenLog, profile }: GoalTrainingPlanP
                   </span>
                 ))}
               </div>
+              <div className="mt-3 space-y-2">
+                {program.blocks.map((block, blockIndex) => {
+                  const done = Boolean(completedBlocks[blockKey(program.title, blockIndex)]);
+
+                  return (
+                    <button
+                      key={`${program.title}-${block}`}
+                      type="button"
+                      onClick={() => toggleBlock(program, blockIndex)}
+                      className={`flex w-full items-start gap-3 rounded-2xl p-3 text-left transition active:scale-[0.98] ${
+                        done ? "bg-signal/12" : "bg-carbon/70"
+                      }`}
+                    >
+                      <span
+                        className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-black ${
+                          done ? "bg-signal/20 text-signal" : "bg-champagne/10 text-champagne"
+                        }`}
+                      >
+                        {done ? <CheckCircle2 size={16} strokeWidth={2.4} aria-hidden /> : blockIndex + 1}
+                      </span>
+                      <span className={`text-sm leading-5 ${done ? "text-white/40 line-through decoration-signal/70" : "text-white/62"}`}>
+                        {block}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                onClick={() => onOpenLog(logKindFor(program))}
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-white/10 px-4 text-sm font-bold text-porcelain"
+              >
+                Log {logLabelFor(program)}
+              </button>
             </article>
           ))}
         </div>
@@ -140,6 +207,19 @@ function logKindFor(program: WorkoutProgram): LogKind {
   if (program.equipment.some((item) => item.toLowerCase().includes("kettlebell"))) return "kettlebell";
   if (program.focus.includes("strength") || program.focus.includes("muscle")) return "strength";
   return "bike";
+}
+
+function logLabelFor(program: WorkoutProgram) {
+  const kind = logKindFor(program);
+  if (kind === "swim") return "swim";
+  if (kind === "yoga") return "yoga";
+  if (kind === "kettlebell") return "kettlebell";
+  if (kind === "strength") return "strength";
+  return "bike";
+}
+
+function blockKey(programTitle: string, index: number) {
+  return `${programTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${index}`;
 }
 
 function normalize(value: string) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bike, CheckCircle2, Dumbbell, Flame, Headphones, LineChart, Scale, ShieldCheck, Sparkles, Trophy } from "lucide-react";
+import { Bike, BookOpen, CheckCircle2, Dumbbell, Flame, Headphones, LineChart, PlayCircle, Salad, Scale, ShieldCheck, Sparkles, Trophy, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
@@ -8,10 +8,12 @@ import { CountUp } from "@/components/count-up";
 import { NutritionTracker } from "@/components/nutrition-tracker";
 import { TodayPlan } from "@/components/today-plan";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
-import { getTodaysActivityCalories } from "@/lib/activity-calories";
+import { getActivityCalorieBreakdown, getTodaysActivityCalories } from "@/lib/activity-calories";
 import { getTodaysBikeMinutes, getWeightChangeFromLast, isToday } from "@/lib/rebuild-data";
 import { getCoachInsight, getPersonalRecords, getRebuildDay, getRebuildScore, getWeeklyConsistency } from "@/lib/rebuild-insights";
 import { formatMinutes, formatWeight } from "@/lib/metrics";
+
+const programsTabIntentKey = "rebuild:programs-tab:intent";
 
 const quotes = [
   {
@@ -57,6 +59,7 @@ export function HeroDashboard({
   const firstName = profile?.firstName?.trim();
   const activeQuotes = getQuotesForStyle(profile?.quoteStyle);
   const [quoteIndex, setQuoteIndex] = useState(() => randomQuoteIndex(quotes.length));
+  const [showBurnBreakdown, setShowBurnBreakdown] = useState(false);
   const quote = activeQuotes[quoteIndex % activeQuotes.length];
   const recommendation = getHomeRecommendation(profile, data);
   const rebuildScore = getRebuildScore(data, profile);
@@ -64,6 +67,7 @@ export function HeroDashboard({
   const rebuildDay = getRebuildDay(data);
   const latestEntry = getLatestHomeEntry(data);
   const activityBurn = getTodaysActivityCalories(data, profile);
+  const activityBreakdown = getActivityCalorieBreakdown(data, profile);
   const weeklyConsistency = getWeeklyConsistency(data, profile);
   const records = getPersonalRecords(data);
   const topRecord = records.find((record) => record.value !== "—") ?? records[0];
@@ -96,7 +100,7 @@ export function HeroDashboard({
             <button
               type="button"
               onClick={() => onNavigate("records")}
-              className="rounded-[1.35rem] border border-champagne/20 bg-black/55 p-4 text-left backdrop-blur"
+              className="contrast-panel rounded-[1.35rem] border border-champagne/25 bg-black/70 p-4 text-left backdrop-blur"
             >
               <p className="metric-label text-white/55">REBUILD Score</p>
               <p className="mt-2 font-display text-5xl font-black uppercase leading-none text-champagne">
@@ -107,7 +111,7 @@ export function HeroDashboard({
             <button
               type="button"
               onClick={() => onOpenLog("weight")}
-              className="rounded-[1.35rem] border border-white/10 bg-black/55 p-4 text-left backdrop-blur"
+              className="contrast-panel rounded-[1.35rem] border border-white/10 bg-black/70 p-4 text-left backdrop-blur"
             >
               <p className="metric-label text-white/55">Current Weight</p>
               <p className="mt-2 font-display text-4xl font-black uppercase leading-none text-white">
@@ -120,13 +124,13 @@ export function HeroDashboard({
           <button
             type="button"
             onClick={() => onNavigate("records")}
-            className="mt-3 w-full rounded-[1.35rem] border border-white/10 bg-black/55 p-4 text-left backdrop-blur"
+            className="contrast-panel mt-3 w-full rounded-[1.35rem] border border-white/10 bg-black/75 p-4 text-left backdrop-blur"
           >
             <p className="metric-label text-white/55">Coach insight</p>
-            <p className="mt-2 text-sm font-semibold leading-5 text-white/82">{coachInsight}</p>
+            <p className="mt-2 text-sm font-semibold leading-5 text-porcelain">{coachInsight}</p>
           </button>
 
-          <div className="mt-3 rounded-[1.35rem] border border-white/10 bg-black/55 p-4 backdrop-blur">
+          <div className="contrast-panel mt-3 rounded-[1.35rem] border border-white/10 bg-black/75 p-4 backdrop-blur">
             <div className="mb-3 flex items-center justify-between gap-3">
               <p className="metric-label text-white/55">Today&apos;s plan</p>
               <span className="text-xs font-bold text-champagne">{todayCompletion(data)}/3</span>
@@ -188,7 +192,7 @@ export function HeroDashboard({
           <button
             type="button"
             onClick={() => onOpenLog(recommendation.logKind)}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-bold text-carbon"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-bold text-carbon shadow-glow"
           >
             <Dumbbell size={17} strokeWidth={2.2} aria-hidden />
             Log this action
@@ -216,7 +220,7 @@ export function HeroDashboard({
           label="Activity burn"
           title={`${activityBurn} cal`}
           detail="Estimated from today's saved workouts using your height and weight."
-          onClick={() => onOpenLog("bike")}
+          onClick={() => setShowBurnBreakdown(true)}
         />
         <HomeSignalCard
           icon={LineChart}
@@ -243,6 +247,8 @@ export function HeroDashboard({
       <TodayPlan data={data} onOpenLog={onOpenLog} />
       <NutritionTracker data={data} onOpenLog={onOpenLog} profile={profile} />
 
+      <HomeSectionShortcuts onOpenProgramsTab={(tab) => openProgramsTab(tab, onNavigate)} />
+
       <a
         href={tidalPlaylistUrl}
         target="_blank"
@@ -252,6 +258,18 @@ export function HeroDashboard({
         <Headphones size={18} strokeWidth={2.2} aria-hidden />
         Start TIDAL playlist
       </a>
+
+      {showBurnBreakdown ? (
+        <ActivityBurnSheet
+          activityBurn={activityBurn}
+          breakdown={activityBreakdown}
+          onClose={() => setShowBurnBreakdown(false)}
+          onOpenLog={() => {
+            setShowBurnBreakdown(false);
+            onNavigate("log");
+          }}
+        />
+      ) : null}
     </section>
   );
 }
@@ -385,6 +403,148 @@ function MiniStat({
       {detail ? <p className="mt-1 text-xs font-semibold text-white/35">{detail}</p> : null}
     </div>
   );
+}
+
+function HomeSectionShortcuts({
+  onOpenProgramsTab,
+}: {
+  onOpenProgramsTab: (tab: "Programs" | "Guides" | "Nutrition" | "Media") => void;
+}) {
+  const shortcuts = [
+    {
+      detail: "Plans matched to your goals and equipment.",
+      icon: Dumbbell,
+      image: "/rebuild-kettlebell-outdoor.jpg",
+      tab: "Programs" as const,
+      title: "Programs",
+    },
+    {
+      detail: "Form cues before you add load.",
+      icon: BookOpen,
+      image: "/rebuild-kettlebell-pushup.jpg",
+      tab: "Guides" as const,
+      title: "Guides",
+    },
+    {
+      detail: "Protein anchors, quick foods, and calorie context.",
+      icon: Salad,
+      image: "/rebuild-nutrition.jpg",
+      tab: "Nutrition" as const,
+      title: "Nutrition guide",
+    },
+    {
+      detail: "Featured workouts, videos, and the TIDAL link.",
+      icon: PlayCircle,
+      image: "/rebuild-air-bike.jpg",
+      tab: "Media" as const,
+      title: "Media",
+    },
+  ];
+
+  return (
+    <div className="mt-4">
+      <div className="mb-3 flex items-end justify-between gap-3">
+        <div>
+          <p className="metric-label">Explore</p>
+          <h2 className="mt-1 text-xl font-semibold text-porcelain">Where to go next</h2>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {shortcuts.map((shortcut) => {
+          const Icon = shortcut.icon;
+
+          return (
+            <button
+              key={shortcut.title}
+              type="button"
+              onClick={() => onOpenProgramsTab(shortcut.tab)}
+              className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] text-left shadow-panel active:scale-[0.98]"
+            >
+              <span className="relative block min-h-24 bg-black">
+                <Image src={shortcut.image} alt="" fill sizes="50vw" className="object-cover opacity-72 transition group-active:scale-[1.02]" />
+                <span className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                <span className="absolute bottom-3 left-3 grid size-9 place-items-center rounded-full bg-champagne text-carbon">
+                  <Icon size={17} strokeWidth={2.3} aria-hidden />
+                </span>
+              </span>
+              <span className="block p-3">
+                <span className="block text-sm font-black uppercase tracking-[0.08em] text-porcelain">{shortcut.title}</span>
+                <span className="mt-1 block text-xs leading-4 text-white/45">{shortcut.detail}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ActivityBurnSheet({
+  activityBurn,
+  breakdown,
+  onClose,
+  onOpenLog,
+}: {
+  activityBurn: number;
+  breakdown: ReturnType<typeof getActivityCalorieBreakdown>;
+  onClose: () => void;
+  onOpenLog: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[80] flex items-end bg-black/70 px-3 pb-3 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <div className="w-full rounded-[1.75rem] border border-white/10 bg-carbon p-4 shadow-panel">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <p className="metric-label">Activity burn</p>
+            <h2 className="mt-1 font-display text-4xl font-black uppercase leading-none text-champagne">{activityBurn} cal</h2>
+            <p className="mt-2 text-sm leading-5 text-white/50">
+              Estimated from today&apos;s saved training and your profile. Use it as a guide, not a lab number.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid size-10 shrink-0 place-items-center rounded-full bg-white/10 text-white/70"
+            aria-label="Close activity burn breakdown"
+          >
+            <X size={18} strokeWidth={2.3} aria-hidden />
+          </button>
+        </div>
+
+        {breakdown.length ? (
+          <div className="space-y-2">
+            {breakdown.map((item) => (
+              <div key={item.label} className="flex items-center justify-between gap-3 rounded-2xl bg-white/[0.055] p-3">
+                <div>
+                  <p className="font-semibold text-porcelain">{item.label}</p>
+                  <p className="text-xs font-semibold text-white/42">{item.detail}</p>
+                </div>
+                <p className="text-lg font-black text-champagne">{item.calories}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-white/[0.055] p-4">
+            <p className="font-semibold text-porcelain">No activity burn yet.</p>
+            <p className="mt-1 text-sm leading-5 text-white/48">Log a workout and REBUILD will estimate the calorie impact here.</p>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={onOpenLog}
+          className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-champagne px-4 text-sm font-black text-carbon"
+        >
+          Log activity
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function openProgramsTab(tab: "Programs" | "Guides" | "Nutrition" | "Media", onNavigate: (view: AppView) => void) {
+  window.sessionStorage.setItem(programsTabIntentKey, tab);
+  onNavigate("programs");
 }
 
 function PlanButton({

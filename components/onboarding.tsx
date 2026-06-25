@@ -80,7 +80,7 @@ const behaviorFocus = [
   "Prefer not to say",
 ];
 const themeOptions = ["dark", "light", "auto"] as const;
-const accentOptions = ["champagne", "white", "ember", "volt"] as const;
+const accentOptions = ["ember", "white", "champagne", "volt"] as const;
 const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
 const quoteOptions = ["goggins", "calm", "athlete", "none"] as const;
 const locationOptions = ["home", "gym", "travel", "pool"] as const;
@@ -108,7 +108,7 @@ export function Onboarding({
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>(["Bike", "Kettlebells", "Dumbbells", "Weight bench"]);
   const [equipmentQuery, setEquipmentQuery] = useState("");
   const [themePreference, setThemePreference] = useState<NonNullable<OnboardingProfile["themePreference"]>>("dark");
-  const [accentColor, setAccentColor] = useState<NonNullable<OnboardingProfile["accentColor"]>>("champagne");
+  const [accentColor, setAccentColor] = useState<NonNullable<OnboardingProfile["accentColor"]>>("ember");
   const [coachingTone, setCoachingTone] = useState<NonNullable<OnboardingProfile["coachingTone"]>>("calm");
   const [quoteStyle, setQuoteStyle] = useState<NonNullable<OnboardingProfile["quoteStyle"]>>("goggins");
   const [defaultLocation, setDefaultLocation] = useState<NonNullable<OnboardingProfile["defaultLocation"]>>("gym");

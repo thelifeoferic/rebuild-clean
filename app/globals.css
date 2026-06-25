@@ -4,13 +4,13 @@
 
 :root {
   color-scheme: dark;
-  --color-carbon: 8 9 10;
-  --color-graphite: 17 19 21;
-  --color-steel: 32 36 41;
-  --color-accent: 216 177 95;
-  --color-ember: 225 95 63;
-  --color-signal: 242 238 231;
-  --color-porcelain: 242 238 231;
+  --color-carbon: 5 6 7;
+  --color-graphite: 18 19 17;
+  --color-steel: 45 43 38;
+  --color-accent: 232 91 62;
+  --color-ember: 232 91 62;
+  --color-signal: 246 243 237;
+  --color-porcelain: 246 243 237;
   --app-bg: #08090a;
   background: #08090a;
 }
@@ -30,8 +30,8 @@ body {
   margin: 0;
   color: rgb(var(--color-porcelain));
   background:
-    linear-gradient(180deg, rgba(216, 177, 95, 0.12), transparent 26rem),
-    radial-gradient(circle at 20% -10%, rgba(225, 95, 63, 0.18), transparent 18rem),
+    linear-gradient(180deg, rgba(232, 91, 62, 0.12), transparent 26rem),
+    radial-gradient(circle at 20% -10%, rgba(246, 243, 237, 0.08), transparent 18rem),
     var(--app-bg);
 }
 
@@ -73,10 +73,10 @@ button:active {
 
 .theme-dark {
   color-scheme: dark;
-  --color-carbon: 8 9 10;
-  --color-graphite: 17 19 21;
-  --color-steel: 32 36 41;
-  --color-porcelain: 242 238 231;
+  --color-carbon: 5 6 7;
+  --color-graphite: 18 19 17;
+  --color-steel: 45 43 38;
+  --color-porcelain: 246 243 237;
   --app-bg: #08090a;
 }
 
@@ -95,33 +95,99 @@ button:active {
 }
 
 .accent-champagne {
-  --color-accent: 216 177 95;
-  --color-signal: 242 238 231;
+  --color-accent: 232 91 62;
+  --color-signal: 246 243 237;
 }
 
 .accent-white {
-  --color-accent: 242 238 231;
-  --color-signal: 242 238 231;
+  --color-accent: 246 243 237;
+  --color-signal: 246 243 237;
 }
 
 .accent-ember {
-  --color-accent: 225 95 63;
-  --color-signal: 242 238 231;
+  --color-accent: 232 91 62;
+  --color-signal: 246 243 237;
 }
 
 .accent-teal {
-  --color-accent: 242 238 231;
-  --color-signal: 242 238 231;
+  --color-accent: 232 91 62;
+  --color-signal: 246 243 237;
 }
 
 .accent-cobalt {
-  --color-accent: 242 238 231;
-  --color-signal: 242 238 231;
+  --color-accent: 232 91 62;
+  --color-signal: 246 243 237;
 }
 
 .accent-volt {
-  --color-accent: 182 255 63;
-  --color-signal: 242 238 231;
+  --color-accent: 232 91 62;
+  --color-signal: 246 243 237;
+}
+
+.contrast-panel,
+.bg-black\/55,
+.bg-black\/70,
+.bg-black\/75,
+.bg-carbon\/70,
+.bg-carbon\/80 {
+  color: rgb(var(--color-porcelain));
+}
+
+.contrast-panel .text-white\/40,
+.contrast-panel .text-white\/42,
+.contrast-panel .text-white\/45,
+.contrast-panel .text-white\/48,
+.contrast-panel .text-white\/50,
+.contrast-panel .text-white\/54,
+.contrast-panel .text-white\/55,
+.contrast-panel .text-white\/58,
+.contrast-panel .text-white\/60,
+.bg-black\/55 .text-white\/40,
+.bg-black\/55 .text-white\/42,
+.bg-black\/55 .text-white\/45,
+.bg-black\/55 .text-white\/48,
+.bg-black\/55 .text-white\/50,
+.bg-black\/55 .text-white\/54,
+.bg-black\/55 .text-white\/55,
+.bg-black\/55 .text-white\/58,
+.bg-black\/55 .text-white\/60,
+.bg-black\/70 .text-white\/40,
+.bg-black\/70 .text-white\/42,
+.bg-black\/70 .text-white\/45,
+.bg-black\/70 .text-white\/48,
+.bg-black\/70 .text-white\/50,
+.bg-black\/70 .text-white\/54,
+.bg-black\/70 .text-white\/55,
+.bg-black\/70 .text-white\/58,
+.bg-black\/70 .text-white\/60 {
+  color: rgba(246, 243, 237, 0.72);
+}
+
+.contrast-panel .text-white\/62,
+.contrast-panel .text-white\/64,
+.contrast-panel .text-white\/65,
+.contrast-panel .text-white\/68,
+.contrast-panel .text-white\/70,
+.contrast-panel .text-white\/72,
+.contrast-panel .text-white\/75,
+.contrast-panel .text-white\/82,
+.bg-black\/55 .text-white\/62,
+.bg-black\/55 .text-white\/64,
+.bg-black\/55 .text-white\/65,
+.bg-black\/55 .text-white\/68,
+.bg-black\/55 .text-white\/70,
+.bg-black\/55 .text-white\/72,
+.bg-black\/55 .text-white\/75,
+.bg-black\/55 .text-white\/82,
+.bg-black\/70 .text-white\/62,
+.bg-black\/70 .text-white\/64,
+.bg-black\/70 .text-white\/65,
+.bg-black\/70 .text-white\/68,
+.bg-black\/70 .text-white\/70,
+.bg-black\/70 .text-white\/72,
+.bg-black\/70 .text-white\/75,
+.bg-black\/70 .text-white\/82 {
+  color: rgba(246, 243, 237, 0.88);
 }
 
 .theme-light .panel {

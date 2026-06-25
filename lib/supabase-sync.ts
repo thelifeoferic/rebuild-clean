@@ -94,7 +94,7 @@ export async function loadCloudSnapshot(client: SupabaseClient) {
 
 function profileToRow(userId: string, profile: OnboardingProfile) {
   return {
-    accent_color: profile.accentColor ?? "champagne",
+    accent_color: profile.accentColor ?? "ember",
     behavior_focus: profile.behaviorFocus,
     coaching_tone: profile.coachingTone ?? "calm",
     completed: profile.completed,
@@ -118,7 +118,7 @@ function profileToRow(userId: string, profile: OnboardingProfile) {
 
 function rowToProfile(row: ProfileRow): OnboardingProfile {
   return {
-    accentColor: row.accent_color ?? "champagne",
+    accentColor: row.accent_color ?? "ember",
     behaviorFocus: row.behavior_focus ?? [],
     coachingTone: row.coaching_tone ?? "calm",
     completed: row.completed ?? true,

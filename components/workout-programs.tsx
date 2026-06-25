@@ -15,6 +15,7 @@ export function WorkoutPrograms({ profile }: { profile: OnboardingProfile | null
   const [filter, setFilter] = useState<ProgramFilter>("Recommended");
   const [query, setQuery] = useState("");
   const [completedBlocks, setCompletedBlocks] = useState<Record<string, boolean>>({});
+  const [completedLoaded, setCompletedLoaded] = useState(false);
 
   useEffect(() => {
     try {
@@ -22,12 +23,15 @@ export function WorkoutPrograms({ profile }: { profile: OnboardingProfile | null
       if (stored) setCompletedBlocks(JSON.parse(stored) as Record<string, boolean>);
     } catch {
       setCompletedBlocks({});
+    } finally {
+      setCompletedLoaded(true);
     }
   }, []);
 
   useEffect(() => {
+    if (!completedLoaded) return;
     window.localStorage.setItem(completedProgramBlocksKey, JSON.stringify(completedBlocks));
-  }, [completedBlocks]);
+  }, [completedBlocks, completedLoaded]);
 
   const visiblePrograms = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();

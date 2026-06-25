@@ -212,7 +212,7 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={imageData} alt="Selected body progress preview" className="absolute inset-0 h-full w-full object-cover opacity-75" />
           ) : (
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(216,177,95,0.22),transparent_14rem),linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.01))]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(232,91,62,0.22),transparent_14rem),linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.01))]" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/10" />
           <div className="absolute bottom-4 left-4 right-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BikeDashboard } from "@/components/bike-dashboard";
 import { ExerciseGuides } from "@/components/exercise-guides";
 import { FormVisuals } from "@/components/form-visuals";
@@ -14,6 +14,7 @@ import type { LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
 const tabs = ["Today", "Programs", "Guides", "Nutrition", "Media"] as const;
 type ProgramsTab = (typeof tabs)[number];
+const programsTabIntentKey = "rebuild:programs-tab:intent";
 
 export function ProgramsHub({
   data,
@@ -25,6 +26,14 @@ export function ProgramsHub({
   profile: OnboardingProfile | null;
 }) {
   const [activeTab, setActiveTab] = useState<ProgramsTab>("Today");
+
+  useEffect(() => {
+    const target = window.sessionStorage.getItem(programsTabIntentKey);
+    if (target && tabs.includes(target as ProgramsTab)) {
+      setActiveTab(target as ProgramsTab);
+      window.sessionStorage.removeItem(programsTabIntentKey);
+    }
+  }, []);
 
   return (
     <>

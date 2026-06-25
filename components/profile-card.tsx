@@ -42,7 +42,7 @@ export function ProfileCard({
             `${profile?.preferredTrainingMinutes ?? 25} min`,
             profile?.defaultLocation ?? "gym",
             profile?.themePreference ?? "dark",
-            profile?.accentColor ?? "champagne",
+            profile?.accentColor ?? "ember",
             profile?.coachingTone ?? "calm",
           ].map((item) => (
             <span key={item} className="rounded-full bg-white/[0.055] px-3 py-1 text-xs font-bold capitalize text-white/55">

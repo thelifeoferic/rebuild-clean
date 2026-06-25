@@ -25,13 +25,13 @@ export function AppShell({
 }) {
   const themePreference = profile?.themePreference ?? "dark";
   const themeClass = themePreference === "light" ? "theme-light" : "theme-dark";
-  const accentClass = `accent-${profile?.accentColor ?? "champagne"}`;
+  const accentClass = `accent-${profile?.accentColor ?? "ember"}`;
 
   return (
     <main className={`mx-auto min-h-screen w-full max-w-md ${themeClass} ${accentClass} ${showNavigation ? "pb-24" : "pb-8"}`}>
       {children}
       {showNavigation ? (
-      <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md border-t border-white/10 bg-carbon/90 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
+      <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md border-t border-black/10 bg-porcelain px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 text-carbon shadow-[0_-18px_50px_rgba(0,0,0,0.28)]">
         <div className="grid grid-cols-5 items-end gap-1">
           {navigation.map((item) => {
             const Icon = item.icon;
@@ -45,7 +45,7 @@ export function AppShell({
                 className={`flex flex-col items-center justify-center gap-1 rounded-2xl font-medium transition active:scale-[0.97] ${
                   isElevated
                     ? `-mt-7 min-h-16 shadow-glow ${isActive ? "bg-champagne text-carbon" : "bg-champagne text-carbon"}`
-                    : `min-h-12 text-[0.56rem] ${isActive ? "text-champagne" : "text-white/54 hover:bg-white/10 hover:text-porcelain"}`
+                    : `min-h-12 text-[0.56rem] ${isActive ? "bg-champagne text-carbon" : "text-carbon/65 hover:bg-black/5 hover:text-carbon"}`
                 }`}
                 aria-label={item.label}
               >
