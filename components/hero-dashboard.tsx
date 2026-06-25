@@ -156,10 +156,35 @@ export function HeroDashboard({
         </div>
       ) : null}
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        <ImageTile src="/rebuild-air-bike.jpg" label="Cardio" />
-        <ImageTile src="/rebuild-kettlebell-outdoor.jpg" label="Strength" />
-        <ImageTile src="/rebuild-yoga-light.jpg" label="Recovery" />
+      <a
+        href={tidalPlaylistUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-ember px-3 text-base font-black text-white shadow-glow"
+      >
+        <Headphones size={18} strokeWidth={2.2} aria-hidden />
+        Start TIDAL playlist
+      </a>
+
+      <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
+        <ImageTile
+          src="/rebuild-air-bike.jpg"
+          label="Cardio"
+          detail="Bike, swim, walks, and conditioning"
+          onClick={() => openProgramsTab("Programs", onNavigate)}
+        />
+        <ImageTile
+          src="/rebuild-kettlebell-outdoor.jpg"
+          label="Strength"
+          detail="Programs, kettlebells, and lifting blocks"
+          onClick={() => openProgramsTab("Programs", onNavigate)}
+        />
+        <ImageTile
+          src="/rebuild-yoga-light.jpg"
+          label="Recovery"
+          detail="Mobility, yoga, and reset work"
+          onClick={() => openProgramsTab("Guides", onNavigate)}
+        />
       </div>
 
       <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
@@ -248,16 +273,6 @@ export function HeroDashboard({
       <NutritionTracker data={data} onOpenLog={onOpenLog} profile={profile} />
 
       <HomeSectionShortcuts onOpenProgramsTab={(tab) => openProgramsTab(tab, onNavigate)} />
-
-      <a
-        href={tidalPlaylistUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-signal px-3 text-base font-bold text-carbon"
-      >
-        <Headphones size={18} strokeWidth={2.2} aria-hidden />
-        Start TIDAL playlist
-      </a>
 
       {showBurnBreakdown ? (
         <ActivityBurnSheet
@@ -569,13 +584,30 @@ function PlanButton({
   );
 }
 
-function ImageTile({ label, src }: { label: string; src: string }) {
+function ImageTile({
+  detail,
+  label,
+  onClick,
+  src,
+}: {
+  detail: string;
+  label: string;
+  onClick: () => void;
+  src: string;
+}) {
   return (
-    <div className="relative min-h-24 overflow-hidden rounded-2xl border border-white/10 bg-black">
-      <Image src={src} alt="" fill sizes="33vw" className="object-cover opacity-72" />
+    <button
+      type="button"
+      onClick={onClick}
+      className="relative min-h-36 min-w-[74%] overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
+    >
+      <Image src={src} alt="" fill sizes="74vw" className="object-cover opacity-78" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent" />
-      <p className="absolute bottom-3 left-3 text-[0.62rem] font-black uppercase tracking-[0.16em] text-white/70">{label}</p>
-    </div>
+      <span className="absolute bottom-4 left-4 right-4">
+        <span className="block text-[0.68rem] font-black uppercase tracking-[0.18em] text-white/68">{label}</span>
+        <span className="mt-1 block text-lg font-black leading-tight text-white">{detail}</span>
+      </span>
+    </button>
   );
 }
 
