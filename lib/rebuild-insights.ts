@@ -1,13 +1,17 @@
 import type { LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import {
+  daysBetweenCalendarDates,
+  formatLogDate,
   getBestJacobsLadderTime,
   getPushUpMaxSet,
   getRecentLowWeight,
   getSevenDayAverageWeight,
+  getTodayIso,
   getWeightChangeFromLast,
   getWeeklyBikeDistance,
   getWeeklyBikeMinutes,
   isToday,
+  normalizeLogDate,
   timeToSeconds,
 } from "@/lib/rebuild-data";
 import { formatWeight } from "@/lib/metrics";
@@ -42,8 +46,9 @@ export function hasAnyProof(data: RebuildData) {
 }
 
 export function getRebuildDay(data: RebuildData) {
-  const dates = uniqueDates(allProofDates(data));
-  return Math.max(dates.length, hasAnyProof(data) ? 1 : 1);
+  const startDate = getRebuildStartDate(data);
+  if (!startDate) return 1;
+  return Math.max(1, daysBetweenCalendarDates(startDate, getTodayIso()) + 1);
 }
 
 export function getRebuildScore(data: RebuildData, profile: OnboardingProfile | null): RebuildScore {
@@ -167,7 +172,7 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
     sortValue: longestRide?.minutes ?? 0,
     unit: "min",
     value: longestRide ? `${longestRide.minutes}` : "—",
-    when: longestRide?.date,
+    when: longestRide ? formatLogDate(longestRide.date) : undefined,
   });
 
   records.push({
@@ -191,7 +196,7 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
     sortValue: getPushUpMaxSet(data),
     unit: "reps",
     value: getPushUpMaxSet(data) ? `${getPushUpMaxSet(data)}` : "—",
-    when: bestPushSession?.date,
+    when: bestPushSession ? formatLogDate(bestPushSession.date) : undefined,
   });
 
   records.push({
@@ -202,7 +207,7 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
     logKind: "jacobsLadder",
     sortValue: longestLadder ? timeToSeconds(longestLadder.longestContinuous) : 0,
     value: longestLadder ? getBestJacobsLadderTime(data) : "—",
-    when: longestLadder?.date,
+    when: longestLadder ? formatLogDate(longestLadder.date) : undefined,
   });
 
   records.push({
@@ -214,7 +219,7 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
     sortValue: heaviestCarry?.weightEachHand ?? 0,
     unit: "lb",
     value: heaviestCarry ? `${heaviestCarry.weightEachHand}` : "—",
-    when: heaviestCarry?.date,
+    when: heaviestCarry ? formatLogDate(heaviestCarry.date) : undefined,
   });
 
   records.push({
@@ -237,7 +242,9 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
     sortValue: lowestWeight,
     unit: "lb",
     value: lowestWeight ? lowestWeight.toFixed(1) : "—",
-    when: data.weights.find((entry) => entry.weight === lowestWeight)?.date,
+    when: data.weights.find((entry) => entry.weight === lowestWeight)?.date
+      ? formatLogDate(data.weights.find((entry) => entry.weight === lowestWeight)?.date)
+      : undefined,
   });
 
   records.push({
@@ -290,26 +297,26 @@ export function getWeeklyConsistency(data: RebuildData, profile: OnboardingProfi
 
 export function allProofDates(data: RebuildData) {
   return [
-    ...data.weights.map((item) => item.date),
+    ...data.weights.map((item) => normalizeLogDate(item.date)),
     ...workoutSessions(data).map((item) => item.date),
-    ...data.meals.map((item) => item.date ?? "Today"),
-    ...data.waterLogs.map((item) => item.date),
-    ...data.sleepLogs.map((item) => item.date),
-    ...data.behaviorWins.map((item) => item.date),
+    ...data.meals.map((item) => normalizeLogDate(item.date)),
+    ...data.waterLogs.map((item) => normalizeLogDate(item.date)),
+    ...data.sleepLogs.map((item) => normalizeLogDate(item.date)),
+    ...data.behaviorWins.map((item) => normalizeLogDate(item.date)),
   ];
 }
 
 function workoutSessions(data: RebuildData) {
   return [
-    ...data.bikeSessions.map((item) => ({ date: item.date, detail: `${item.minutes} min${item.distanceMiles ? ` · ${item.distanceMiles} mi` : ""}`, kind: "bike" as LogKind, minutes: item.minutes, title: "Bike session" })),
-    ...data.jacobsLadderSessions.map((item) => ({ date: item.date, detail: `${item.duration} total · ${item.longestContinuous} continuous`, kind: "jacobsLadder" as LogKind, minutes: Math.round(timeToSeconds(item.duration) / 60), title: "Jacob's Ladder" })),
-    ...data.pushUpSessions.map((item) => ({ date: item.date, detail: `${item.sets.reduce((sum, reps) => sum + reps, 0)} total reps`, kind: "pushUps" as LogKind, minutes: 5, title: "Push-ups" })),
-    ...data.dumbbellCurlSessions.map((item) => ({ date: item.date, detail: `${item.weight} lb · ${item.repsEachArm * 2} total reps`, kind: "dumbbellCurls" as LogKind, minutes: 8, title: "Dumbbell curls" })),
-    ...data.strengthAccessorySessions.map((item) => ({ date: item.date, detail: `${item.exercise} · ${item.weight} lb · ${item.reps} reps`, kind: "strength" as LogKind, minutes: 20, title: "Strength lift" })),
-    ...data.kettlebellSessions.map((item) => ({ date: item.date, detail: `${item.exercise} · ${item.reps} reps`, kind: "kettlebell" as LogKind, minutes: 12, title: "Kettlebell work" })),
-    ...data.farmerCarrySessions.map((item) => ({ date: item.date, detail: `${item.weightEachHand} lb each hand · ${item.distanceFeet * item.rounds} ft`, kind: "farmerCarries" as LogKind, minutes: 8, title: "Farmer carries" })),
-    ...data.swimSessions.map((item) => ({ date: item.date, detail: `${item.minutes} min · ${item.distance} yd`, kind: "swim" as LogKind, minutes: item.minutes, title: "Swim" })),
-    ...data.yogaSessions.map((item) => ({ date: item.date, detail: `${item.minutes} min · ${item.focus}`, kind: "yoga" as LogKind, minutes: item.minutes, title: "Yoga" })),
+    ...data.bikeSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.minutes} min${item.distanceMiles ? ` · ${item.distanceMiles} mi` : ""}`, kind: "bike" as LogKind, minutes: item.minutes, title: "Bike session" })),
+    ...data.jacobsLadderSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.duration} total · ${item.longestContinuous} continuous`, kind: "jacobsLadder" as LogKind, minutes: Math.round(timeToSeconds(item.duration) / 60), title: "Jacob's Ladder" })),
+    ...data.pushUpSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.sets.reduce((sum, reps) => sum + reps, 0)} total reps`, kind: "pushUps" as LogKind, minutes: 5, title: "Push-ups" })),
+    ...data.dumbbellCurlSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.weight} lb · ${item.repsEachArm * 2} total reps`, kind: "dumbbellCurls" as LogKind, minutes: 8, title: "Dumbbell curls" })),
+    ...data.strengthAccessorySessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.exercise} · ${item.weight} lb · ${item.reps} reps`, kind: "strength" as LogKind, minutes: 20, title: "Strength lift" })),
+    ...data.kettlebellSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.exercise} · ${item.reps} reps`, kind: "kettlebell" as LogKind, minutes: 12, title: "Kettlebell work" })),
+    ...data.farmerCarrySessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.weightEachHand} lb each hand · ${item.distanceFeet * item.rounds} ft`, kind: "farmerCarries" as LogKind, minutes: 8, title: "Farmer carries" })),
+    ...data.swimSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.minutes} min · ${item.distance} yd`, kind: "swim" as LogKind, minutes: item.minutes, title: "Swim" })),
+    ...data.yogaSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.minutes} min · ${item.focus}`, kind: "yoga" as LogKind, minutes: item.minutes, title: "Yoga" })),
   ];
 }
 
@@ -340,7 +347,16 @@ function weightTrendScore(data: RebuildData, profile: OnboardingProfile | null) 
 }
 
 function activeStreak(data: RebuildData) {
-  return uniqueDates(allProofDates(data)).length;
+  const dates = new Set(uniqueDates(allProofDates(data)));
+  if (!dates.size) return 0;
+
+  let cursor = dates.has(getTodayIso()) ? getTodayIso() : addDays(getTodayIso(), -1);
+  let streak = 0;
+  while (dates.has(cursor)) {
+    streak += 1;
+    cursor = addDays(cursor, -1);
+  }
+  return streak;
 }
 
 function totalProofCount(data: RebuildData) {
@@ -363,6 +379,18 @@ function maxBy<T>(items: T[], valueFor: (item: T) => number) {
 
 function uniqueDates(dates: string[]) {
   return Array.from(new Set(dates.filter(Boolean)));
+}
+
+function getRebuildStartDate(data: RebuildData) {
+  const dates = uniqueDates(allProofDates(data)).sort();
+  return dates[0] ?? null;
+}
+
+function addDays(iso: string, days: number) {
+  const [year, month, day] = iso.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + days);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function clamp(value: number) {

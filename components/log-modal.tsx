@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, HTMLAttributes } from "react";
 import { FoodPresetPicker } from "@/components/food-preset-picker";
 import type { FoodPreset } from "@/data/food-presets";
+import { getTodayIso, normalizeLogDate } from "@/lib/rebuild-data";
 import type { LogKind, MoodReason } from "@/types/rebuild";
 
 export type LogDraft = Record<string, string | boolean>;
@@ -27,21 +28,21 @@ const titles: Record<LogKind, string> = {
 };
 
 const defaults: Record<LogKind, LogDraft> = {
-  weight: { date: "Today", weight: "" },
-  bike: { date: "Today", minutes: "", distanceMiles: "", resistance: "", calories: "", notes: "" },
-  jacobsLadder: { date: "Today", duration: "", longestContinuous: "" },
-  pushUps: { date: "Today", set1: "", set2: "", set3: "", set4: "", set5: "", set6: "", extraSets: "" },
-  dumbbellCurls: { date: "Today", weight: "", repsEachArm: "" },
-  strength: { date: "Today", exercise: "", weight: "", reps: "", notes: "" },
-  kettlebell: { date: "Today", exercise: "Pass-arounds", weight: "", reps: "" },
-  farmerCarries: { date: "Today", weightEachHand: "", distanceFeet: "", rounds: "" },
-  swim: { date: "Today", minutes: "", distance: "", stroke: "Freestyle", notes: "" },
-  yoga: { date: "Today", minutes: "", focus: "Mobility", notes: "" },
-  meal: { date: "Today", name: "", calories: "", protein: "", notes: "" },
-  water: { date: "Today", ounces: "24" },
-  sleep: { date: "Today", hours: "", quality: "good", notes: "" },
+  weight: { date: "", weight: "" },
+  bike: { date: "", minutes: "", distanceMiles: "", resistance: "", calories: "", notes: "" },
+  jacobsLadder: { date: "", duration: "", longestContinuous: "" },
+  pushUps: { date: "", set1: "", set2: "", set3: "", set4: "", set5: "", set6: "", extraSets: "" },
+  dumbbellCurls: { date: "", weight: "", repsEachArm: "" },
+  strength: { date: "", exercise: "", weight: "", reps: "", notes: "" },
+  kettlebell: { date: "", exercise: "Pass-arounds", weight: "", reps: "" },
+  farmerCarries: { date: "", weightEachHand: "", distanceFeet: "", rounds: "" },
+  swim: { date: "", minutes: "", distance: "", stroke: "Freestyle", notes: "" },
+  yoga: { date: "", minutes: "", focus: "Mobility", notes: "" },
+  meal: { date: "", name: "", calories: "", protein: "", notes: "" },
+  water: { date: "", ounces: "24" },
+  sleep: { date: "", hours: "", quality: "good", notes: "" },
   mood: {
-    date: "Today",
+    date: "",
     reason: "stress",
     label: "Went to the gym",
     didntSmoke: true,
@@ -52,6 +53,10 @@ const defaults: Record<LogKind, LogDraft> = {
 const moodReasons: MoodReason[] = ["stress", "anger", "boredom", "energy", "habit"];
 const replacementActions = ["Went to the gym", "Read", "Journaled", "Meditated", "Walked", "Called a friend", "Early bedtime", "Healthy meal", "Stayed present"];
 const sleepQualities = ["low", "okay", "good", "great"] as const;
+
+function defaultDraftFor(kind: LogKind): LogDraft {
+  return { ...defaults[kind], date: getTodayIso() };
+}
 
 export function LogModal({
   initialDraft,
@@ -67,10 +72,20 @@ export function LogModal({
   onSave: (kind: LogKind, draft: LogDraft) => void;
 }) {
   const resolvedDraft = useMemo(
-    () => ({
-      ...(kind ? defaults[kind] : defaults.weight),
-      ...(initialDraft ?? {}),
-    }),
+    () => {
+      const base = defaultDraftFor(kind ?? "weight");
+      const incoming = initialDraft
+        ? {
+            ...initialDraft,
+            date: normalizeLogDate(String(initialDraft.date ?? base.date), getTodayIso()),
+          }
+        : {};
+
+      return {
+        ...base,
+        ...incoming,
+      };
+    },
     [initialDraft, kind],
   );
   const [draft, setDraft] = useState<LogDraft>(resolvedDraft);
@@ -127,14 +142,14 @@ export function LogModal({
         <div className="space-y-3">
           {activeKind === "weight" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Weight" name="weight" value={String(draft.weight)} onChange={update} inputMode="decimal" suffix="lb" />
             </>
           ) : null}
 
           {activeKind === "bike" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
               <Field label="Distance" name="distanceMiles" value={String(draft.distanceMiles)} onChange={update} inputMode="decimal" suffix="mi" />
               <Field label="Resistance" name="resistance" value={String(draft.resistance)} onChange={update} inputMode="numeric" />
@@ -145,7 +160,7 @@ export function LogModal({
 
           {activeKind === "jacobsLadder" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Duration" name="duration" value={String(draft.duration)} onChange={update} />
               <Field label="Longest continuous" name="longestContinuous" value={String(draft.longestContinuous)} onChange={update} />
             </>
@@ -153,14 +168,14 @@ export function LogModal({
 
           {activeKind === "pushUps" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <PushUpSetFields draft={draft} onChange={update} />
             </>
           ) : null}
 
           {activeKind === "dumbbellCurls" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Weight" name="weight" value={String(draft.weight)} onChange={update} inputMode="numeric" suffix="lb" />
               <Field label="Reps each arm" name="repsEachArm" value={String(draft.repsEachArm)} onChange={update} inputMode="numeric" />
             </>
@@ -168,7 +183,7 @@ export function LogModal({
 
           {activeKind === "strength" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Exercise" name="exercise" value={String(draft.exercise)} onChange={update} placeholder="Bench, row, leg press..." />
               <Field label="Weight" name="weight" value={String(draft.weight)} onChange={update} inputMode="numeric" suffix="lb" />
               <Field label="Reps" name="reps" value={String(draft.reps)} onChange={update} inputMode="numeric" />
@@ -178,7 +193,7 @@ export function LogModal({
 
           {activeKind === "kettlebell" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Exercise" name="exercise" value={String(draft.exercise)} onChange={update} />
               <Field label="Weight" name="weight" value={String(draft.weight)} onChange={update} inputMode="numeric" suffix="lb" />
               <Field label="Reps" name="reps" value={String(draft.reps)} onChange={update} inputMode="numeric" />
@@ -187,7 +202,7 @@ export function LogModal({
 
           {activeKind === "farmerCarries" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Weight each hand" name="weightEachHand" value={String(draft.weightEachHand)} onChange={update} inputMode="numeric" suffix="lb" />
               <Field label="Distance" name="distanceFeet" value={String(draft.distanceFeet)} onChange={update} inputMode="numeric" suffix="ft" />
               <Field label="Rounds" name="rounds" value={String(draft.rounds)} onChange={update} inputMode="numeric" />
@@ -196,7 +211,7 @@ export function LogModal({
 
           {activeKind === "swim" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
               <Field label="Distance" name="distance" value={String(draft.distance)} onChange={update} inputMode="numeric" suffix="yd" />
               <Field label="Stroke" name="stroke" value={String(draft.stroke)} onChange={update} />
@@ -206,7 +221,7 @@ export function LogModal({
 
           {activeKind === "yoga" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
               <Field label="Focus" name="focus" value={String(draft.focus)} onChange={update} />
               <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
@@ -216,7 +231,7 @@ export function LogModal({
           {activeKind === "meal" ? (
             <>
               <FoodPresetPicker onChangeSelection={applyFoodPresets} selectedNames={selectedFoodNames(draft)} />
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Name" name="name" value={String(draft.name)} onChange={update} />
               <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
               <Field label="Protein" name="protein" value={String(draft.protein)} onChange={update} inputMode="numeric" suffix="g" />
@@ -226,14 +241,14 @@ export function LogModal({
 
           {activeKind === "water" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Water" name="ounces" value={String(draft.ounces)} onChange={update} inputMode="numeric" suffix="oz" />
             </>
           ) : null}
 
           {activeKind === "sleep" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <Field label="Hours" name="hours" value={String(draft.hours)} onChange={update} inputMode="decimal" />
               <label className="block">
                 <span className="metric-label mb-2 block">Quality</span>
@@ -255,7 +270,7 @@ export function LogModal({
 
           {activeKind === "mood" ? (
             <>
-              <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
+              <DateField value={String(draft.date)} onChange={update} />
               <label className="block">
                 <span className="metric-label mb-2 block">Reason</span>
                 <select
@@ -307,6 +322,16 @@ function selectedFoodNames(draft: LogDraft) {
     .filter(Boolean);
 }
 
+function DateField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (name: string, value: string) => void;
+}) {
+  return <Field label="Date" name="date" type="date" value={normalizeLogDate(value, getTodayIso())} onChange={onChange} />;
+}
+
 function Field({
   label,
   name,
@@ -315,6 +340,7 @@ function Field({
   inputMode,
   placeholder,
   suffix,
+  type = "text",
 }: {
   label: string;
   name: string;
@@ -323,6 +349,7 @@ function Field({
   inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
   placeholder?: string;
   suffix?: string;
+  type?: string;
 }) {
   return (
     <label className="block">
@@ -330,6 +357,7 @@ function Field({
       <div className="flex min-h-12 items-center rounded-2xl border border-white/10 bg-carbon px-4 focus-within:border-champagne">
         <input
           name={name}
+          type={type}
           value={value}
           inputMode={inputMode}
           placeholder={placeholder}

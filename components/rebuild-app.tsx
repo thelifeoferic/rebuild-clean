@@ -10,7 +10,7 @@ import { ProgramsHub } from "@/components/programs-hub";
 import { QuickAdd } from "@/components/quick-add";
 import { RecordsHub } from "@/components/records-hub";
 import { estimateDraftActivityCalories } from "@/lib/activity-calories";
-import { buildTimeline, cloneSeedData, createId, normalizeRebuildData, storageKey } from "@/lib/rebuild-data";
+import { buildTimeline, cloneSeedData, createId, getTodayIso, normalizeLogDate, normalizeRebuildData, storageKey } from "@/lib/rebuild-data";
 import type { AppView, LogKind, MoodReason, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
 type Draft = LogDraft;
@@ -232,7 +232,7 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft, profile: Onbo
     next.behaviorWins.unshift(moodFromDraft(draft));
   }
 
-  return next;
+  return sortDataByDate(next);
 }
 
 function updateLog(data: RebuildData, kind: LogKind, id: string, draft: Draft, profile: OnboardingProfile | null): RebuildData {
@@ -322,7 +322,7 @@ function updateLog(data: RebuildData, kind: LogKind, id: string, draft: Draft, p
     );
   }
 
-  return next;
+  return sortDataByDate(next);
 }
 
 function cloneMutableData(data: RebuildData): RebuildData {
@@ -344,10 +344,34 @@ function cloneMutableData(data: RebuildData): RebuildData {
   };
 }
 
+function sortDataByDate(data: RebuildData): RebuildData {
+  return {
+    ...data,
+    weights: sortByDate(data.weights),
+    bikeSessions: sortByDate(data.bikeSessions),
+    jacobsLadderSessions: sortByDate(data.jacobsLadderSessions),
+    pushUpSessions: sortByDate(data.pushUpSessions),
+    dumbbellCurlSessions: sortByDate(data.dumbbellCurlSessions),
+    kettlebellSessions: sortByDate(data.kettlebellSessions),
+    farmerCarrySessions: sortByDate(data.farmerCarrySessions),
+    strengthAccessorySessions: sortByDate(data.strengthAccessorySessions),
+    swimSessions: sortByDate(data.swimSessions),
+    yogaSessions: sortByDate(data.yogaSessions),
+    meals: sortByDate(data.meals),
+    waterLogs: sortByDate(data.waterLogs),
+    sleepLogs: sortByDate(data.sleepLogs),
+    behaviorWins: sortByDate(data.behaviorWins),
+  };
+}
+
+function sortByDate<T extends { date?: string }>(items: T[]) {
+  return [...items].sort((a, b) => normalizeLogDate(b.date).localeCompare(normalizeLogDate(a.date)));
+}
+
 function weightFromDraft(draft: Draft, id = createId("weight"), moment: "morning" | "bedtime" | "check-in" = "check-in") {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     weight: number(draft.weight),
     moment,
   };
@@ -364,7 +388,7 @@ function bikeFromDraft(
 
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     minutes: number(draft.minutes),
     distanceMiles: number(draft.distanceMiles),
     resistance: number(draft.resistance),
@@ -377,7 +401,7 @@ function bikeFromDraft(
 function jacobsLadderFromDraft(draft: Draft, id = createId("ladder")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     duration: text(draft.duration, "0:00"),
     longestContinuous: text(draft.longestContinuous, "0:00"),
   };
@@ -386,7 +410,7 @@ function jacobsLadderFromDraft(draft: Draft, id = createId("ladder")) {
 function pushUpsFromDraft(draft: Draft, id = createId("push")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     sets: pushUpSetsFromDraft(draft),
   };
 }
@@ -394,7 +418,7 @@ function pushUpsFromDraft(draft: Draft, id = createId("push")) {
 function dumbbellCurlsFromDraft(draft: Draft, id = createId("curl")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     weight: number(draft.weight),
     repsEachArm: number(draft.repsEachArm),
   };
@@ -403,7 +427,7 @@ function dumbbellCurlsFromDraft(draft: Draft, id = createId("curl")) {
 function strengthFromDraft(draft: Draft, id = createId("strength")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     exercise: text(draft.exercise, "Strength lift"),
     weight: number(draft.weight),
     reps: number(draft.reps),
@@ -414,7 +438,7 @@ function strengthFromDraft(draft: Draft, id = createId("strength")) {
 function kettlebellFromDraft(draft: Draft, id = createId("kb")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     exercise: text(draft.exercise, "Kettlebell work"),
     weight: number(draft.weight),
     reps: number(draft.reps),
@@ -424,7 +448,7 @@ function kettlebellFromDraft(draft: Draft, id = createId("kb")) {
 function farmerCarriesFromDraft(draft: Draft, id = createId("carry")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     weightEachHand: number(draft.weightEachHand),
     distanceFeet: number(draft.distanceFeet),
     rounds: number(draft.rounds),
@@ -434,7 +458,7 @@ function farmerCarriesFromDraft(draft: Draft, id = createId("carry")) {
 function swimFromDraft(draft: Draft, id = createId("swim")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     minutes: number(draft.minutes),
     distance: number(draft.distance),
     stroke: text(draft.stroke, "Freestyle"),
@@ -445,7 +469,7 @@ function swimFromDraft(draft: Draft, id = createId("swim")) {
 function yogaFromDraft(draft: Draft, id = createId("yoga")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     minutes: number(draft.minutes),
     focus: text(draft.focus, "Mobility"),
     notes: text(draft.notes, "Recovery session."),
@@ -455,7 +479,7 @@ function yogaFromDraft(draft: Draft, id = createId("yoga")) {
 function mealFromDraft(draft: Draft, id = createId("meal")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     name: text(draft.name, "Meal"),
     calories: number(draft.calories),
     protein: number(draft.protein),
@@ -466,7 +490,7 @@ function mealFromDraft(draft: Draft, id = createId("meal")) {
 function waterFromDraft(draft: Draft, id = createId("water")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     ounces: number(draft.ounces),
   };
 }
@@ -476,7 +500,7 @@ function sleepFromDraft(draft: Draft, id = createId("sleep")) {
 
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     hours: number(draft.hours),
     quality: ["low", "okay", "good", "great"].includes(quality) ? quality as "low" | "okay" | "good" | "great" : "good",
     notes: text(draft.notes, "Sleep logged."),
@@ -486,7 +510,7 @@ function sleepFromDraft(draft: Draft, id = createId("sleep")) {
 function moodFromDraft(draft: Draft, id = createId("win")) {
   return {
     id,
-    date: text(draft.date, "Today"),
+    date: dateFromDraft(draft),
     reason: text(draft.reason, "stress") as MoodReason,
     label: text(draft.label, "Stayed present"),
     didntSmoke: true,
@@ -497,14 +521,14 @@ function moodFromDraft(draft: Draft, id = createId("win")) {
 function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | null {
   if (kind === "weight") {
     const entry = data.weights.find((item) => item.id === id);
-    return entry ? { date: entry.date, weight: String(entry.weight) } : null;
+    return entry ? { date: editDate(entry.date), weight: String(entry.weight) } : null;
   }
 
   if (kind === "bike") {
     const session = data.bikeSessions.find((item) => item.id === id);
     return session
       ? {
-          date: session.date,
+          date: editDate(session.date),
           minutes: String(session.minutes),
           distanceMiles: String(session.distanceMiles ?? ""),
           resistance: String(session.resistance),
@@ -518,7 +542,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const session = data.jacobsLadderSessions.find((item) => item.id === id);
     return session
       ? {
-          date: session.date,
+          date: editDate(session.date),
           duration: session.duration,
           longestContinuous: session.longestContinuous,
         }
@@ -533,7 +557,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const extras = session.sets.slice(6);
 
     return {
-      date: session.date,
+      date: editDate(session.date),
       set1: String(firstSix[0] ?? ""),
       set2: String(firstSix[1] ?? ""),
       set3: String(firstSix[2] ?? ""),
@@ -548,7 +572,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const session = data.dumbbellCurlSessions.find((item) => item.id === id);
     return session
       ? {
-          date: session.date,
+          date: editDate(session.date),
           weight: String(session.weight),
           repsEachArm: String(session.repsEachArm),
         }
@@ -559,7 +583,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const session = data.strengthAccessorySessions.find((item) => item.id === id);
     return session
       ? {
-          date: session.date,
+          date: editDate(session.date),
           exercise: session.exercise,
           weight: String(session.weight),
           reps: String(session.reps),
@@ -572,7 +596,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const session = data.kettlebellSessions.find((item) => item.id === id);
     return session
       ? {
-          date: session.date,
+          date: editDate(session.date),
           exercise: session.exercise,
           weight: String(session.weight),
           reps: String(session.reps),
@@ -584,7 +608,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const session = data.farmerCarrySessions.find((item) => item.id === id);
     return session
       ? {
-          date: session.date,
+          date: editDate(session.date),
           weightEachHand: String(session.weightEachHand),
           distanceFeet: String(session.distanceFeet),
           rounds: String(session.rounds),
@@ -596,7 +620,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const session = data.swimSessions.find((item) => item.id === id);
     return session
       ? {
-          date: session.date,
+          date: editDate(session.date),
           minutes: String(session.minutes),
           distance: String(session.distance),
           stroke: session.stroke,
@@ -609,7 +633,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const session = data.yogaSessions.find((item) => item.id === id);
     return session
       ? {
-          date: session.date,
+          date: editDate(session.date),
           minutes: String(session.minutes),
           focus: session.focus,
           notes: session.notes,
@@ -621,7 +645,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const meal = data.meals.find((item) => item.id === id);
     return meal
       ? {
-          date: meal.date ?? "Today",
+          date: normalizeLogDate(meal.date, getTodayIso()),
           name: meal.name,
           calories: String(meal.calories),
           protein: String(meal.protein),
@@ -635,7 +659,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const entry = data.waterLogs.find((item) => item.id === id);
     return entry
       ? {
-          date: entry.date,
+          date: editDate(entry.date),
           ounces: String(entry.ounces),
         }
       : null;
@@ -645,7 +669,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const entry = data.sleepLogs.find((item) => item.id === id);
     return entry
       ? {
-          date: entry.date,
+          date: editDate(entry.date),
           hours: String(entry.hours),
           quality: entry.quality,
           notes: entry.notes,
@@ -657,7 +681,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
     const win = data.behaviorWins.find((item) => item.id === id);
     return win
       ? {
-          date: win.date,
+          date: editDate(win.date),
           reason: win.reason,
           label: win.label,
           didntSmoke: win.didntSmoke,
@@ -672,6 +696,14 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
 function number(value: unknown) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function dateFromDraft(draft: Draft) {
+  return normalizeLogDate(text(draft.date, getTodayIso()), getTodayIso());
+}
+
+function editDate(value: string) {
+  return normalizeLogDate(value, getTodayIso());
 }
 
 function text(value: unknown, fallback: string) {

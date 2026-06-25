@@ -2,7 +2,9 @@ import { seedData } from "@/data/mock-data";
 import type { RebuildData, TimelineItem } from "@/types/rebuild";
 
 export const storageKey = "rebuild:data:v3";
+export const legacyTodayIso = "2026-06-24";
 export const todayLabel = "June 24, 2026";
+const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
 export function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -13,13 +15,13 @@ export function createId(prefix: string) {
 }
 
 export function cloneSeedData(): RebuildData {
-  return JSON.parse(JSON.stringify(seedData)) as RebuildData;
+  return normalizeDataDates(JSON.parse(JSON.stringify(seedData)) as RebuildData);
 }
 
 export function normalizeRebuildData(data: Partial<RebuildData>): RebuildData {
   const seed = cloneSeedData();
 
-  return {
+  return normalizeDataDates({
     weights: data.weights ?? seed.weights,
     bikeSessions: data.bikeSessions ?? seed.bikeSessions,
     jacobsLadderSessions: data.jacobsLadderSessions ?? seed.jacobsLadderSessions,
@@ -34,7 +36,45 @@ export function normalizeRebuildData(data: Partial<RebuildData>): RebuildData {
     waterLogs: data.waterLogs ?? seed.waterLogs,
     sleepLogs: data.sleepLogs ?? seed.sleepLogs,
     behaviorWins: data.behaviorWins ?? seed.behaviorWins,
-  };
+  });
+}
+
+export function getTodayIso(date = new Date()) {
+  return toIsoDate(date);
+}
+
+export function normalizeLogDate(value?: string | null, fallback = legacyTodayIso) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return fallback;
+  if (isoDatePattern.test(raw)) return raw;
+
+  const lower = raw.toLowerCase();
+  if (lower === "today" || raw === todayLabel) return legacyTodayIso;
+  if (lower === "yesterday") return addDaysIso(getTodayIso(), -1);
+  if (lower === "tomorrow") return addDaysIso(getTodayIso(), 1);
+
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) return toIsoDate(parsed);
+  return fallback;
+}
+
+export function formatLogDate(value?: string | null) {
+  const iso = normalizeLogDate(value);
+  const today = getTodayIso();
+  if (iso === today) return "Today";
+  if (iso === addDaysIso(today, -1)) return "Yesterday";
+
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(dateFromIso(iso));
+}
+
+export function daysBetweenCalendarDates(startIso: string, endIso: string) {
+  const start = dateFromIso(startIso).getTime();
+  const end = dateFromIso(endIso).getTime();
+  return Math.floor((end - start) / 86_400_000);
 }
 
 export function getSevenDayAverageWeight(data: RebuildData) {
@@ -82,11 +122,11 @@ export function getTodaysPushUps(data: RebuildData) {
 }
 
 export function getTodaysCalories(data: RebuildData) {
-  return data.meals.filter((meal) => !meal.date || isToday(meal.date)).reduce((sum, meal) => sum + meal.calories, 0);
+  return data.meals.filter((meal) => meal.date && isToday(meal.date)).reduce((sum, meal) => sum + meal.calories, 0);
 }
 
 export function getTodaysProtein(data: RebuildData) {
-  return data.meals.filter((meal) => !meal.date || isToday(meal.date)).reduce((sum, meal) => sum + meal.protein, 0);
+  return data.meals.filter((meal) => meal.date && isToday(meal.date)).reduce((sum, meal) => sum + meal.protein, 0);
 }
 
 export function getTodaysWaterOunces(data: RebuildData) {
@@ -98,7 +138,7 @@ export function getLatestSleep(data: RebuildData) {
 }
 
 export function isToday(date: string) {
-  return date === "Today" || date === todayLabel;
+  return normalizeLogDate(date) === getTodayIso();
 }
 
 export function getRecentLowWeight(data: RebuildData) {
@@ -117,7 +157,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.weights.slice(0, 4).forEach((entry) => {
     items.push({
       id: `tl-${entry.id ?? `${entry.date}-${entry.weight}`}`,
-      date: entry.date,
+      date: formatLogDate(entry.date),
       title: "Weight logged",
       detail: `${entry.weight.toFixed(1)} lb saved as a ${entry.moment ?? "check-in"} entry.`,
       tone: "steel",
@@ -128,7 +168,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.behaviorWins.slice(0, 4).forEach((win) => {
     items.push({
       id: `tl-${win.id}`,
-      date: win.date,
+      date: formatLogDate(win.date),
       title: "Pattern interrupted",
       detail: normalizePatternLabel(win.label),
       tone: win.didntSmoke && win.didntSpiral ? "green" : "steel",
@@ -140,7 +180,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
     const distance = ride.distanceMiles ? ` · ${formatDistance(ride.distanceMiles)}` : "";
     items.push({
       id: `tl-${ride.id}`,
-      date: ride.date,
+      date: formatLogDate(ride.date),
       title: "Bike session logged",
       detail: `${ride.minutes} minutes${distance} at resistance ${ride.resistance} with ${ride.calories} calories.`,
       tone: "gold",
@@ -151,7 +191,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.jacobsLadderSessions.slice(0, 2).forEach((session) => {
     items.push({
       id: `tl-${session.id}`,
-      date: session.date,
+      date: formatLogDate(session.date),
       title: "Jacob's Ladder logged",
       detail: `${session.duration} total · ${session.longestContinuous} longest continuous.`,
       tone: "ember",
@@ -163,7 +203,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
     const total = session.sets.reduce((sum, reps) => sum + reps, 0);
     items.push({
       id: `tl-${session.id}`,
-      date: session.date,
+      date: formatLogDate(session.date),
       title: "Push-ups logged",
       detail: `${total} total reps across ${session.sets.length} sets.`,
       tone: "green",
@@ -174,7 +214,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.kettlebellSessions.slice(0, 3).forEach((move) => {
     items.push({
       id: `tl-${move.id}`,
-      date: move.date,
+      date: formatLogDate(move.date),
       title: `${move.exercise} logged`,
       detail: `${move.reps} reps at ${move.weight} lb.`,
       tone: "gold",
@@ -185,7 +225,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.dumbbellCurlSessions.slice(0, 2).forEach((curl) => {
     items.push({
       id: `tl-${curl.id}`,
-      date: curl.date,
+      date: formatLogDate(curl.date),
       title: "Dumbbell curls logged",
       detail: `${curl.weight} lb for ${curl.repsEachArm * 2} total reps.`,
       tone: "ember",
@@ -196,7 +236,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.farmerCarrySessions.slice(0, 2).forEach((carry) => {
     items.push({
       id: `tl-${carry.id}`,
-      date: carry.date,
+      date: formatLogDate(carry.date),
       title: "Farmer carries logged",
       detail: `${carry.weightEachHand} lb each hand for ${carry.distanceFeet * carry.rounds} total feet.`,
       tone: "green",
@@ -207,7 +247,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.strengthAccessorySessions.slice(0, 2).forEach((move) => {
     items.push({
       id: `tl-${move.id}`,
-      date: move.date,
+      date: formatLogDate(move.date),
       title: `${move.exercise} logged`,
       detail: `${move.reps} reps at ${move.weight} lb. ${move.notes}`,
       tone: "steel",
@@ -218,7 +258,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.swimSessions.slice(0, 2).forEach((swim) => {
     items.push({
       id: `tl-${swim.id}`,
-      date: swim.date,
+      date: formatLogDate(swim.date),
       title: "Swim logged",
       detail: `${swim.minutes} minutes · ${swim.distance} yd · ${swim.stroke}. ${swim.notes}`,
       tone: "green",
@@ -229,7 +269,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.yogaSessions.slice(0, 2).forEach((yoga) => {
     items.push({
       id: `tl-${yoga.id}`,
-      date: yoga.date,
+      date: formatLogDate(yoga.date),
       title: "Yoga logged",
       detail: `${yoga.minutes} minutes focused on ${yoga.focus}. ${yoga.notes}`,
       tone: "steel",
@@ -240,7 +280,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.meals.slice(0, 2).forEach((meal) => {
     items.push({
       id: `tl-${meal.id}`,
-      date: "Nutrition",
+      date: formatLogDate(meal.date),
       title: meal.name,
       detail: `${meal.calories} calories · ${meal.protein}g protein. ${meal.notes}`,
       tone: "steel",
@@ -251,7 +291,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.waterLogs.slice(0, 2).forEach((entry) => {
     items.push({
       id: `tl-${entry.id}`,
-      date: entry.date,
+      date: formatLogDate(entry.date),
       title: "Water logged",
       detail: `${entry.ounces} oz saved.`,
       tone: "steel",
@@ -262,7 +302,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   data.sleepLogs.slice(0, 2).forEach((entry) => {
     items.push({
       id: `tl-${entry.id}`,
-      date: entry.date,
+      date: formatLogDate(entry.date),
       title: "Sleep logged",
       detail: `${entry.hours} hours · ${entry.quality} quality. ${entry.notes}`,
       tone: "steel",
@@ -285,9 +325,9 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
     return [
       {
         id: "tl-fresh-start",
-        date: "Tomorrow",
-        title: "Fresh start queued",
-        detail: "Log the first weight, workout, meal, or reset win to begin the new timeline.",
+        date: "Today",
+        title: "Fresh start ready",
+        detail: "Log the first weight, workout, meal, or pattern interrupt to begin today's timeline.",
         tone: "steel",
       },
     ];
@@ -310,6 +350,48 @@ function roundDistance(value: number) {
 
 function formatDistance(value: number) {
   return `${roundDistance(value).toFixed(value >= 10 ? 1 : 2)} mi`;
+}
+
+function normalizeDataDates(data: RebuildData): RebuildData {
+  return {
+    ...data,
+    weights: data.weights.map(normalizeDatedEntry),
+    bikeSessions: data.bikeSessions.map(normalizeDatedEntry),
+    jacobsLadderSessions: data.jacobsLadderSessions.map(normalizeDatedEntry),
+    pushUpSessions: data.pushUpSessions.map(normalizeDatedEntry),
+    dumbbellCurlSessions: data.dumbbellCurlSessions.map(normalizeDatedEntry),
+    kettlebellSessions: data.kettlebellSessions.map(normalizeDatedEntry),
+    farmerCarrySessions: data.farmerCarrySessions.map(normalizeDatedEntry),
+    strengthAccessorySessions: data.strengthAccessorySessions.map(normalizeDatedEntry),
+    swimSessions: data.swimSessions.map(normalizeDatedEntry),
+    yogaSessions: data.yogaSessions.map(normalizeDatedEntry),
+    meals: data.meals.map((meal) => ({ ...meal, date: normalizeLogDate(meal.date, legacyTodayIso) })),
+    waterLogs: data.waterLogs.map(normalizeDatedEntry),
+    sleepLogs: data.sleepLogs.map(normalizeDatedEntry),
+    behaviorWins: data.behaviorWins.map(normalizeDatedEntry),
+  };
+}
+
+function normalizeDatedEntry<T extends { date: string }>(entry: T): T {
+  return { ...entry, date: normalizeLogDate(entry.date, legacyTodayIso) };
+}
+
+function toIsoDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function dateFromIso(iso: string) {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function addDaysIso(iso: string, days: number) {
+  const date = dateFromIso(iso);
+  date.setDate(date.getDate() + days);
+  return toIsoDate(date);
 }
 
 function normalizePatternLabel(label: string) {

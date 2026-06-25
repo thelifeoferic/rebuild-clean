@@ -1,21 +1,22 @@
 import { Activity, CalendarCheck2, Salad, ShieldCheck } from "lucide-react";
 import { Section } from "@/components/section";
+import { normalizeLogDate } from "@/lib/rebuild-data";
 import type { RebuildData } from "@/types/rebuild";
 
 export function StreakSummary({ data }: { data: RebuildData }) {
   const proofDays = uniqueDates([
-    ...data.weights.map((item) => item.date),
-    ...data.bikeSessions.map((item) => item.date),
-    ...data.jacobsLadderSessions.map((item) => item.date),
-    ...data.pushUpSessions.map((item) => item.date),
-    ...data.dumbbellCurlSessions.map((item) => item.date),
-    ...data.strengthAccessorySessions.map((item) => item.date),
-    ...data.kettlebellSessions.map((item) => item.date),
-    ...data.farmerCarrySessions.map((item) => item.date),
-    ...data.swimSessions.map((item) => item.date),
-    ...data.yogaSessions.map((item) => item.date),
-    ...data.meals.map((item) => item.date ?? "Today"),
-    ...data.behaviorWins.map((item) => item.date),
+    ...data.weights.map((item) => normalizeLogDate(item.date)),
+    ...data.bikeSessions.map((item) => normalizeLogDate(item.date)),
+    ...data.jacobsLadderSessions.map((item) => normalizeLogDate(item.date)),
+    ...data.pushUpSessions.map((item) => normalizeLogDate(item.date)),
+    ...data.dumbbellCurlSessions.map((item) => normalizeLogDate(item.date)),
+    ...data.strengthAccessorySessions.map((item) => normalizeLogDate(item.date)),
+    ...data.kettlebellSessions.map((item) => normalizeLogDate(item.date)),
+    ...data.farmerCarrySessions.map((item) => normalizeLogDate(item.date)),
+    ...data.swimSessions.map((item) => normalizeLogDate(item.date)),
+    ...data.yogaSessions.map((item) => normalizeLogDate(item.date)),
+    ...data.meals.map((item) => normalizeLogDate(item.date)),
+    ...data.behaviorWins.map((item) => normalizeLogDate(item.date)),
   ]).length;
 
   const trainingSessions =

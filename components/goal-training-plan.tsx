@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { workoutPrograms, type WorkoutProgram } from "@/data/workout-programs";
 import { Section } from "@/components/section";
 import type { LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
-import { getTodaysBikeMinutes, getTodaysPushUps } from "@/lib/rebuild-data";
+import { getTodaysBikeMinutes, getTodaysPushUps, isToday } from "@/lib/rebuild-data";
 
 type GoalTrainingPlanProps = {
   data: RebuildData;
@@ -32,10 +32,10 @@ export function GoalTrainingPlan({ data, onOpenLog, profile }: GoalTrainingPlanP
   const completedSomething =
     getTodaysBikeMinutes(data) > 0 ||
     getTodaysPushUps(data) > 0 ||
-    data.strengthAccessorySessions.some((entry) => entry.date === "Today") ||
-    data.kettlebellSessions.some((entry) => entry.date === "Today") ||
-    data.swimSessions.some((entry) => entry.date === "Today") ||
-    data.yogaSessions.some((entry) => entry.date === "Today");
+    data.strengthAccessorySessions.some((entry) => isToday(entry.date)) ||
+    data.kettlebellSessions.some((entry) => isToday(entry.date)) ||
+    data.swimSessions.some((entry) => isToday(entry.date)) ||
+    data.yogaSessions.some((entry) => isToday(entry.date));
 
   useEffect(() => {
     try {
