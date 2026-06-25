@@ -111,6 +111,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: "Weight logged",
       detail: `${entry.weight.toFixed(1)} lb saved as a ${entry.moment ?? "check-in"} entry.`,
       tone: "steel",
+      editable: entry.id ? { kind: "weight", id: entry.id } : undefined,
     });
   });
 
@@ -121,6 +122,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: win.didntSmoke && win.didntSpiral ? "Protected the reset" : "Logged a reset",
       detail: win.label,
       tone: win.didntSmoke && win.didntSpiral ? "green" : "steel",
+      editable: { kind: "mood", id: win.id },
     });
   });
 
@@ -132,6 +134,18 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: "Bike session logged",
       detail: `${ride.minutes} minutes${distance} at resistance ${ride.resistance} with ${ride.calories} calories.`,
       tone: "gold",
+      editable: { kind: "bike", id: ride.id },
+    });
+  });
+
+  data.jacobsLadderSessions.slice(0, 2).forEach((session) => {
+    items.push({
+      id: `tl-${session.id}`,
+      date: session.date,
+      title: "Jacob's Ladder logged",
+      detail: `${session.duration} total · ${session.longestContinuous} longest continuous.`,
+      tone: "ember",
+      editable: { kind: "jacobsLadder", id: session.id },
     });
   });
 
@@ -143,6 +157,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: "Push-ups logged",
       detail: `${total} total reps across ${session.sets.length} sets.`,
       tone: "green",
+      editable: { kind: "pushUps", id: session.id },
     });
   });
 
@@ -153,6 +168,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: `${move.exercise} logged`,
       detail: `${move.reps} reps at ${move.weight} lb.`,
       tone: "gold",
+      editable: { kind: "kettlebell", id: move.id },
     });
   });
 
@@ -163,6 +179,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: "Dumbbell curls logged",
       detail: `${curl.weight} lb for ${curl.repsEachArm * 2} total reps.`,
       tone: "ember",
+      editable: { kind: "dumbbellCurls", id: curl.id },
     });
   });
 
@@ -173,6 +190,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: "Farmer carries logged",
       detail: `${carry.weightEachHand} lb each hand for ${carry.distanceFeet * carry.rounds} total feet.`,
       tone: "green",
+      editable: { kind: "farmerCarries", id: carry.id },
     });
   });
 
@@ -183,6 +201,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: `${move.exercise} logged`,
       detail: `${move.reps} reps at ${move.weight} lb. ${move.notes}`,
       tone: "steel",
+      editable: { kind: "strength", id: move.id },
     });
   });
 
@@ -193,6 +212,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: "Swim logged",
       detail: `${swim.minutes} minutes · ${swim.distance} yd · ${swim.stroke}. ${swim.notes}`,
       tone: "green",
+      editable: { kind: "swim", id: swim.id },
     });
   });
 
@@ -203,6 +223,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: "Yoga logged",
       detail: `${yoga.minutes} minutes focused on ${yoga.focus}. ${yoga.notes}`,
       tone: "steel",
+      editable: { kind: "yoga", id: yoga.id },
     });
   });
 
@@ -213,6 +234,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
       title: meal.name,
       detail: `${meal.calories} calories · ${meal.protein}g protein. ${meal.notes}`,
       tone: "steel",
+      editable: { kind: "meal", id: meal.id },
     });
   });
 

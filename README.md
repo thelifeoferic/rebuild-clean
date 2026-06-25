@@ -45,6 +45,8 @@ The current sync model stores the user profile in `rebuild_profiles` and the ful
 
 The Body tab lets a signed-in user upload or take a clothed progress photo and receive non-medical coaching feedback. Photos are resized in the browser, sent once to the server route, and are not saved automatically by REBUILD.
 
+Users can tap `Save to progress` to keep body-check photos in a local on-device progress library. Saved photos support day-to-day or before/after comparison inside the Body tab. These progress photos are stored in browser IndexedDB on the current device; they are not currently synced to Supabase.
+
 To enable live AI analysis in Vercel, add this Environment Variable:
 
 ```bash

@@ -111,6 +111,10 @@ export type TimelineItem = {
   title: string;
   detail: string;
   tone: "gold" | "green" | "ember" | "steel";
+  editable?: {
+    kind: LogKind;
+    id: string;
+  };
 };
 
 export type RebuildData = {

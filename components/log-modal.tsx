@@ -7,7 +7,7 @@ import { FoodPresetPicker } from "@/components/food-preset-picker";
 import type { FoodPreset } from "@/data/food-presets";
 import type { LogKind, MoodReason } from "@/types/rebuild";
 
-type Draft = Record<string, string | boolean>;
+export type LogDraft = Record<string, string | boolean>;
 
 const titles: Record<LogKind, string> = {
   weight: "Weigh-in",
@@ -24,7 +24,7 @@ const titles: Record<LogKind, string> = {
   mood: "Mood Reset",
 };
 
-const defaults: Record<LogKind, Draft> = {
+const defaults: Record<LogKind, LogDraft> = {
   weight: { date: "Today", weight: "" },
   bike: { date: "Today", minutes: "", distanceMiles: "", resistance: "", calories: "", notes: "" },
   jacobsLadder: { date: "Today", duration: "", longestContinuous: "" },
@@ -48,20 +48,30 @@ const defaults: Record<LogKind, Draft> = {
 const moodReasons: MoodReason[] = ["stress", "anger", "boredom", "energy", "habit"];
 
 export function LogModal({
+  initialDraft,
   kind,
+  mode = "create",
   onClose,
   onSave,
 }: {
+  initialDraft?: LogDraft | null;
   kind: LogKind | null;
+  mode?: "create" | "edit";
   onClose: () => void;
-  onSave: (kind: LogKind, draft: Draft) => void;
+  onSave: (kind: LogKind, draft: LogDraft) => void;
 }) {
-  const initialDraft = useMemo(() => (kind ? defaults[kind] : defaults.weight), [kind]);
-  const [draft, setDraft] = useState<Draft>(initialDraft);
+  const resolvedDraft = useMemo(
+    () => ({
+      ...(kind ? defaults[kind] : defaults.weight),
+      ...(initialDraft ?? {}),
+    }),
+    [initialDraft, kind],
+  );
+  const [draft, setDraft] = useState<LogDraft>(resolvedDraft);
 
   useEffect(() => {
-    setDraft(initialDraft);
-  }, [initialDraft]);
+    setDraft(resolvedDraft);
+  }, [resolvedDraft]);
 
   if (!kind) return null;
   const activeKind = kind;
@@ -95,7 +105,7 @@ export function LogModal({
       <form onSubmit={submit} className="panel max-h-[88vh] w-full overflow-y-auto p-4">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <p className="metric-label">Save log</p>
+            <p className="metric-label">{mode === "edit" ? "Edit log" : "Save log"}</p>
             <h2 className="mt-1 text-2xl font-semibold text-porcelain">{titles[activeKind]}</h2>
           </div>
           <button
@@ -233,14 +243,14 @@ export function LogModal({
         </div>
 
         <button type="submit" className="mt-5 min-h-12 w-full rounded-2xl bg-champagne px-4 text-base font-bold text-carbon shadow-glow">
-          Save to REBUILD
+          {mode === "edit" ? "Save changes" : "Save to REBUILD"}
         </button>
       </form>
     </div>
   );
 }
 
-function selectedFoodNames(draft: Draft) {
+function selectedFoodNames(draft: LogDraft) {
   return String(draft.selectedFoods ?? "")
     .split("||")
     .map((name) => name.trim())
@@ -334,7 +344,7 @@ function PushUpSetFields({
   draft,
   onChange,
 }: {
-  draft: Draft;
+  draft: LogDraft;
   onChange: (name: string, value: string) => void;
 }) {
   const setNames = ["set1", "set2", "set3", "set4", "set5", "set6"];

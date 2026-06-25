@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertTriangle, Camera, ImagePlus, Loader2, ShieldCheck, Sparkles, Trash2, Upload } from "lucide-react";
-import { useMemo, useState } from "react";
+import { AlertTriangle, Camera, ImagePlus, Loader2, Save, ShieldCheck, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { ActionButton } from "@/components/action-button";
 import { Section } from "@/components/section";
+import { deleteProgressPhoto, listProgressPhotos, saveProgressPhoto, type ProgressPhoto } from "@/lib/progress-photos";
 import type { OnboardingProfile } from "@/types/rebuild";
 
 type BodyAnalysis = {
@@ -37,9 +38,16 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
   const [analysis, setAnalysis] = useState<BodyAnalysis | null>(null);
   const [isMock, setIsMock] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [photos, setPhotos] = useState<ProgressPhoto[]>([]);
+  const [selectedBeforeId, setSelectedBeforeId] = useState("");
+  const [selectedAfterId, setSelectedAfterId] = useState("");
+  const [saveStatus, setSaveStatus] = useState("");
   const [error, setError] = useState("");
 
   const canAnalyze = Boolean(imageData && consent && !isLoading);
+  const canSavePhoto = Boolean(imageData && !isLoading);
+  const selectedBefore = photos.find((photo) => photo.id === selectedBeforeId) ?? null;
+  const selectedAfter = photos.find((photo) => photo.id === selectedAfterId) ?? null;
   const profileContext = useMemo(() => {
     const goals = profile?.goals?.length ? profile.goals.join(", ") : profile?.goal;
     return [
@@ -55,10 +63,25 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
       .join("\n");
   }, [context, profile]);
 
+  useEffect(() => {
+    void refreshPhotos();
+  }, []);
+
+  useEffect(() => {
+    if (selectedBeforeId || photos.length < 2) return;
+    setSelectedBeforeId(photos[photos.length - 1]?.id ?? "");
+  }, [photos, selectedBeforeId]);
+
+  useEffect(() => {
+    if (selectedAfterId || photos.length < 1) return;
+    setSelectedAfterId(photos[0]?.id ?? "");
+  }, [photos, selectedAfterId]);
+
   async function handleFile(file: File | null) {
     setError("");
     setAnalysis(null);
     setIsMock(false);
+    setSaveStatus("");
 
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -101,10 +124,59 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
 
       setAnalysis(normalizeAnalysis(payload.analysis));
       setIsMock(Boolean(payload.mock));
+      setSaveStatus("Analysis ready. Save this photo if you want it in comparisons.");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Analysis failed. Try again.");
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function saveCurrentPhoto() {
+    if (!canSavePhoto) return;
+
+    setError("");
+    setSaveStatus("");
+
+    const photo: ProgressPhoto = {
+      id: createPhotoId(),
+      analysisSummary: analysis?.summary,
+      createdAt: new Date().toISOString(),
+      imageData,
+      note: context.trim(),
+    };
+
+    try {
+      await saveProgressPhoto(photo);
+      const nextPhotos = await listProgressPhotos();
+      setPhotos(nextPhotos);
+      setSelectedAfterId(photo.id);
+      if (!selectedBeforeId && nextPhotos.length > 1) setSelectedBeforeId(nextPhotos[nextPhotos.length - 1].id);
+      setSaveStatus("Photo saved to progress library.");
+    } catch {
+      setError("Could not save this photo on this device.");
+    }
+  }
+
+  async function removeSavedPhoto(id: string) {
+    try {
+      await deleteProgressPhoto(id);
+      const nextPhotos = await listProgressPhotos();
+      setPhotos(nextPhotos);
+      if (selectedBeforeId === id) setSelectedBeforeId(nextPhotos[nextPhotos.length - 1]?.id ?? "");
+      if (selectedAfterId === id) setSelectedAfterId(nextPhotos[0]?.id ?? "");
+      setSaveStatus("Progress photo deleted.");
+    } catch {
+      setError("Could not delete that photo.");
+    }
+  }
+
+  async function refreshPhotos() {
+    try {
+      const nextPhotos = await listProgressPhotos();
+      setPhotos(nextPhotos);
+    } catch {
+      setError("Saved progress photos are not available in this browser.");
     }
   }
 
@@ -113,6 +185,17 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
     setFileName("");
     setAnalysis(null);
     setIsMock(false);
+    setSaveStatus("");
+    setError("");
+  }
+
+  function loadSavedPhoto(photo: ProgressPhoto) {
+    setImageData(photo.imageData);
+    setFileName(`Saved ${formatPhotoDate(photo.createdAt)}`);
+    setContext(photo.note ?? "");
+    setAnalysis(photo.analysisSummary ? { ...emptyAnalysis, summary: photo.analysisSummary } : null);
+    setIsMock(false);
+    setSaveStatus("Saved photo loaded as current preview.");
     setError("");
   }
 
@@ -166,14 +249,25 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
           </label>
 
           {imageData ? (
-            <button
-              type="button"
-              onClick={clearPhoto}
-              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-sm font-bold text-white/58"
-            >
-              <Trash2 size={16} strokeWidth={2.2} aria-hidden />
-              Clear photo
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void saveCurrentPhoto()}
+                disabled={!canSavePhoto}
+                className="inline-flex min-h-10 items-center gap-2 rounded-full bg-champagne px-4 text-sm font-black text-carbon disabled:opacity-45"
+              >
+                <Save size={16} strokeWidth={2.2} aria-hidden />
+                Save to progress
+              </button>
+              <button
+                type="button"
+                onClick={clearPhoto}
+                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-sm font-bold text-white/58"
+              >
+                <Trash2 size={16} strokeWidth={2.2} aria-hidden />
+                Clear photo
+              </button>
+            </div>
           ) : null}
 
           <label className="block">
@@ -205,6 +299,12 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
             </div>
           ) : null}
 
+          {saveStatus ? (
+            <div className="rounded-2xl border border-signal/25 bg-signal/10 p-3 text-sm font-semibold leading-5 text-white/68">
+              {saveStatus}
+            </div>
+          ) : null}
+
           <button
             type="button"
             disabled={!canAnalyze}
@@ -218,14 +318,178 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
           <div className="rounded-2xl border border-white/10 bg-carbon/70 p-3">
             <p className="metric-label">Privacy posture</p>
             <p className="mt-2 text-sm font-semibold leading-5 text-white/50">
-              REBUILD does not save the photo automatically. The image is resized on your device, sent once for analysis, and the preview can be cleared anytime.
+              REBUILD does not save the photo automatically. Tap Save to progress to keep it on this device for comparisons.
             </p>
           </div>
 
           {analysis ? <AnalysisCard analysis={analysis} isMock={isMock} /> : null}
+
+          <ProgressPhotoLibrary
+            onDelete={(id) => void removeSavedPhoto(id)}
+            onLoad={loadSavedPhoto}
+            onSelectAfter={setSelectedAfterId}
+            onSelectBefore={setSelectedBeforeId}
+            photos={photos}
+            selectedAfter={selectedAfter}
+            selectedAfterId={selectedAfterId}
+            selectedBefore={selectedBefore}
+            selectedBeforeId={selectedBeforeId}
+          />
         </div>
       </div>
     </Section>
+  );
+}
+
+function ProgressPhotoLibrary({
+  onDelete,
+  onLoad,
+  onSelectAfter,
+  onSelectBefore,
+  photos,
+  selectedAfter,
+  selectedAfterId,
+  selectedBefore,
+  selectedBeforeId,
+}: {
+  onDelete: (id: string) => void;
+  onLoad: (photo: ProgressPhoto) => void;
+  onSelectAfter: (id: string) => void;
+  onSelectBefore: (id: string) => void;
+  photos: ProgressPhoto[];
+  selectedAfter: ProgressPhoto | null;
+  selectedAfterId: string;
+  selectedBefore: ProgressPhoto | null;
+  selectedBeforeId: string;
+}) {
+  return (
+    <div className="space-y-3 rounded-3xl border border-white/10 bg-white/[0.045] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="metric-label">Progress library</p>
+          <h3 className="mt-1 text-lg font-black text-porcelain">Before / after</h3>
+        </div>
+        <span className="rounded-full bg-carbon px-3 py-1 text-xs font-black text-white/50">
+          {photos.length} saved
+        </span>
+      </div>
+
+      {photos.length >= 2 ? (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <PhotoSelect label="Before" onChange={onSelectBefore} photos={photos} value={selectedBeforeId} />
+            <PhotoSelect label="After" onChange={onSelectAfter} photos={photos} value={selectedAfterId} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <ComparePhoto label="Before" photo={selectedBefore} />
+            <ComparePhoto label="After" photo={selectedAfter} />
+          </div>
+        </div>
+      ) : (
+        <p className="rounded-2xl bg-carbon/70 p-3 text-sm font-semibold leading-5 text-white/48">
+          Save at least two photos to unlock side-by-side comparisons.
+        </p>
+      )}
+
+      {photos.length ? (
+        <div className="max-h-80 space-y-2 overflow-y-auto pr-1">
+          {photos.map((photo) => (
+            <article key={photo.id} className="flex gap-3 rounded-2xl bg-carbon/70 p-3">
+              <button
+                type="button"
+                onClick={() => onLoad(photo)}
+                className="relative h-20 w-16 shrink-0 overflow-hidden rounded-2xl bg-black"
+                aria-label={`Load photo from ${formatPhotoDate(photo.createdAt)}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photo.imageData} alt="" className="h-full w-full object-cover" />
+              </button>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-black text-porcelain">{formatPhotoDate(photo.createdAt)}</p>
+                <p className="mt-1 line-clamp-2 text-xs font-semibold leading-4 text-white/45">
+                  {photo.note || photo.analysisSummary || "Saved progress photo"}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onSelectBefore(photo.id)}
+                    className="rounded-full bg-white/[0.065] px-3 py-1 text-xs font-bold text-white/54"
+                  >
+                    Before
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSelectAfter(photo.id)}
+                    className="rounded-full bg-white/[0.065] px-3 py-1 text-xs font-bold text-white/54"
+                  >
+                    After
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onDelete(photo.id)}
+                className="grid size-10 shrink-0 place-items-center rounded-full bg-white/[0.065] text-white/45"
+                aria-label={`Delete photo from ${formatPhotoDate(photo.createdAt)}`}
+              >
+                <Trash2 size={16} strokeWidth={2.2} aria-hidden />
+              </button>
+            </article>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function PhotoSelect({
+  label,
+  onChange,
+  photos,
+  value,
+}: {
+  label: string;
+  onChange: (id: string) => void;
+  photos: ProgressPhoto[];
+  value: string;
+}) {
+  return (
+    <label className="block">
+      <span className="metric-label mb-2 block">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="min-h-11 w-full rounded-2xl border border-white/10 bg-carbon px-3 text-sm font-bold text-porcelain outline-none focus:border-champagne"
+      >
+        {photos.map((photo) => (
+          <option key={photo.id} value={photo.id}>
+            {formatPhotoDate(photo.createdAt)}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ComparePhoto({ label, photo }: { label: string; photo: ProgressPhoto | null }) {
+  return (
+    <div className="overflow-hidden rounded-2xl bg-black">
+      <div className="relative aspect-[3/4]">
+        {photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photo.imageData} alt={`${label} progress`} className="h-full w-full object-cover" />
+        ) : (
+          <div className="h-full w-full bg-white/[0.055]" />
+        )}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-3">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-white/70">{label}</p>
+          <p className="mt-1 text-xs font-semibold text-white/52">
+            {photo ? formatPhotoDate(photo.createdAt) : "Choose photo"}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -300,6 +564,24 @@ function stringArray(value: unknown) {
 function stringOr(value: unknown, fallback: string) {
   const text = String(value ?? "").trim();
   return text || fallback;
+}
+
+function createPhotoId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return `body-${crypto.randomUUID()}`;
+  }
+
+  return `body-${Date.now()}`;
+}
+
+function formatPhotoDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Saved photo";
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 }
 
 async function resizeImage(file: File) {

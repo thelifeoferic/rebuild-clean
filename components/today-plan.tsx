@@ -1,4 +1,7 @@
+"use client";
+
 import { Bike, Dumbbell, Flame, Salad, Scale, Timer, Trophy, Waves } from "lucide-react";
+import { useState } from "react";
 import type { LogKind, RebuildData } from "@/types/rebuild";
 import { getTodaysBikeMinutes, getTodaysPushUps, isToday } from "@/lib/rebuild-data";
 
@@ -26,6 +29,7 @@ export function TodayPlan({
   data: RebuildData;
   onOpenLog: (kind: LogKind) => void;
 }) {
+  const [selectedMovement, setSelectedMovement] = useState<LogKind>("bike");
   const completed = {
     weight: data.weights.some((entry) => isToday(entry.date)),
     movement:
@@ -64,6 +68,9 @@ export function TodayPlan({
           const isDone = completed[item.key];
 
           if (item.key === "movement") {
+            const selectedChoice = movementChoices.find((choice) => choice.kind === selectedMovement) ?? movementChoices[0];
+            const SelectedIcon = selectedChoice.icon;
+
             return (
               <div
                 key={item.key}
@@ -77,24 +84,32 @@ export function TodayPlan({
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-porcelain">{item.label}</p>
-                    <p className="text-sm text-white/48">{isDone ? "Done today" : item.detail}</p>
+                    <p className="text-sm text-white/48">{isDone ? "Done today" : selectedChoice.label}</p>
                   </div>
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {movementChoices.map((choice) => {
-                    const ChoiceIcon = choice.icon;
-                    return (
-                      <button
-                        key={choice.kind}
-                        type="button"
-                        onClick={() => onOpenLog(choice.kind)}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.055] px-3 text-sm font-bold text-porcelain"
-                      >
-                        <ChoiceIcon size={15} strokeWidth={2.2} aria-hidden />
-                        {choice.label}
-                      </button>
-                    );
-                  })}
+                <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">
+                  <label className="flex min-h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.055] px-3 focus-within:border-champagne">
+                    <SelectedIcon size={16} className="shrink-0 text-champagne" strokeWidth={2.2} aria-hidden />
+                    <select
+                      value={selectedMovement}
+                      onChange={(event) => setSelectedMovement(event.target.value as LogKind)}
+                      className="min-w-0 flex-1 bg-transparent text-sm font-bold text-porcelain outline-none"
+                      aria-label="Choose movement log type"
+                    >
+                      {movementChoices.map((choice) => (
+                        <option key={choice.kind} value={choice.kind}>
+                          {choice.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => onOpenLog(selectedMovement)}
+                    className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-champagne px-4 text-sm font-black text-carbon"
+                  >
+                    Log
+                  </button>
                 </div>
               </div>
             );
