@@ -24,6 +24,7 @@ export function RebuildApp() {
   const [data, setData] = useState<RebuildData>(() => cloneSeedData());
   const [activeView, setActiveView] = useState<AppView>("home");
   const [activeLog, setActiveLog] = useState<LogKind | null>(null);
+  const [createDraft, setCreateDraft] = useState<Draft | null>(null);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
   const [profile, setProfile] = useState<OnboardingProfile | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -58,6 +59,7 @@ export function RebuildApp() {
     () => (editTarget ? draftFromLog(data, editTarget.kind, editTarget.id) : null),
     [data, editTarget],
   );
+  const modalDraft = editTarget ? editDraft : createDraft;
 
   function completeOnboarding(nextProfile: OnboardingProfile) {
     setProfile(nextProfile);
@@ -78,13 +80,21 @@ export function RebuildApp() {
       target ? updateLog(current, kind, target.id, draft, profile) : appendLog(current, kind, draft, profile),
     );
     setActiveLog(null);
+    setCreateDraft(null);
     setEditTarget(null);
     setToast(`${labelFor(kind)} ${target ? "updated" : "saved"}`);
   }
 
   function closeLogModal() {
     setActiveLog(null);
+    setCreateDraft(null);
     setEditTarget(null);
+  }
+
+  function openLog(kind: LogKind, draft?: Draft) {
+    setEditTarget(null);
+    setCreateDraft(draft ?? null);
+    setActiveLog(kind);
   }
 
   function openEditLog(kind: LogKind, id: string) {
@@ -93,8 +103,30 @@ export function RebuildApp() {
       return;
     }
 
+    setCreateDraft(null);
     setEditTarget({ id, kind });
     setActiveLog(kind);
+  }
+
+  function deleteLog(kind: LogKind, id: string) {
+    if (!draftFromLog(data, kind, id)) {
+      setToast("That log could not be found.");
+      return;
+    }
+
+    setData((current) => deleteLogFromData(current, kind, id));
+    setToast(`${labelFor(kind)} deleted`);
+  }
+
+  function duplicateLog(kind: LogKind, id: string) {
+    const draft = draftFromLog(data, kind, id);
+    if (!draft) {
+      setToast("That log could not be found.");
+      return;
+    }
+
+    setData((current) => appendLog(current, kind, { ...draft, date: getTodayIso() }, profile));
+    setToast(`${labelFor(kind)} duplicated for today`);
   }
 
   function resetData() {
@@ -139,15 +171,22 @@ export function RebuildApp() {
         <HeroDashboard
           data={data}
           onNavigate={setActiveView}
-          onOpenLog={setActiveLog}
+          onOpenLog={openLog}
           profile={profile}
         />
       ) : null}
-      {activeView === "log" ? <QuickAdd onSelect={setActiveLog} /> : null}
+      {activeView === "log" ? <QuickAdd onSelect={openLog} /> : null}
       {activeView === "records" ? (
-        <RecordsHub data={data} onEdit={openEditLog} onOpenLog={setActiveLog} timeline={timeline} />
+        <RecordsHub
+          data={data}
+          onDelete={deleteLog}
+          onDuplicate={duplicateLog}
+          onEdit={openEditLog}
+          onOpenLog={openLog}
+          timeline={timeline}
+        />
       ) : null}
-      {activeView === "programs" ? <ProgramsHub data={data} onOpenLog={setActiveLog} profile={profile} /> : null}
+      {activeView === "programs" ? <ProgramsHub data={data} onOpenLog={openLog} profile={profile} /> : null}
       {activeView === "me" ? (
         <MeHub
           data={data}
@@ -163,7 +202,7 @@ export function RebuildApp() {
         </div>
       ) : null}
       <LogModal
-        initialDraft={editDraft}
+        initialDraft={modalDraft}
         kind={activeLog}
         mode={editTarget ? "edit" : "create"}
         onClose={closeLogModal}
@@ -321,6 +360,27 @@ function updateLog(data: RebuildData, kind: LogKind, id: string, draft: Draft, p
       win.id === id ? moodFromDraft(draft, id) : win,
     );
   }
+
+  return sortDataByDate(next);
+}
+
+function deleteLogFromData(data: RebuildData, kind: LogKind, id: string): RebuildData {
+  const next = cloneMutableData(data);
+
+  if (kind === "weight") next.weights = next.weights.filter((entry) => entry.id !== id);
+  if (kind === "bike") next.bikeSessions = next.bikeSessions.filter((entry) => entry.id !== id);
+  if (kind === "jacobsLadder") next.jacobsLadderSessions = next.jacobsLadderSessions.filter((entry) => entry.id !== id);
+  if (kind === "pushUps") next.pushUpSessions = next.pushUpSessions.filter((entry) => entry.id !== id);
+  if (kind === "dumbbellCurls") next.dumbbellCurlSessions = next.dumbbellCurlSessions.filter((entry) => entry.id !== id);
+  if (kind === "strength") next.strengthAccessorySessions = next.strengthAccessorySessions.filter((entry) => entry.id !== id);
+  if (kind === "kettlebell") next.kettlebellSessions = next.kettlebellSessions.filter((entry) => entry.id !== id);
+  if (kind === "farmerCarries") next.farmerCarrySessions = next.farmerCarrySessions.filter((entry) => entry.id !== id);
+  if (kind === "swim") next.swimSessions = next.swimSessions.filter((entry) => entry.id !== id);
+  if (kind === "yoga") next.yogaSessions = next.yogaSessions.filter((entry) => entry.id !== id);
+  if (kind === "meal") next.meals = next.meals.filter((entry) => entry.id !== id);
+  if (kind === "water") next.waterLogs = next.waterLogs.filter((entry) => entry.id !== id);
+  if (kind === "sleep") next.sleepLogs = next.sleepLogs.filter((entry) => entry.id !== id);
+  if (kind === "mood") next.behaviorWins = next.behaviorWins.filter((entry) => entry.id !== id);
 
   return sortDataByDate(next);
 }

@@ -1,24 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import { DailyCalendar } from "@/components/daily-calendar";
 import { PersonalRecords } from "@/components/personal-records";
 import { ProgressTrends } from "@/components/progress-trends";
 import { RebuildTimeline } from "@/components/rebuild-timeline";
 import { StreakSummary } from "@/components/streak-summary";
 import type { LogKind, RebuildData, TimelineItem } from "@/types/rebuild";
 
-const tabs = ["Records", "Trends", "Timeline", "Consistency"] as const;
+const tabs = ["Records", "Calendar", "Trends", "Timeline", "Consistency"] as const;
 type RecordsTab = (typeof tabs)[number];
 
 export function RecordsHub({
   data,
+  onDelete,
+  onDuplicate,
   onEdit,
   onOpenLog,
   timeline,
 }: {
   data: RebuildData;
+  onDelete: (kind: LogKind, id: string) => void;
+  onDuplicate: (kind: LogKind, id: string) => void;
   onEdit: (kind: LogKind, id: string) => void;
-  onOpenLog: (kind: LogKind) => void;
+  onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
   timeline: TimelineItem[];
 }) {
   const [activeTab, setActiveTab] = useState<RecordsTab>("Records");
@@ -45,8 +50,25 @@ export function RecordsHub({
       </div>
 
       {activeTab === "Records" ? <PersonalRecords data={data} onOpenLog={onOpenLog} /> : null}
+      {activeTab === "Calendar" ? (
+        <DailyCalendar
+          data={data}
+          onDelete={onDelete}
+          onDuplicate={onDuplicate}
+          onEdit={onEdit}
+          onOpenLog={onOpenLog}
+        />
+      ) : null}
       {activeTab === "Trends" ? <ProgressTrends data={data} /> : null}
-      {activeTab === "Timeline" ? <RebuildTimeline onEdit={onEdit} onOpenLog={onOpenLog} timeline={timeline} /> : null}
+      {activeTab === "Timeline" ? (
+        <RebuildTimeline
+          onDelete={onDelete}
+          onDuplicate={onDuplicate}
+          onEdit={onEdit}
+          onOpenLog={onOpenLog}
+          timeline={timeline}
+        />
+      ) : null}
       {activeTab === "Consistency" ? <StreakSummary data={data} /> : null}
     </>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bike, CheckCircle2, Flame, Pencil, Scale, Trophy } from "lucide-react";
+import { Bike, CheckCircle2, Copy, Flame, Pencil, Scale, Trash2, Trophy } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { LogKind, TimelineItem } from "@/types/rebuild";
 import { EmptyState } from "@/components/empty-state";
@@ -14,10 +14,14 @@ const toneClasses = {
 };
 
 export function RebuildTimeline({
+  onDelete,
+  onDuplicate,
   onEdit,
   onOpenLog,
   timeline,
 }: {
+  onDelete?: (kind: LogKind, id: string) => void;
+  onDuplicate?: (kind: LogKind, id: string) => void;
   onEdit?: (kind: LogKind, id: string) => void;
   onOpenLog?: (kind: LogKind) => void;
   timeline: TimelineItem[];
@@ -58,18 +62,35 @@ export function RebuildTimeline({
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/38">{item.date}</p>
                   <h3 className="mt-1 text-base font-semibold text-porcelain">{item.title}</h3>
                   <p className="mt-1 text-sm leading-5 text-white/56">{item.detail}</p>
+                  {item.editable ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {onEdit ? (
+                        <TimelineAction
+                          icon={Pencil}
+                          label="Edit"
+                          onClick={() => onEdit(item.editable!.kind, item.editable!.id)}
+                        />
+                      ) : null}
+                      {onDuplicate ? (
+                        <TimelineAction
+                          icon={Copy}
+                          label="Repeat"
+                          onClick={() => onDuplicate(item.editable!.kind, item.editable!.id)}
+                        />
+                      ) : null}
+                      {onDelete ? (
+                        <TimelineAction
+                          icon={Trash2}
+                          label="Delete"
+                          onClick={() => {
+                            if (window.confirm(`Delete ${item.title}?`)) onDelete(item.editable!.kind, item.editable!.id);
+                          }}
+                          tone="danger"
+                        />
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
-                {item.editable && onEdit ? (
-                  <button
-                    type="button"
-                    onClick={() => onEdit(item.editable!.kind, item.editable!.id)}
-                    className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1 rounded-full bg-white/10 px-3 text-xs font-bold text-white/62"
-                    aria-label={`Edit ${item.title}`}
-                  >
-                    <Pencil size={14} strokeWidth={2.2} aria-hidden />
-                    Edit
-                  </button>
-                ) : null}
               </div>
             </article>
             );
@@ -84,6 +105,31 @@ export function RebuildTimeline({
         </div>
       </div>
     </Section>
+  );
+}
+
+function TimelineAction({
+  icon: Icon,
+  label,
+  onClick,
+  tone = "default",
+}: {
+  icon: typeof Pencil;
+  label: string;
+  onClick: () => void;
+  tone?: "default" | "danger";
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-9 items-center justify-center gap-1 rounded-full px-3 text-xs font-bold ${
+        tone === "danger" ? "bg-ember/10 text-ember" : "bg-white/10 text-white/62"
+      }`}
+    >
+      <Icon size={13} strokeWidth={2.2} aria-hidden />
+      {label}
+    </button>
   );
 }
 

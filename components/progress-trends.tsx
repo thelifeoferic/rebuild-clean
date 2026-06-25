@@ -9,6 +9,7 @@ import {
   getWeightChangeFromLast,
   getWeeklyBikeDistance,
   getWeeklyBikeMinutes,
+  formatLogDate,
 } from "@/lib/rebuild-data";
 import { formatWeight } from "@/lib/metrics";
 import { MetricCard } from "@/components/metric-card";
@@ -49,7 +50,7 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
                     aria-label={`${entry.date}: ${entry.weight} pounds`}
                   />
                 </div>
-                <span className="text-[0.62rem] font-semibold text-white/45">{entry.date}</span>
+                <span className="text-[0.62rem] font-semibold text-white/45">{formatLogDate(entry.date)}</span>
               </div>
             );
           }) : (
