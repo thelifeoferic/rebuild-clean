@@ -82,6 +82,28 @@ export function HeroDashboard({
 
   return (
     <section className="px-4 pb-4 pt-5">
+      {profile?.quoteStyle !== "none" ? (
+        <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="metric-label">Operating thought</p>
+            <button
+              type="button"
+              onClick={() => setQuoteIndex((current) => randomQuoteIndex(activeQuotes.length, current))}
+              className="grid size-8 place-items-center rounded-full bg-white/10 text-white/62"
+              aria-label="Show next quote"
+            >
+              <RefreshCw size={14} strokeWidth={2.2} aria-hidden />
+            </button>
+          </div>
+          <p className="text-lg font-semibold leading-snug text-porcelain">
+            <span aria-hidden>&ldquo;</span>
+            {quote.line}
+            <span aria-hidden>&rdquo;</span>
+          </p>
+          <p className="mt-2 text-sm font-semibold text-champagne">{quote.source}</p>
+        </div>
+      ) : null}
+
       <div className="relative min-h-[360px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-panel">
         <Image
           src={homeHeroImage(profile)}
@@ -129,30 +151,6 @@ export function HeroDashboard({
           </div>
         </div>
       </div>
-
-      <LoginPanel className="mt-4" compact />
-
-      {profile?.quoteStyle !== "none" ? (
-        <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <p className="metric-label">Operating thought</p>
-            <button
-              type="button"
-              onClick={() => setQuoteIndex((current) => randomQuoteIndex(activeQuotes.length, current))}
-              className="grid size-8 place-items-center rounded-full bg-white/10 text-white/62"
-              aria-label="Show next quote"
-            >
-              <RefreshCw size={14} strokeWidth={2.2} aria-hidden />
-            </button>
-          </div>
-          <p className="text-lg font-semibold leading-snug text-porcelain">
-            <span aria-hidden>&ldquo;</span>
-            {quote.line}
-            <span aria-hidden>&rdquo;</span>
-          </p>
-          <p className="mt-2 text-sm font-semibold text-champagne">{quote.source}</p>
-        </div>
-      ) : null}
 
       <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
         <div className="relative min-h-32 bg-black">
@@ -207,6 +205,8 @@ export function HeroDashboard({
         <MiniStat label="Bike" value={formatMinutes(todaysBikeMinutes)} icon={Bike} />
         <MiniStat label="Wins" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
       </div>
+
+      <LoginPanel className="mt-4" compact />
     </section>
   );
 }

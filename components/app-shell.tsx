@@ -1,4 +1,4 @@
-import { Dumbbell, Flame, Home, Library, LineChart, TimerReset } from "lucide-react";
+import { Dumbbell, Flame, Home, Library, LineChart, ScanSearch, TimerReset } from "lucide-react";
 import type { ReactNode } from "react";
 import type { AppView, OnboardingProfile } from "@/types/rebuild";
 
@@ -7,6 +7,7 @@ const navigation = [
   { view: "log", label: "Log", icon: Flame },
   { view: "training", label: "Train", icon: Dumbbell },
   { view: "progress", label: "Progress", icon: LineChart },
+  { view: "body", label: "Body", icon: ScanSearch },
   { view: "reset", label: "Reset", icon: TimerReset },
   { view: "library", label: "Media", icon: Library },
 ];
@@ -33,7 +34,7 @@ export function AppShell({
       {children}
       {showNavigation ? (
       <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md border-t border-white/10 bg-carbon/90 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
-        <div className="grid grid-cols-6 gap-1">
+        <div className="grid grid-cols-7 gap-1">
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = activeView === item.view;
@@ -42,7 +43,7 @@ export function AppShell({
                 key={item.view}
                 type="button"
                 onClick={() => onNavigate(item.view as AppView)}
-                className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-[0.62rem] font-medium transition ${
+                className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-[0.56rem] font-medium transition ${
                   isActive ? "bg-champagne text-carbon" : "text-white/54 hover:bg-white/10 hover:text-porcelain"
                 }`}
               >

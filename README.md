@@ -41,6 +41,24 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 The current sync model stores the user profile in `rebuild_profiles` and the full local app state in `rebuild_data_snapshots`. That gives quick cross-device backup now, while leaving room to normalize every log into separate analytics tables later.
 
+## AI Body Check setup
+
+The Body tab lets a signed-in user upload or take a clothed progress photo and receive non-medical coaching feedback. Photos are resized in the browser, sent once to the server route, and are not saved automatically by REBUILD.
+
+To enable live AI analysis in Vercel, add this Environment Variable:
+
+```bash
+OPENAI_API_KEY=your-openai-api-key
+```
+
+Optional:
+
+```bash
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+If `OPENAI_API_KEY` is missing, the app shows a safe demo analysis so the screen still works during setup.
+
 ## Screens
 
 - Home dashboard
@@ -48,6 +66,7 @@ The current sync model stores the user profile in `rebuild_profiles` and the ful
 - Bike dashboard
 - Kettlebell programs and strength work
 - Progress trends
+- AI Body Check
 - Rebuild timeline
 - Video / playlist library
 
@@ -62,4 +81,5 @@ The current sync model stores the user profile in `rebuild_profiles` and the ful
 - Strength lift logging for general gym movements and machine weights
 - Home, gym, swim, yoga, kettlebell, and travel workout templates
 - Exercise guide cards plus visual form cue diagrams
+- AI Body Check for progress-photo coaching, posture cues, and next-step recommendations
 - Embedded YouTube media library and one-tap TIDAL playlist

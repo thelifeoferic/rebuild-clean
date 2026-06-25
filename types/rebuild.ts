@@ -142,7 +142,7 @@ export type LogKind =
   | "meal"
   | "mood";
 
-export type AppView = "home" | "log" | "training" | "progress" | "reset" | "library";
+export type AppView = "home" | "log" | "training" | "progress" | "body" | "reset" | "library";
 
 export type OnboardingProfile = {
   accentColor?: "champagne" | "white" | "ember" | "volt" | "teal" | "cobalt";

@@ -5,6 +5,7 @@ import { AccountSync } from "@/components/account-sync";
 import { AppleHealthRoadmap } from "@/components/apple-health-roadmap";
 import { AppShell } from "@/components/app-shell";
 import { BikeDashboard } from "@/components/bike-dashboard";
+import { BodyCheck } from "@/components/body-check";
 import { ExerciseGuides } from "@/components/exercise-guides";
 import { FuelGuide } from "@/components/fuel-guide";
 import { FormVisuals } from "@/components/form-visuals";
@@ -143,6 +144,7 @@ export function RebuildApp() {
           <AppleHealthRoadmap />
         </>
       ) : null}
+      {activeView === "body" ? <BodyCheck profile={profile} /> : null}
       {activeView === "reset" ? <RebuildTimeline timeline={timeline} /> : null}
       {activeView === "library" ? <VideoLibrary profile={profile} /> : null}
       {toast ? (

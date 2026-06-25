@@ -24,12 +24,13 @@ export function FoodPresetPicker({ onChangeSelection, selectedNames = [] }: Food
 
   const filteredFoods = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
+    const isSearching = normalizedQuery.length > 0;
 
     return foodPresets.filter((preset) => {
       const matchesQuery =
         !normalizedQuery ||
         [preset.name, preset.notes, preset.group].join(" ").toLowerCase().includes(normalizedQuery);
-      const matchesCategory = normalizedQuery || category === "all" || preset.group === category;
+      const matchesCategory = isSearching || category === "all" || preset.group === category;
 
       return matchesCategory && matchesQuery;
     });
@@ -110,10 +111,15 @@ export function FoodPresetPicker({ onChangeSelection, selectedNames = [] }: Food
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search banana, pizza, protein..."
+          placeholder="Search all foods..."
           className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-porcelain outline-none placeholder:text-white/28"
         />
       </label>
+      {query.trim() ? (
+        <p className="mt-2 text-xs font-semibold text-white/38">
+          Searching the full food library, across every category.
+        </p>
+      ) : null}
 
       <div className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
         {filteredFoods.map((preset) => {
