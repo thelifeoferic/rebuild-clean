@@ -1,7 +1,7 @@
-import { Bike, Gauge, Timer, Zap } from "lucide-react";
+import { Gauge, MapPinned, Timer, Zap } from "lucide-react";
 import Image from "next/image";
 import type { RebuildData } from "@/types/rebuild";
-import { getTodaysBikeMinutes } from "@/lib/rebuild-data";
+import { getTodaysBikeDistance, getTodaysBikeMinutes } from "@/lib/rebuild-data";
 import { formatMinutes } from "@/lib/metrics";
 import { MetricCard } from "@/components/metric-card";
 import { Section } from "@/components/section";
@@ -9,6 +9,7 @@ import { Section } from "@/components/section";
 export function BikeDashboard({ data }: { data: RebuildData }) {
   const latest = data.bikeSessions[0];
   const todaysMinutes = getTodaysBikeMinutes(data);
+  const todaysDistance = getTodaysBikeDistance(data);
 
   return (
     <Section id="bike" eyebrow="Engine room" title="Bike Dashboard">
@@ -28,9 +29,9 @@ export function BikeDashboard({ data }: { data: RebuildData }) {
       </div>
       <div className="grid grid-cols-2 gap-3">
         <MetricCard label="Today" value={formatMinutes(todaysMinutes)} detail="logged today" icon={Timer} tone="gold" />
+        <MetricCard label="Distance" value={formatDistance(todaysDistance || latest?.distanceMiles || 0)} detail={todaysDistance ? "today" : "latest ride"} icon={MapPinned} tone="steel" />
         <MetricCard label="Resistance" value={`${latest?.resistance ?? 0}`} detail="latest ride" icon={Gauge} tone="steel" />
         <MetricCard label="Calories" value={`${latest?.calories ?? 0}`} detail="latest burn" icon={Zap} tone="ember" />
-        <MetricCard label="Sessions" value={`${data.bikeSessions.length}`} detail="stored rides" icon={Bike} tone="green" />
       </div>
 
       <div className="mt-3 panel p-4">
@@ -43,7 +44,7 @@ export function BikeDashboard({ data }: { data: RebuildData }) {
                 <p className="text-sm font-semibold text-champagne">{session.minutes} min</p>
               </div>
               <p className="mt-1 text-sm leading-5 text-white/50">
-                Resistance {session.resistance} · {session.calories} cal
+                {session.distanceMiles ? `${formatDistance(session.distanceMiles)} · ` : ""}Resistance {session.resistance} · {session.calories} cal
               </p>
               <p className="mt-2 text-sm leading-5 text-white/62">{session.notes}</p>
             </article>
@@ -56,4 +57,9 @@ export function BikeDashboard({ data }: { data: RebuildData }) {
       </div>
     </Section>
   );
+}
+
+function formatDistance(value: number) {
+  if (!value) return "--";
+  return `${value.toFixed(value >= 10 ? 1 : 2)} mi`;
 }

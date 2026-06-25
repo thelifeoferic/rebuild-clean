@@ -7,6 +7,7 @@ import {
   getSevenDayAverageWeight,
   getTodaysPushUps,
   getWeightChangeFromLast,
+  getWeeklyBikeDistance,
   getWeeklyBikeMinutes,
 } from "@/lib/rebuild-data";
 import { formatWeight } from "@/lib/metrics";
@@ -59,7 +60,7 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-3">
-        <MetricCard label="Bike min" value={`${getWeeklyBikeMinutes(data)}`} detail="weekly total" icon={LineChart} tone="green" />
+        <MetricCard label="Bike min" value={`${getWeeklyBikeMinutes(data)}`} detail={`${formatBikeDistance(getWeeklyBikeDistance(data))} weekly`} icon={LineChart} tone="green" />
         <MetricCard label="Ladder" value={getBestJacobsLadderTime(data)} detail="best continuous" icon={CircleGauge} tone="gold" />
         <MetricCard
           label="Push-ups"
@@ -72,4 +73,8 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
       </div>
     </Section>
   );
+}
+
+function formatBikeDistance(value: number) {
+  return value ? `${value.toFixed(value >= 10 ? 1 : 2)} mi` : "0 mi";
 }

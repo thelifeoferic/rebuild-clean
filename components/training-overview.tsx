@@ -3,8 +3,10 @@ import type { RebuildData } from "@/types/rebuild";
 import {
   getBestJacobsLadderTime,
   getPushUpMaxSet,
+  getTodaysBikeDistance,
   getTodaysBikeMinutes,
   getTodaysPushUps,
+  getWeeklyBikeDistance,
   getWeeklyBikeMinutes,
 } from "@/lib/rebuild-data";
 import { formatMinutes } from "@/lib/metrics";
@@ -57,13 +59,14 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
   const latestSwim = data.swimSessions[0];
   const latestYoga = data.yogaSessions[0];
   const todaysPushUps = getTodaysPushUps(data);
+  const todaysBikeDistance = getTodaysBikeDistance(data);
   const pushUpMax = getPushUpMaxSet(data);
 
   return (
     <Section id="train-overview" eyebrow="Training hub" title="Today's Work">
       <div className="grid grid-cols-2 gap-2">
-        <TrainingStat label="Bike today" value={formatMinutes(getTodaysBikeMinutes(data))} icon={Bike} />
-        <TrainingStat label="Weekly bike" value={formatMinutes(getWeeklyBikeMinutes(data))} icon={Activity} />
+        <TrainingStat label="Bike today" value={formatMinutes(getTodaysBikeMinutes(data))} detail={formatDistance(todaysBikeDistance)} icon={Bike} />
+        <TrainingStat label="Weekly bike" value={formatMinutes(getWeeklyBikeMinutes(data))} detail={formatDistance(getWeeklyBikeDistance(data))} icon={Activity} />
         <TrainingStat label="Ladder best" value={getBestJacobsLadderTime(data)} icon={Flame} />
         <TrainingStat
           label="Push-ups"
@@ -140,6 +143,10 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
       </div>
     </Section>
   );
+}
+
+function formatDistance(value: number) {
+  return value ? `${value.toFixed(value >= 10 ? 1 : 2)} mi` : "distance";
 }
 
 function TrainingStat({

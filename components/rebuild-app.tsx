@@ -185,6 +185,7 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft): RebuildData 
       id: createId("bike"),
       date: text(draft.date, "Today"),
       minutes: number(draft.minutes),
+      distanceMiles: number(draft.distanceMiles),
       resistance: number(draft.resistance),
       calories: number(draft.calories),
       notes: text(draft.notes, "Logged from Quick Add."),

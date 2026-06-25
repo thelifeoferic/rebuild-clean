@@ -26,7 +26,7 @@ const titles: Record<LogKind, string> = {
 
 const defaults: Record<LogKind, Draft> = {
   weight: { date: "Today", weight: "" },
-  bike: { date: "Today", minutes: "", resistance: "", calories: "", notes: "" },
+  bike: { date: "Today", minutes: "", distanceMiles: "", resistance: "", calories: "", notes: "" },
   jacobsLadder: { date: "Today", duration: "", longestContinuous: "" },
   pushUps: { date: "Today", set1: "", set2: "", set3: "", set4: "", set5: "", set6: "", extraSets: "" },
   dumbbellCurls: { date: "Today", weight: "", repsEachArm: "" },
@@ -75,13 +75,18 @@ export function LogModal({
     onSave(activeKind, draft);
   }
 
-  function applyFoodPreset(preset: FoodPreset) {
+  function applyFoodPresets(presets: FoodPreset[]) {
+    const calories = presets.reduce((sum, preset) => sum + preset.calories, 0);
+    const protein = presets.reduce((sum, preset) => sum + preset.protein, 0);
+    const names = presets.map((preset) => preset.name);
+
     setDraft((current) => ({
       ...current,
-      name: preset.name,
-      calories: String(preset.calories),
-      protein: String(preset.protein),
-      notes: preset.notes,
+      selectedFoods: names.join("||"),
+      name: names.join(" + "),
+      calories: presets.length ? String(calories) : "",
+      protein: presets.length ? String(protein) : "",
+      notes: presets.map((preset) => `${preset.name}: ${preset.notes}`).join("\n"),
     }));
   }
 
@@ -115,6 +120,7 @@ export function LogModal({
             <>
               <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
               <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
+              <Field label="Distance" name="distanceMiles" value={String(draft.distanceMiles)} onChange={update} inputMode="decimal" suffix="mi" />
               <Field label="Resistance" name="resistance" value={String(draft.resistance)} onChange={update} inputMode="numeric" />
               <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
               <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
@@ -193,7 +199,7 @@ export function LogModal({
 
           {activeKind === "meal" ? (
             <>
-              <FoodPresetPicker onApply={applyFoodPreset} selectedName={String(draft.name)} />
+              <FoodPresetPicker onChangeSelection={applyFoodPresets} selectedNames={selectedFoodNames(draft)} />
               <Field label="Date" name="date" value={String(draft.date)} onChange={update} />
               <Field label="Name" name="name" value={String(draft.name)} onChange={update} />
               <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
@@ -232,6 +238,13 @@ export function LogModal({
       </form>
     </div>
   );
+}
+
+function selectedFoodNames(draft: Draft) {
+  return String(draft.selectedFoods ?? "")
+    .split("||")
+    .map((name) => name.trim())
+    .filter(Boolean);
 }
 
 function Field({

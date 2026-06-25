@@ -1,53 +1,95 @@
 "use client";
 
-import { CheckCircle2, Search } from "lucide-react";
+import { CheckCircle2, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { foodGroups, foodPresets, type FoodPreset } from "@/data/food-presets";
 
 type FoodPresetPickerProps = {
-  onApply: (preset: FoodPreset) => void;
-  selectedName?: string;
+  onChangeSelection: (presets: FoodPreset[]) => void;
+  selectedNames?: string[];
 };
 
 const categoryOptions = [{ id: "all", label: "All foods" }, ...foodGroups] as const;
 
-export function FoodPresetPicker({ onApply, selectedName }: FoodPresetPickerProps) {
+export function FoodPresetPicker({ onChangeSelection, selectedNames = [] }: FoodPresetPickerProps) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<(typeof categoryOptions)[number]["id"]>("ready");
-  const selectedPreset = foodPresets.find((preset) => preset.name === selectedName);
+  const [category, setCategory] = useState<(typeof categoryOptions)[number]["id"]>("all");
+  const selectedSet = useMemo(() => new Set(selectedNames), [selectedNames]);
+  const selectedPresets = useMemo(
+    () => foodPresets.filter((preset) => selectedSet.has(preset.name)),
+    [selectedSet],
+  );
+  const selectedCalories = selectedPresets.reduce((sum, preset) => sum + preset.calories, 0);
+  const selectedProtein = selectedPresets.reduce((sum, preset) => sum + preset.protein, 0);
 
   const filteredFoods = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return foodPresets.filter((preset) => {
-      const matchesCategory = category === "all" || preset.group === category;
       const matchesQuery =
         !normalizedQuery ||
         [preset.name, preset.notes, preset.group].join(" ").toLowerCase().includes(normalizedQuery);
+      const matchesCategory = normalizedQuery || category === "all" || preset.group === category;
 
       return matchesCategory && matchesQuery;
     });
   }, [category, query]);
 
+  function togglePreset(preset: FoodPreset) {
+    const nextNames = selectedSet.has(preset.name)
+      ? selectedNames.filter((name) => name !== preset.name)
+      : [...selectedNames, preset.name];
+
+    onChangeSelection(foodPresets.filter((food) => nextNames.includes(food.name)));
+  }
+
   return (
     <div className="rounded-2xl bg-white/[0.055] p-3">
-      {selectedPreset ? (
-        <div className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-signal/35 bg-signal/10 p-3">
-          <span className="min-w-0">
-            <span className="block text-[0.62rem] font-black uppercase tracking-[0.22em] text-signal">Applied</span>
-            <span className="mt-1 block truncate text-sm font-bold text-porcelain">{selectedPreset.name}</span>
-            <span className="mt-1 block text-xs font-semibold text-white/48">
-              {selectedPreset.calories} cal - {selectedPreset.protein}g protein
+      {selectedPresets.length ? (
+        <div className="mb-3 rounded-2xl border border-signal/35 bg-signal/10 p-3">
+          <div className="mb-2 flex items-start justify-between gap-3">
+            <span>
+              <span className="block text-[0.62rem] font-black uppercase tracking-[0.22em] text-signal">
+                Meal builder
+              </span>
+              <span className="mt-1 block text-sm font-bold text-porcelain">
+                {selectedPresets.length} item{selectedPresets.length === 1 ? "" : "s"} selected
+              </span>
+              <span className="mt-1 block text-xs font-semibold text-white/48">
+                {selectedCalories} cal - {selectedProtein}g protein
+              </span>
             </span>
-          </span>
-          <CheckCircle2 size={22} className="shrink-0 text-signal" aria-hidden />
+            <button
+              type="button"
+              onClick={() => onChangeSelection([])}
+              className="grid size-9 shrink-0 place-items-center rounded-full bg-carbon/70 text-white/58"
+              aria-label="Clear selected foods"
+            >
+              <X size={16} strokeWidth={2.2} aria-hidden />
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {selectedPresets.map((preset) => (
+              <button
+                key={preset.name}
+                type="button"
+                onClick={() => togglePreset(preset)}
+                className="inline-flex min-h-8 max-w-full items-center gap-2 rounded-full bg-carbon/70 px-3 text-xs font-bold text-porcelain"
+              >
+                <span className="truncate">{preset.name}</span>
+                <X size={13} strokeWidth={2.2} aria-hidden />
+              </button>
+            ))}
+          </div>
         </div>
       ) : null}
 
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <p className="metric-label">Food shortcut</p>
-          <p className="mt-1 text-xs font-semibold text-white/38">{filteredFoods.length} options</p>
+          <p className="metric-label">Food shortcuts</p>
+          <p className="mt-1 text-xs font-semibold text-white/38">
+            Tap multiple foods to build one meal
+          </p>
         </div>
         <select
           value={category}
@@ -68,24 +110,24 @@ export function FoodPresetPicker({ onApply, selectedName }: FoodPresetPickerProp
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search Starbucks, fruit, protein..."
+          placeholder="Search banana, pizza, protein..."
           className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-porcelain outline-none placeholder:text-white/28"
         />
       </label>
 
       <div className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
         {filteredFoods.map((preset) => {
-          const isSelected = preset.name === selectedName;
+          const isSelected = selectedSet.has(preset.name);
 
           return (
             <button
               key={preset.name}
               type="button"
               aria-pressed={isSelected}
-              onClick={() => onApply(preset)}
+              onClick={() => togglePreset(preset)}
               className={`flex w-full items-center justify-between gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.99] ${
                 isSelected
-                  ? "border-signal/45 bg-signal/10 shadow-[0_0_24px_rgba(47,226,168,0.08)]"
+                  ? "border-signal/45 bg-signal/10 shadow-[0_0_24px_rgba(242,238,231,0.08)]"
                   : "border-white/10 bg-carbon/70 hover:border-champagne/50"
               }`}
             >

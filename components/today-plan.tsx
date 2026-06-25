@@ -1,13 +1,23 @@
-import { Bike, Flame, Salad, Scale } from "lucide-react";
+import { Bike, Dumbbell, Flame, Salad, Scale, Timer, Trophy, Waves } from "lucide-react";
 import type { LogKind, RebuildData } from "@/types/rebuild";
 import { getTodaysBikeMinutes, getTodaysPushUps, isToday } from "@/lib/rebuild-data";
 
 const items = [
   { key: "weight", label: "Weigh in", detail: "Start with the truth.", icon: Scale },
-  { key: "movement", label: "Move", detail: "Bike, lift, swim, yoga, or walk.", icon: Bike },
+  { key: "movement", label: "Move", detail: "Choose the work that fits today.", icon: Bike },
   { key: "protein", label: "Fuel", detail: "Log one protein anchor.", icon: Salad },
   { key: "reset", label: "Protect", detail: "Track the better choice.", icon: Flame },
 ] as const;
+
+const movementChoices: { kind: LogKind; label: string; icon: typeof Bike }[] = [
+  { kind: "bike", label: "Bike", icon: Bike },
+  { kind: "jacobsLadder", label: "Ladder", icon: Timer },
+  { kind: "strength", label: "Strength", icon: Dumbbell },
+  { kind: "pushUps", label: "Push-ups", icon: Trophy },
+  { kind: "kettlebell", label: "Kettlebell", icon: Dumbbell },
+  { kind: "swim", label: "Swim", icon: Waves },
+  { kind: "yoga", label: "Yoga", icon: Flame },
+];
 
 export function TodayPlan({
   data,
@@ -36,7 +46,7 @@ export function TodayPlan({
     if (key === "weight") return "weight";
     if (key === "protein") return "meal";
     if (key === "reset") return "mood";
-    return "bike";
+    return "strength";
   }
 
   return (
@@ -52,6 +62,44 @@ export function TodayPlan({
         {items.map((item) => {
           const Icon = item.icon;
           const isDone = completed[item.key];
+
+          if (item.key === "movement") {
+            return (
+              <div
+                key={item.key}
+                className={`rounded-2xl border p-3 transition ${
+                  isDone ? "border-signal/30 bg-signal/10" : "border-white/10 bg-carbon/70"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`grid size-10 place-items-center rounded-full ${isDone ? "bg-signal/15 text-signal" : "bg-white/10 text-champagne"}`}>
+                    <Icon size={18} strokeWidth={2.2} aria-hidden />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-porcelain">{item.label}</p>
+                    <p className="text-sm text-white/48">{isDone ? "Done today" : item.detail}</p>
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {movementChoices.map((choice) => {
+                    const ChoiceIcon = choice.icon;
+                    return (
+                      <button
+                        key={choice.kind}
+                        type="button"
+                        onClick={() => onOpenLog(choice.kind)}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.055] px-3 text-sm font-bold text-porcelain"
+                      >
+                        <ChoiceIcon size={15} strokeWidth={2.2} aria-hidden />
+                        {choice.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          }
+
           return (
             <button
               key={item.key}

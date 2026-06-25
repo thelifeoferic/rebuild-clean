@@ -16,6 +16,7 @@ export type BikeSession = {
   id: string;
   date: string;
   minutes: number;
+  distanceMiles?: number;
   resistance: number;
   calories: number;
   notes: string;

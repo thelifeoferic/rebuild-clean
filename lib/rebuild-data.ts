@@ -45,8 +45,20 @@ export function getWeeklyBikeMinutes(data: RebuildData) {
   return data.bikeSessions.reduce((sum, session) => sum + session.minutes, 0);
 }
 
+export function getWeeklyBikeDistance(data: RebuildData) {
+  return roundDistance(data.bikeSessions.reduce((sum, session) => sum + (session.distanceMiles ?? 0), 0));
+}
+
 export function getTodaysBikeMinutes(data: RebuildData) {
   return data.bikeSessions.filter((session) => isToday(session.date)).reduce((sum, session) => sum + session.minutes, 0);
+}
+
+export function getTodaysBikeDistance(data: RebuildData) {
+  return roundDistance(
+    data.bikeSessions
+      .filter((session) => isToday(session.date))
+      .reduce((sum, session) => sum + (session.distanceMiles ?? 0), 0),
+  );
 }
 
 export function getBestJacobsLadderTime(data: RebuildData) {
@@ -113,11 +125,12 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   });
 
   data.bikeSessions.slice(0, 3).forEach((ride) => {
+    const distance = ride.distanceMiles ? ` · ${formatDistance(ride.distanceMiles)}` : "";
     items.push({
       id: `tl-${ride.id}`,
       date: ride.date,
       title: "Bike session logged",
-      detail: `${ride.minutes} minutes at resistance ${ride.resistance} with ${ride.calories} calories.`,
+      detail: `${ride.minutes} minutes${distance} at resistance ${ride.resistance} with ${ride.calories} calories.`,
       tone: "gold",
     });
   });
@@ -235,4 +248,12 @@ export function timeToSeconds(value: string) {
   if (parts.length === 2) return parts[0] * 60 + parts[1];
   if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
   return Number(value) || 0;
+}
+
+function roundDistance(value: number) {
+  return Math.round(value * 100) / 100;
+}
+
+function formatDistance(value: number) {
+  return `${roundDistance(value).toFixed(value >= 10 ? 1 : 2)} mi`;
 }
