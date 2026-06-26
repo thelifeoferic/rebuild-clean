@@ -33,6 +33,7 @@ export function GoalTrainingPlan({ data, onOpenLog, profile }: GoalTrainingPlanP
     getTodaysBikeMinutes(data) > 0 ||
     getTodaysPushUps(data) > 0 ||
     data.strengthAccessorySessions.some((entry) => isToday(entry.date)) ||
+    data.machineWorkoutSessions.some((entry) => isToday(entry.date)) ||
     data.kettlebellSessions.some((entry) => isToday(entry.date)) ||
     data.swimSessions.some((entry) => isToday(entry.date)) ||
     data.yogaSessions.some((entry) => isToday(entry.date));

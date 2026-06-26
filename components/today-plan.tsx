@@ -16,6 +16,7 @@ const movementChoices: { kind: LogKind; label: string; icon: typeof Bike }[] = [
   { kind: "bike", label: "Bike", icon: Bike },
   { kind: "jacobsLadder", label: "Ladder", icon: Timer },
   { kind: "strength", label: "Strength", icon: Dumbbell },
+  { kind: "machine", label: "Machine", icon: Dumbbell },
   { kind: "pushUps", label: "Push-ups", icon: Trophy },
   { kind: "kettlebell", label: "Kettlebell", icon: Dumbbell },
   { kind: "swim", label: "Swim", icon: Waves },
@@ -38,6 +39,7 @@ export function TodayPlan({
       data.jacobsLadderSessions.some((entry) => isToday(entry.date)) ||
       data.dumbbellCurlSessions.some((entry) => isToday(entry.date)) ||
       data.strengthAccessorySessions.some((entry) => isToday(entry.date)) ||
+      data.machineWorkoutSessions.some((entry) => isToday(entry.date)) ||
       data.kettlebellSessions.some((entry) => isToday(entry.date)) ||
       data.farmerCarrySessions.some((entry) => isToday(entry.date)) ||
       data.swimSessions.some((entry) => isToday(entry.date)) ||

@@ -5,8 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, HTMLAttributes } from "react";
 import { FoodPresetPicker } from "@/components/food-preset-picker";
 import type { FoodPreset } from "@/data/food-presets";
+import { getProfileMachineOptions, machineCategoryFor } from "@/data/gym-presets";
 import { getTodayIso, normalizeLogDate } from "@/lib/rebuild-data";
-import type { LogKind, MoodReason } from "@/types/rebuild";
+import type { LogKind, MoodReason, OnboardingProfile } from "@/types/rebuild";
 
 export type LogDraft = Record<string, string | boolean>;
 
@@ -17,6 +18,7 @@ const titles: Record<LogKind, string> = {
   pushUps: "Push-ups",
   dumbbellCurls: "Dumbbell Work",
   strength: "Strength Lift",
+  machine: "Gym Machine",
   kettlebell: "Kettlebell Work",
   farmerCarries: "Farmer Carries",
   swim: "Swim Session",
@@ -34,6 +36,7 @@ const defaults: Record<LogKind, LogDraft> = {
   pushUps: { date: "", set1: "", set2: "", set3: "", set4: "", set5: "", set6: "", extraSets: "" },
   dumbbellCurls: { date: "", exercise: "Dumbbell curls", weight: "", repsEachArm: "" },
   strength: { date: "", exercise: "Bench press", weight: "", reps: "", notes: "" },
+  machine: { date: "", gymName: "", machine: "Leg press", category: "Strength machine", weight: "", sets: "", reps: "", minutes: "", distanceMiles: "", calories: "", notes: "" },
   kettlebell: { date: "", exercise: "Pass-arounds", weight: "", reps: "" },
   farmerCarries: { date: "", weightEachHand: "", distanceFeet: "", rounds: "" },
   swim: { date: "", minutes: "", distance: "", stroke: "Freestyle", notes: "" },
@@ -116,13 +119,16 @@ export function LogModal({
   mode = "create",
   onClose,
   onSave,
+  profile,
 }: {
   initialDraft?: LogDraft | null;
   kind: LogKind | null;
   mode?: "create" | "edit";
   onClose: () => void;
+  profile?: OnboardingProfile | null;
   onSave: (kind: LogKind, draft: LogDraft) => void;
 }) {
+  const machineOptions = useMemo(() => getProfileMachineOptions(profile ?? null), [profile]);
   const resolvedDraft = useMemo(
     () => {
       const base = defaultDraftFor(kind ?? "weight");
@@ -151,6 +157,15 @@ export function LogModal({
 
   function update(name: string, value: string | boolean) {
     setDraft((current) => ({ ...current, [name]: value }));
+  }
+
+  function chooseMachine(value: string) {
+    const match = machineOptions.find((machine) => machine.name === value);
+    setDraft((current) => ({
+      ...current,
+      category: match?.category ?? machineCategoryFor(value),
+      machine: value,
+    }));
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -240,6 +255,32 @@ export function LogModal({
               <SelectField label="Exercise" name="exercise" value={String(draft.exercise || "Bench press")} options={strengthExercises} onChange={update} />
               <Field label="Weight" name="weight" value={String(draft.weight)} onChange={update} inputMode="numeric" suffix="lb" />
               <Field label="Reps" name="reps" value={String(draft.reps)} onChange={update} inputMode="numeric" />
+              <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
+            </>
+          ) : null}
+
+          {activeKind === "machine" ? (
+            <>
+              <DateField value={String(draft.date)} onChange={update} />
+              <Field label="Home gym" name="gymName" value={String(draft.gymName || profile?.homeGymName || "Gym")} onChange={update} />
+              <SelectField
+                label="Machine"
+                name="machine"
+                value={String(draft.machine || machineOptions[0]?.name || "Leg press")}
+                options={machineOptions.map((machine) => machine.name)}
+                onChange={(_, value) => chooseMachine(value)}
+              />
+              <Field label="Category" name="category" value={String(draft.category || machineCategoryFor(String(draft.machine || "Leg press")))} onChange={update} />
+              <div className="grid grid-cols-2 gap-2">
+                <Field label="Weight / setting" name="weight" value={String(draft.weight)} onChange={update} inputMode="decimal" suffix="lb" />
+                <Field label="Sets" name="sets" value={String(draft.sets)} onChange={update} inputMode="numeric" />
+                <Field label="Reps" name="reps" value={String(draft.reps)} onChange={update} inputMode="numeric" />
+                <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Field label="Distance" name="distanceMiles" value={String(draft.distanceMiles)} onChange={update} inputMode="decimal" suffix="mi" />
+                <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
+              </div>
               <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
             </>
           ) : null}

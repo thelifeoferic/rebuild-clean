@@ -71,6 +71,21 @@ export type StrengthAccessorySession = {
   notes: string;
 };
 
+export type MachineWorkoutSession = {
+  id: string;
+  date: string;
+  gymName?: string;
+  machine: string;
+  category?: string;
+  weight?: number;
+  sets?: number;
+  reps?: number;
+  minutes?: number;
+  distanceMiles?: number;
+  calories?: number;
+  notes: string;
+};
+
 export type SwimSession = {
   id: string;
   date: string;
@@ -141,6 +156,7 @@ export type RebuildData = {
   kettlebellSessions: KettlebellSession[];
   farmerCarrySessions: FarmerCarrySession[];
   strengthAccessorySessions: StrengthAccessorySession[];
+  machineWorkoutSessions: MachineWorkoutSession[];
   swimSessions: SwimSession[];
   yogaSessions: YogaSession[];
   meals: MealLog[];
@@ -156,6 +172,7 @@ export type LogKind =
   | "pushUps"
   | "dumbbellCurls"
   | "strength"
+  | "machine"
   | "kettlebell"
   | "farmerCarries"
   | "swim"
@@ -178,6 +195,10 @@ export type OnboardingProfile = {
   currentWeight?: number;
   defaultLocation?: "home" | "gym" | "travel" | "pool";
   height?: string;
+  homeGymAddress?: string;
+  homeGymEquipment?: string[];
+  homeGymId?: string;
+  homeGymName?: string;
   preferredTrainingMinutes?: number;
   quoteStyle?: "goggins" | "calm" | "athlete" | "none";
   targetWeight?: number;

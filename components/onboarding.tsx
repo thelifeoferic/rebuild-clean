@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { LoginPanel } from "@/components/login-panel";
 import { RebuildWordmark } from "@/components/rebuild-wordmark";
+import { defaultGymEquipment, getGymPreset, localGymPresets } from "@/data/gym-presets";
 import type { OnboardingProfile } from "@/types/rebuild";
 
 const goals = [
@@ -85,6 +86,7 @@ const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
 const quoteOptions = ["goggins", "calm", "athlete", "none"] as const;
 const locationOptions = ["home", "gym", "travel", "pool"] as const;
 const durationOptions = [10, 20, 25, 30, 45] as const;
+const homeGymOptions = ["none", ...localGymPresets.map((gym) => gym.id), "custom"] as const;
 
 const stepMeta = [
   { title: "Welcome", eyebrow: "Start here", icon: ShieldCheck },
@@ -106,6 +108,9 @@ export function Onboarding({
   const [targetWeight, setTargetWeight] = useState("");
   const [why, setWhy] = useState("");
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>(["Bike", "Kettlebells", "Dumbbells", "Weight bench"]);
+  const [homeGymAddress, setHomeGymAddress] = useState("");
+  const [homeGymId, setHomeGymId] = useState("none");
+  const [homeGymName, setHomeGymName] = useState("");
   const [equipmentQuery, setEquipmentQuery] = useState("");
   const [themePreference, setThemePreference] = useState<NonNullable<OnboardingProfile["themePreference"]>>("dark");
   const [accentColor, setAccentColor] = useState<NonNullable<OnboardingProfile["accentColor"]>>("ember");
@@ -133,7 +138,27 @@ export function Onboarding({
     return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
   }
 
+  function selectHomeGym(value: string) {
+    const preset = getGymPreset(value);
+    setHomeGymId(value);
+
+    if (!preset) {
+      if (value === "none") {
+        setHomeGymName("");
+        setHomeGymAddress("");
+      }
+      return;
+    }
+
+    const gymEquipment = preset.machines.map((machine) => machine.name);
+    setHomeGymName(preset.name);
+    setHomeGymAddress(preset.address);
+    setDefaultLocation("gym");
+    setSelectedEquipment((current) => mergeUnique([...current, ...gymEquipment]));
+  }
+
   function complete() {
+    const selectedHomeGym = getGymPreset(homeGymId);
     onComplete({
       accentColor,
       behaviorFocus: selectedFocus,
@@ -146,6 +171,10 @@ export function Onboarding({
       goal: selectedGoals[0] ?? "Rebuild discipline",
       goals: selectedGoals,
       height: height.trim(),
+      homeGymAddress: (selectedHomeGym?.address ?? homeGymAddress).trim(),
+      homeGymEquipment: selectedHomeGym ? selectedHomeGym.machines.map((machine) => machine.name) : selectedEquipment.filter((item) => defaultGymEquipment.includes(item)),
+      homeGymId: homeGymId === "none" ? undefined : homeGymId,
+      homeGymName: (selectedHomeGym?.name ?? homeGymName).trim(),
       preferredTrainingMinutes,
       quoteStyle,
       targetWeight: numberOrUndefined(targetWeight),
@@ -248,7 +277,40 @@ export function Onboarding({
           ) : null}
 
           {step === 3 ? (
-            <div>
+            <div className="space-y-4">
+              <label className="block">
+                <span className="metric-label mb-2 block">Home gym</span>
+                <select
+                  value={homeGymId}
+                  onChange={(event) => selectHomeGym(event.target.value)}
+                  className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-porcelain outline-none focus:border-champagne"
+                >
+                  {homeGymOptions.map((option) => {
+                    const preset = getGymPreset(option);
+                    return (
+                      <option key={option} value={option}>
+                        {preset ? `${preset.name} - ${preset.city}` : option === "custom" ? "Custom gym" : "No home gym yet"}
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+              {homeGymId === "custom" ? (
+                <div className="grid gap-2">
+                  <input
+                    value={homeGymName}
+                    onChange={(event) => setHomeGymName(event.target.value)}
+                    placeholder="Gym name"
+                    className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-white outline-none placeholder:text-white/58 focus:border-champagne"
+                  />
+                  <input
+                    value={homeGymAddress}
+                    onChange={(event) => setHomeGymAddress(event.target.value)}
+                    placeholder="Gym address"
+                    className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-white outline-none placeholder:text-white/58 focus:border-champagne"
+                  />
+                </div>
+              ) : null}
               <label className="mb-3 flex min-h-11 items-center rounded-2xl border border-white/10 bg-carbon px-3 focus-within:border-champagne">
                 <input
                   value={equipmentQuery}
@@ -346,6 +408,10 @@ export function Onboarding({
       </div>
     </section>
   );
+}
+
+function mergeUnique(items: string[]) {
+  return Array.from(new Set(items.filter(Boolean)));
 }
 
 function headlineFor(step: number) {

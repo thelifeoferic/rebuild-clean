@@ -90,6 +90,22 @@ export function getActivityCalorieBreakdown(data: RebuildData, profile: Onboardi
     });
   }
 
+  const machineCalories = data.machineWorkoutSessions
+    .filter((session) => isToday(session.date))
+    .reduce((sum, session) => {
+      if (session.calories && session.calories > 0) return sum + session.calories;
+      const minutes = session.minutes ?? Math.max((session.sets ?? 0) * 4, 8);
+      return sum + caloriesFromMinutes(minutes, machineMet(session.machine), weightLb);
+    }, 0);
+  if (machineCalories) {
+    const count = data.machineWorkoutSessions.filter((session) => isToday(session.date)).length;
+    items.push({
+      calories: Math.round(machineCalories),
+      detail: `${count} machine log${count === 1 ? "" : "s"}`,
+      label: "Gym machines",
+    });
+  }
+
   const kettlebellCalories = data.kettlebellSessions
     .filter((session) => isToday(session.date))
     .reduce((sum, session) => sum + caloriesFromMinutes(Math.max(session.reps * 0.08, 6), 8.0, weightLb), 0);
@@ -137,6 +153,10 @@ export function estimateDraftActivityCalories(kind: LogKind, draft: DraftLike, p
   if (kind === "kettlebell") return caloriesFromMinutes(Math.max(number(draft.reps) * 0.08, 6), 8.0, weightLb);
   if (kind === "farmerCarries") return caloriesFromMinutes(Math.max(number(draft.rounds) * 2, 4), 6.5, weightLb);
   if (kind === "strength") return caloriesFromMinutes(Math.max(number(draft.reps) * 0.2, 8), 5.0, weightLb);
+  if (kind === "machine") {
+    const minutes = Math.max(number(draft.minutes), number(draft.sets) * 4, 8);
+    return caloriesFromMinutes(minutes, machineMet(text(draft.machine, "machine")), weightLb);
+  }
 
   return 0;
 }
@@ -159,6 +179,19 @@ function caloriesFromMinutes(minutes: number, met: number, weightLb: number) {
   if (!Number.isFinite(minutes) || minutes <= 0) return 0;
   const weightKg = weightLb * 0.453592;
   return Math.round((met * 3.5 * weightKg * minutes) / 200);
+}
+
+function machineMet(name: string) {
+  const lower = name.toLowerCase();
+  if (lower.includes("stair")) return 8.8;
+  if (lower.includes("treadmill")) return 7.5;
+  if (lower.includes("row") || lower.includes("air bike")) return 7.2;
+  if (lower.includes("elliptical")) return 5.5;
+  if (lower.includes("bike")) return 7.2;
+  if (lower.includes("battle rope")) return 8.0;
+  if (lower.includes("pull-up") || lower.includes("dip")) return 6.0;
+  if (lower.includes("leg press") || lower.includes("hack squat") || lower.includes("smith")) return 5.8;
+  return 5.0;
 }
 
 function parseHeightInches(value?: string) {

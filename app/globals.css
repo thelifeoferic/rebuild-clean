@@ -95,13 +95,13 @@ button:active {
 }
 
 .accent-champagne {
-  --color-accent: 232 91 62;
+  --color-accent: 224 184 96;
   --color-signal: 246 243 237;
 }
 
 .accent-white {
   --color-accent: 246 243 237;
-  --color-signal: 246 243 237;
+  --color-signal: 232 91 62;
 }
 
 .accent-ember {
@@ -110,18 +110,18 @@ button:active {
 }
 
 .accent-teal {
-  --color-accent: 232 91 62;
-  --color-signal: 246 243 237;
+  --color-accent: 45 212 191;
+  --color-signal: 45 212 191;
 }
 
 .accent-cobalt {
-  --color-accent: 232 91 62;
-  --color-signal: 246 243 237;
+  --color-accent: 79 140 255;
+  --color-signal: 79 140 255;
 }
 
 .accent-volt {
-  --color-accent: 232 91 62;
-  --color-signal: 246 243 237;
+  --color-accent: 190 242 100;
+  --color-signal: 190 242 100;
 }
 
 .contrast-panel,

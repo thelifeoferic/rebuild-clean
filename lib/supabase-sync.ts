@@ -14,6 +14,10 @@ type ProfileRow = {
   goal: string | null;
   goals: string[] | null;
   height: string | null;
+  home_gym_address?: string | null;
+  home_gym_equipment?: string[] | null;
+  home_gym_id?: string | null;
+  home_gym_name?: string | null;
   preferred_training_minutes: number | null;
   quote_style: OnboardingProfile["quoteStyle"] | null;
   reset_plan: string | null;
@@ -76,7 +80,7 @@ export async function saveCloudProfile({
   if (sessionError) throw sessionError;
   if (!session?.user?.id) throw new Error("Sign in before saving your profile to cloud.");
 
-  await upsertProfile(client, session.user.id, profile, false);
+  await upsertProfile(client, session.user.id, profile, true);
 }
 
 async function upsertProfile(client: SupabaseClient, userId: string, profile: OnboardingProfile, allowLegacyFallback: boolean) {
@@ -86,9 +90,9 @@ async function upsertProfile(client: SupabaseClient, userId: string, profile: On
   });
 
   if (!error) return;
-  if (!allowLegacyFallback || !isMissingAvatarColumn(error)) throw error;
+  if (!allowLegacyFallback || !isMissingNewProfileColumn(error)) throw error;
 
-  const legacyRow = withoutAvatarUrl(row);
+  const legacyRow = withoutNewProfileColumns(row);
   const { error: legacyError } = await client.from("rebuild_profiles").upsert(legacyRow, {
     onConflict: "user_id",
   });
@@ -138,6 +142,10 @@ function profileToRow(userId: string, profile: OnboardingProfile) {
     goal: profile.goal,
     goals: profile.goals ?? [],
     height: profile.height ?? null,
+    home_gym_address: profile.homeGymAddress ?? null,
+    home_gym_equipment: profile.homeGymEquipment ?? [],
+    home_gym_id: profile.homeGymId ?? null,
+    home_gym_name: profile.homeGymName ?? null,
     preferred_training_minutes: profile.preferredTrainingMinutes ?? 25,
     quote_style: profile.quoteStyle ?? "goggins",
     reset_plan: profile.resetPlan ?? null,
@@ -163,6 +171,10 @@ function rowToProfile(row: ProfileRow): OnboardingProfile {
     goal: row.goal ?? "Rebuild discipline",
     goals: row.goals ?? [],
     height: row.height ?? undefined,
+    homeGymAddress: row.home_gym_address ?? undefined,
+    homeGymEquipment: row.home_gym_equipment ?? [],
+    homeGymId: row.home_gym_id ?? undefined,
+    homeGymName: row.home_gym_name ?? undefined,
     preferredTrainingMinutes: row.preferred_training_minutes ?? 25,
     quoteStyle: row.quote_style ?? "goggins",
     resetPlan: row.reset_plan ?? undefined,
@@ -172,13 +184,24 @@ function rowToProfile(row: ProfileRow): OnboardingProfile {
   };
 }
 
-function isMissingAvatarColumn(error: unknown) {
+function isMissingNewProfileColumn(error: unknown) {
   const message = error instanceof Error ? error.message : String((error as { message?: unknown })?.message ?? error);
-  return message.toLowerCase().includes("avatar_url");
+  const lower = message.toLowerCase();
+  return lower.includes("avatar_url") || lower.includes("home_gym_");
 }
 
-function withoutAvatarUrl<T extends { avatar_url?: string | null }>(row: T) {
+function withoutNewProfileColumns<T extends {
+  avatar_url?: string | null;
+  home_gym_address?: string | null;
+  home_gym_equipment?: string[] | null;
+  home_gym_id?: string | null;
+  home_gym_name?: string | null;
+}>(row: T) {
   const legacyRow = { ...row };
   delete legacyRow.avatar_url;
+  delete legacyRow.home_gym_address;
+  delete legacyRow.home_gym_equipment;
+  delete legacyRow.home_gym_id;
+  delete legacyRow.home_gym_name;
   return legacyRow;
 }

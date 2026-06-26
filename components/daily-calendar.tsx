@@ -220,6 +220,21 @@ function getDayEntries(data: RebuildData, selectedDate: string): DayEntry[] {
     title: entry.exercise,
   }));
 
+  data.machineWorkoutSessions.filter((entry) => matches(entry.date)).forEach((entry) => {
+    const load = entry.weight ? `${entry.weight} lb` : entry.category ?? "machine";
+    const reps = entry.sets && entry.reps ? ` - ${entry.sets} x ${entry.reps}` : "";
+    const minutes = entry.minutes ? ` - ${entry.minutes} min` : "";
+    const distance = entry.distanceMiles ? ` - ${entry.distanceMiles} mi` : "";
+
+    entries.push({
+      detail: `${load}${reps}${minutes}${distance}. ${entry.notes}`,
+      id: entry.id,
+      kind: "machine",
+      stat: entry.calories ? `${entry.calories} cal` : undefined,
+      title: entry.machine,
+    });
+  });
+
   data.kettlebellSessions.filter((entry) => matches(entry.date)).forEach((entry) => entries.push({
     detail: `${entry.weight} lb - ${entry.reps} reps`,
     id: entry.id,
@@ -291,6 +306,7 @@ function getDaySummary(data: RebuildData, selectedDate: string) {
     data.bikeSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + entry.minutes, 0) +
     data.swimSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + entry.minutes, 0) +
     data.yogaSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + entry.minutes, 0) +
+    data.machineWorkoutSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + (entry.minutes ?? Math.max((entry.sets ?? 0) * 4, 0)), 0) +
     data.jacobsLadderSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + Math.round(timeToSeconds(entry.duration) / 60), 0);
   const meals = data.meals.filter((entry) => matches(entry.date));
 
@@ -304,6 +320,7 @@ function getDaySummary(data: RebuildData, selectedDate: string) {
 function iconForKind(kind: LogKind) {
   if (kind === "weight") return Scale;
   if (kind === "bike") return Bike;
+  if (kind === "machine") return Dumbbell;
   if (kind === "meal") return Salad;
   if (kind === "mood") return Flame;
   return Dumbbell;

@@ -16,6 +16,10 @@ create table if not exists public.rebuild_profiles (
   current_weight numeric,
   target_weight numeric,
   height text,
+  home_gym_id text,
+  home_gym_name text,
+  home_gym_address text,
+  home_gym_equipment text[] not null default '{}',
   why text,
   equipment text[] not null default '{}',
   behavior_focus text[] not null default '{}',
@@ -33,6 +37,10 @@ alter table public.rebuild_profiles add column if not exists coaching_tone text 
 alter table public.rebuild_profiles add column if not exists quote_style text not null default 'goggins';
 alter table public.rebuild_profiles add column if not exists preferred_training_minutes integer not null default 25;
 alter table public.rebuild_profiles add column if not exists default_location text not null default 'gym';
+alter table public.rebuild_profiles add column if not exists home_gym_id text;
+alter table public.rebuild_profiles add column if not exists home_gym_name text;
+alter table public.rebuild_profiles add column if not exists home_gym_address text;
+alter table public.rebuild_profiles add column if not exists home_gym_equipment text[] not null default '{}';
 
 create table if not exists public.rebuild_data_snapshots (
   id uuid primary key default gen_random_uuid(),

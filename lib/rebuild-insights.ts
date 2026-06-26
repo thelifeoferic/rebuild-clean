@@ -32,7 +32,7 @@ export type RebuildScore = {
 export type PersonalRecord = {
   detail: string;
   history: number[];
-  icon: "bike" | "distance" | "push" | "ladder" | "carry" | "streak" | "scale" | "pattern" | "duration";
+  icon: "bike" | "distance" | "push" | "ladder" | "carry" | "machine" | "streak" | "scale" | "pattern" | "duration";
   label: string;
   logKind?: LogKind;
   sortValue: number;
@@ -160,6 +160,7 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
   const bestPushSession = maxBy(data.pushUpSessions, (session) => Math.max(0, ...session.sets));
   const longestLadder = maxBy(data.jacobsLadderSessions, (session) => timeToSeconds(session.longestContinuous || session.duration));
   const heaviestCarry = maxBy(data.farmerCarrySessions, (session) => session.weightEachHand);
+  const heaviestMachine = maxBy(data.machineWorkoutSessions, (session) => session.weight ?? 0);
   const lowestWeight = getRecentLowWeight(data);
   const longestWorkout = longestSingleWorkout(data);
 
@@ -220,6 +221,18 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
     unit: "lb",
     value: heaviestCarry ? `${heaviestCarry.weightEachHand}` : "—",
     when: heaviestCarry ? formatLogDate(heaviestCarry.date) : undefined,
+  });
+
+  records.push({
+    detail: heaviestMachine ? `${heaviestMachine.machine} is the current heaviest machine load.` : "First machine session sets the record.",
+    history: data.machineWorkoutSessions.map((session) => session.weight ?? 0),
+    icon: "machine",
+    label: "Machine Load",
+    logKind: "machine",
+    sortValue: heaviestMachine?.weight ?? 0,
+    unit: "lb",
+    value: heaviestMachine?.weight ? `${heaviestMachine.weight}` : "—",
+    when: heaviestMachine ? formatLogDate(heaviestMachine.date) : undefined,
   });
 
   records.push({
@@ -313,11 +326,20 @@ function workoutSessions(data: RebuildData) {
     ...data.pushUpSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.sets.reduce((sum, reps) => sum + reps, 0)} total reps`, kind: "pushUps" as LogKind, minutes: 5, title: "Push-ups" })),
     ...data.dumbbellCurlSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.weight} lb · ${item.repsEachArm * 2} total reps`, kind: "dumbbellCurls" as LogKind, minutes: 8, title: item.exercise ?? "Dumbbell curls" })),
     ...data.strengthAccessorySessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.weight} lb · ${item.reps} reps`, kind: "strength" as LogKind, minutes: 20, title: item.exercise })),
+    ...data.machineWorkoutSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: machineWorkoutDetail(item), kind: "machine" as LogKind, minutes: item.minutes ?? Math.max((item.sets ?? 0) * 4, 8), title: item.machine })),
     ...data.kettlebellSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.weight} lb · ${item.reps} reps`, kind: "kettlebell" as LogKind, minutes: 12, title: item.exercise })),
     ...data.farmerCarrySessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.weightEachHand} lb each hand · ${item.distanceFeet * item.rounds} ft`, kind: "farmerCarries" as LogKind, minutes: 8, title: "Farmer carries" })),
     ...data.swimSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.minutes} min · ${item.distance} yd`, kind: "swim" as LogKind, minutes: item.minutes, title: "Swim" })),
     ...data.yogaSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.minutes} min · ${item.focus}`, kind: "yoga" as LogKind, minutes: item.minutes, title: "Yoga" })),
   ];
+}
+
+function machineWorkoutDetail(item: RebuildData["machineWorkoutSessions"][number]) {
+  const load = item.weight ? `${item.weight} lb` : item.category ?? "machine";
+  const reps = item.sets && item.reps ? ` · ${item.sets} x ${item.reps}` : "";
+  const time = item.minutes ? ` · ${item.minutes} min` : "";
+  const distance = item.distanceMiles ? ` · ${item.distanceMiles} mi` : "";
+  return `${load}${reps}${time}${distance}`;
 }
 
 function longestSingleWorkout(data: RebuildData) {

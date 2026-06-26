@@ -55,6 +55,7 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
   const latestCurl = data.dumbbellCurlSessions[0];
   const latestKettlebell = data.kettlebellSessions[0];
   const latestMeal = data.meals[0];
+  const latestMachine = data.machineWorkoutSessions[0];
   const latestStrength = data.strengthAccessorySessions[0];
   const latestSwim = data.swimSessions[0];
   const latestYoga = data.yogaSessions[0];
@@ -120,6 +121,12 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
           label="Strength"
           value={latestStrength ? `${latestStrength.weight} lb` : "--"}
           detail={latestStrength ? `${latestStrength.exercise} · ${latestStrength.reps} reps` : "none logged"}
+          icon={Dumbbell}
+        />
+        <TrainingStat
+          label="Machine"
+          value={latestMachine?.weight ? `${latestMachine.weight} lb` : latestMachine?.minutes ? `${latestMachine.minutes} min` : "--"}
+          detail={latestMachine ? `${latestMachine.machine}${latestMachine.sets && latestMachine.reps ? ` · ${latestMachine.sets} x ${latestMachine.reps}` : ""}` : "none logged"}
           icon={Dumbbell}
         />
         <TrainingStat

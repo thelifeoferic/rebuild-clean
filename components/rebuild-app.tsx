@@ -206,6 +206,7 @@ export function RebuildApp() {
         kind={activeLog}
         mode={editTarget ? "edit" : "create"}
         onClose={closeLogModal}
+        profile={profile}
         onSave={saveLog}
       />
     </AppShell>
@@ -237,6 +238,10 @@ function appendLog(data: RebuildData, kind: LogKind, draft: Draft, profile: Onbo
 
   if (kind === "strength") {
     next.strengthAccessorySessions.unshift(strengthFromDraft(draft));
+  }
+
+  if (kind === "machine") {
+    next.machineWorkoutSessions.unshift(machineFromDraft(draft, createId("machine"), profile, data));
   }
 
   if (kind === "kettlebell") {
@@ -313,6 +318,12 @@ function updateLog(data: RebuildData, kind: LogKind, id: string, draft: Draft, p
     );
   }
 
+  if (kind === "machine") {
+    next.machineWorkoutSessions = next.machineWorkoutSessions.map((session) =>
+      session.id === id ? machineFromDraft(draft, id, profile, data) : session,
+    );
+  }
+
   if (kind === "kettlebell") {
     next.kettlebellSessions = next.kettlebellSessions.map((session) =>
       session.id === id ? kettlebellFromDraft(draft, id) : session,
@@ -377,6 +388,7 @@ function deleteLogFromData(data: RebuildData, kind: LogKind, id: string): Rebuil
   if (kind === "farmerCarries") next.farmerCarrySessions = next.farmerCarrySessions.filter((entry) => entry.id !== id);
   if (kind === "swim") next.swimSessions = next.swimSessions.filter((entry) => entry.id !== id);
   if (kind === "yoga") next.yogaSessions = next.yogaSessions.filter((entry) => entry.id !== id);
+  if (kind === "machine") next.machineWorkoutSessions = next.machineWorkoutSessions.filter((entry) => entry.id !== id);
   if (kind === "meal") next.meals = next.meals.filter((entry) => entry.id !== id);
   if (kind === "water") next.waterLogs = next.waterLogs.filter((entry) => entry.id !== id);
   if (kind === "sleep") next.sleepLogs = next.sleepLogs.filter((entry) => entry.id !== id);
@@ -395,6 +407,7 @@ function cloneMutableData(data: RebuildData): RebuildData {
     kettlebellSessions: [...data.kettlebellSessions],
     farmerCarrySessions: [...data.farmerCarrySessions],
     strengthAccessorySessions: [...(data.strengthAccessorySessions ?? [])],
+    machineWorkoutSessions: [...(data.machineWorkoutSessions ?? [])],
     swimSessions: [...(data.swimSessions ?? [])],
     yogaSessions: [...(data.yogaSessions ?? [])],
     meals: [...data.meals],
@@ -415,6 +428,7 @@ function sortDataByDate(data: RebuildData): RebuildData {
     kettlebellSessions: sortByDate(data.kettlebellSessions),
     farmerCarrySessions: sortByDate(data.farmerCarrySessions),
     strengthAccessorySessions: sortByDate(data.strengthAccessorySessions),
+    machineWorkoutSessions: sortByDate(data.machineWorkoutSessions),
     swimSessions: sortByDate(data.swimSessions),
     yogaSessions: sortByDate(data.yogaSessions),
     meals: sortByDate(data.meals),
@@ -493,6 +507,25 @@ function strengthFromDraft(draft: Draft, id = createId("strength")) {
     weight: number(draft.weight),
     reps: number(draft.reps),
     notes: text(draft.notes, "Logged strength work."),
+  };
+}
+
+function machineFromDraft(draft: Draft, id = createId("machine"), profile: OnboardingProfile | null = null, data?: RebuildData) {
+  const savedCalories = number(draft.calories);
+
+  return {
+    id,
+    date: dateFromDraft(draft),
+    gymName: text(draft.gymName, profile?.homeGymName ?? "Gym"),
+    machine: text(draft.machine, "Leg press"),
+    category: text(draft.category, "Strength machine"),
+    weight: optionalNumber(draft.weight),
+    sets: optionalNumber(draft.sets),
+    reps: optionalNumber(draft.reps),
+    minutes: optionalNumber(draft.minutes),
+    distanceMiles: optionalNumber(draft.distanceMiles),
+    calories: savedCalories > 0 ? savedCalories : estimateDraftActivityCalories("machine", draft, profile, data),
+    notes: text(draft.notes, "Machine work logged."),
   };
 }
 
@@ -654,6 +687,25 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
       : null;
   }
 
+  if (kind === "machine") {
+    const session = data.machineWorkoutSessions.find((item) => item.id === id);
+    return session
+      ? {
+          date: editDate(session.date),
+          gymName: session.gymName ?? "",
+          machine: session.machine,
+          category: session.category ?? "Strength machine",
+          weight: String(session.weight ?? ""),
+          sets: String(session.sets ?? ""),
+          reps: String(session.reps ?? ""),
+          minutes: String(session.minutes ?? ""),
+          distanceMiles: String(session.distanceMiles ?? ""),
+          calories: String(session.calories ?? ""),
+          notes: session.notes,
+        }
+      : null;
+  }
+
   if (kind === "kettlebell") {
     const session = data.kettlebellSessions.find((item) => item.id === id);
     return session
@@ -760,6 +812,11 @@ function number(value: unknown) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function optionalNumber(value: unknown) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
+
 function dateFromDraft(draft: Draft) {
   return normalizeLogDate(text(draft.date, getTodayIso()), getTodayIso());
 }
@@ -797,6 +854,7 @@ function labelFor(kind: LogKind) {
     pushUps: "Push-ups",
     dumbbellCurls: "Dumbbell work",
     strength: "Strength lift",
+    machine: "Gym machine",
     kettlebell: "Kettlebell work",
     farmerCarries: "Farmer carries",
     swim: "Swim",

@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { Camera, Loader2, RotateCcw, Trash2, UserRound } from "lucide-react";
+import { Building2, Camera, Loader2, RotateCcw, Trash2, UserRound } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Section } from "@/components/section";
 import { prepareProfileAvatar, uploadProfileAvatar } from "@/lib/profile-avatar";
@@ -23,6 +23,7 @@ export function ProfileCard({
   const firstName = profile?.firstName?.trim() || "Member";
   const goals = profile?.goals?.length ? profile.goals : profile?.goal ? [profile.goal] : ["Rebuild discipline"];
   const equipmentCount = profile?.equipment?.length ?? 0;
+  const homeGymEquipment = profile?.homeGymEquipment ?? [];
   const avatarSrc = profile?.avatarDataUrl || profile?.avatarUrl;
   const [avatarStatus, setAvatarStatus] = useState("");
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -116,6 +117,28 @@ export function ProfileCard({
           <div className="mb-3 rounded-2xl bg-white/[0.055] p-3">
             <p className="metric-label mb-1">Why</p>
             <p className="text-sm leading-5 text-white/58">{profile.why}</p>
+          </div>
+        ) : null}
+
+        {profile?.homeGymName ? (
+          <div className="mb-3 rounded-2xl bg-white/[0.055] p-3">
+            <div className="mb-3 flex items-start gap-3">
+              <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+                <Building2 size={18} strokeWidth={2.2} aria-hidden />
+              </div>
+              <div>
+                <p className="metric-label">Home gym</p>
+                <p className="mt-1 text-base font-semibold text-porcelain">{profile.homeGymName}</p>
+                {profile.homeGymAddress ? <p className="mt-1 text-sm leading-5 text-white/45">{profile.homeGymAddress}</p> : null}
+              </div>
+            </div>
+            <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto pr-1">
+              {homeGymEquipment.slice(0, 18).map((item) => (
+                <span key={item} className="rounded-full bg-carbon px-3 py-1 text-xs font-bold text-white/58">
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
         ) : null}
 

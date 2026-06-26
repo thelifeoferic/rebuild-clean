@@ -30,6 +30,7 @@ export function normalizeRebuildData(data: Partial<RebuildData>): RebuildData {
     kettlebellSessions: data.kettlebellSessions ?? seed.kettlebellSessions,
     farmerCarrySessions: data.farmerCarrySessions ?? seed.farmerCarrySessions,
     strengthAccessorySessions: data.strengthAccessorySessions ?? seed.strengthAccessorySessions,
+    machineWorkoutSessions: data.machineWorkoutSessions ?? seed.machineWorkoutSessions,
     swimSessions: data.swimSessions ?? seed.swimSessions,
     yogaSessions: data.yogaSessions ?? seed.yogaSessions,
     meals: data.meals ?? seed.meals,
@@ -257,6 +258,22 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
     });
   });
 
+  data.machineWorkoutSessions.slice(0, 3).forEach((move) => {
+    const load = move.weight ? `${move.weight} lb` : move.category ?? "machine work";
+    const reps = move.sets && move.reps ? ` · ${move.sets} x ${move.reps}` : "";
+    const time = move.minutes ? ` · ${move.minutes} min` : "";
+    const distance = move.distanceMiles ? ` · ${formatDistance(move.distanceMiles)}` : "";
+
+    items.push({
+      id: `tl-${move.id}`,
+      date: formatLogDate(move.date),
+      title: `${move.machine} logged`,
+      detail: `${load}${reps}${time}${distance}. ${move.notes}`,
+      tone: "steel",
+      editable: { kind: "machine", id: move.id },
+    });
+  });
+
   data.swimSessions.slice(0, 2).forEach((swim) => {
     items.push({
       id: `tl-${swim.id}`,
@@ -365,6 +382,7 @@ function normalizeDataDates(data: RebuildData): RebuildData {
     kettlebellSessions: data.kettlebellSessions.map(normalizeDatedEntry),
     farmerCarrySessions: data.farmerCarrySessions.map(normalizeDatedEntry),
     strengthAccessorySessions: data.strengthAccessorySessions.map(normalizeDatedEntry),
+    machineWorkoutSessions: data.machineWorkoutSessions.map(normalizeDatedEntry),
     swimSessions: data.swimSessions.map(normalizeDatedEntry),
     yogaSessions: data.yogaSessions.map(normalizeDatedEntry),
     meals: data.meals.map((meal) => ({ ...meal, date: normalizeLogDate(meal.date, legacyTodayIso) })),

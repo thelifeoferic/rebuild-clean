@@ -141,7 +141,7 @@ function classifyTimelineItem(item: TimelineItem): TimelineFilter {
   if (kind === "mood") return "Patterns";
   if (item.title.toLowerCase().includes("record") || item.date === "Best") return "Records";
   if (kind === "weight" || item.title.toLowerCase().includes("milestone")) return "Milestones";
-  if (kind && ["bike", "jacobsLadder", "pushUps", "dumbbellCurls", "strength", "kettlebell", "farmerCarries", "swim", "yoga"].includes(kind)) {
+  if (kind && ["bike", "jacobsLadder", "pushUps", "dumbbellCurls", "strength", "machine", "kettlebell", "farmerCarries", "swim", "yoga"].includes(kind)) {
     return "Workouts";
   }
   return "All";

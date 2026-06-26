@@ -11,6 +11,7 @@ export function StreakSummary({ data }: { data: RebuildData }) {
     ...data.pushUpSessions.map((item) => normalizeLogDate(item.date)),
     ...data.dumbbellCurlSessions.map((item) => normalizeLogDate(item.date)),
     ...data.strengthAccessorySessions.map((item) => normalizeLogDate(item.date)),
+    ...data.machineWorkoutSessions.map((item) => normalizeLogDate(item.date)),
     ...data.kettlebellSessions.map((item) => normalizeLogDate(item.date)),
     ...data.farmerCarrySessions.map((item) => normalizeLogDate(item.date)),
     ...data.swimSessions.map((item) => normalizeLogDate(item.date)),
@@ -25,6 +26,7 @@ export function StreakSummary({ data }: { data: RebuildData }) {
     data.pushUpSessions.length +
     data.dumbbellCurlSessions.length +
     data.strengthAccessorySessions.length +
+    data.machineWorkoutSessions.length +
     data.kettlebellSessions.length +
     data.farmerCarrySessions.length +
     data.swimSessions.length +

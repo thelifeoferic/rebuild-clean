@@ -670,6 +670,7 @@ function hasMovementToday(data: RebuildData) {
     data.pushUpSessions.some((entry) => isToday(entry.date)) ||
     data.dumbbellCurlSessions.some((entry) => isToday(entry.date)) ||
     data.strengthAccessorySessions.some((entry) => isToday(entry.date)) ||
+    data.machineWorkoutSessions.some((entry) => isToday(entry.date)) ||
     data.kettlebellSessions.some((entry) => isToday(entry.date)) ||
     data.farmerCarrySessions.some((entry) => isToday(entry.date)) ||
     data.swimSessions.some((entry) => isToday(entry.date)) ||

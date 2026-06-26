@@ -5,6 +5,7 @@ import type {
   FarmerCarrySession,
   JacobsLadderSession,
   KettlebellSession,
+  MachineWorkoutSession,
   MealLog,
   PushUpSession,
   RebuildData,
@@ -35,6 +36,8 @@ export const kettlebellSessions: KettlebellSession[] = [];
 export const farmerCarrySessions: FarmerCarrySession[] = [];
 
 export const strengthAccessorySessions: StrengthAccessorySession[] = [];
+
+export const machineWorkoutSessions: MachineWorkoutSession[] = [];
 
 export const swimSessions: SwimSession[] = [];
 
@@ -67,6 +70,7 @@ export const seedData: RebuildData = {
   kettlebellSessions,
   farmerCarrySessions,
   strengthAccessorySessions,
+  machineWorkoutSessions,
   swimSessions,
   yogaSessions,
   meals,

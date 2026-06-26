@@ -2,12 +2,13 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { CheckCircle2, ChevronDown, Cloud, ScanSearch, UserRound, Watch } from "lucide-react";
+import { Building2, CheckCircle2, ChevronDown, Cloud, MapPin, ScanSearch, UserRound, Watch } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AccountSync } from "@/components/account-sync";
 import { AppleHealthRoadmap } from "@/components/apple-health-roadmap";
 import { BodyCheck } from "@/components/body-check";
 import { ProfileCard } from "@/components/profile-card";
+import { defaultGymEquipment, getGymPreset, localGymPresets } from "@/data/gym-presets";
 import type { OnboardingProfile, RebuildData } from "@/types/rebuild";
 
 const tabs = ["Profile", "Setup", "Sync", "Body Check", "Health"] as const;
@@ -43,6 +44,7 @@ const accentOptions = ["ember", "white", "champagne", "volt"] as const;
 const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
 const quoteOptions = ["goggins", "calm", "athlete", "none"] as const;
 const locationOptions = ["home", "gym", "travel", "pool"] as const;
+const gymSelectorOptions = ["none", ...localGymPresets.map((gym) => gym.id), "custom"] as const;
 
 export function MeHub({
   data,
@@ -124,6 +126,10 @@ function ProgressiveSetup({
     goal: profile?.goal ?? "Rebuild discipline",
     goals: profile?.goals ?? [profile?.goal ?? "Rebuild discipline"],
     height: profile?.height ?? "",
+    homeGymAddress: profile?.homeGymAddress ?? "",
+    homeGymEquipment: profile?.homeGymEquipment ?? [],
+    homeGymId: profile?.homeGymId ?? "none",
+    homeGymName: profile?.homeGymName ?? "",
     preferredTrainingMinutes: profile?.preferredTrainingMinutes ?? 25,
     quoteStyle: profile?.quoteStyle ?? "goggins",
     resetPlan: profile?.resetPlan ?? "",
@@ -142,14 +148,51 @@ function ProgressiveSetup({
     update(key, current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
   }
 
+  function toggleHomeGymEquipment(value: string) {
+    const current = draft.homeGymEquipment ?? [];
+    const nextEquipment = current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
+    update("homeGymEquipment", nextEquipment);
+  }
+
+  function selectHomeGym(value: string) {
+    const preset = getGymPreset(value);
+
+    if (!preset) {
+      setDraft((current) => ({
+        ...current,
+        defaultLocation: value === "none" ? current.defaultLocation : "gym",
+        homeGymAddress: value === "none" ? "" : current.homeGymAddress,
+        homeGymEquipment: value === "none" ? [] : current.homeGymEquipment,
+        homeGymId: value === "none" ? "none" : "custom",
+        homeGymName: value === "none" ? "" : current.homeGymName,
+      }));
+      return;
+    }
+
+    const homeGymEquipment = preset.machines.map((machine) => machine.name);
+    setDraft((current) => ({
+      ...current,
+      defaultLocation: "gym",
+      equipment: mergeUnique([...(current.equipment ?? []), ...homeGymEquipment]),
+      homeGymAddress: preset.address,
+      homeGymEquipment,
+      homeGymId: preset.id,
+      homeGymName: preset.name,
+    }));
+  }
+
   function save() {
     const goals = draft.goals?.length ? draft.goals : [draft.goal || "Rebuild discipline"];
+    const homeGymEquipment = draft.homeGymEquipment ?? [];
     onUpdateProfile({
       ...draft,
       goal: goals[0],
       goals,
       completed: true,
+      equipment: mergeUnique([...(draft.equipment ?? []), ...homeGymEquipment]),
       height: draft.height?.trim(),
+      homeGymAddress: draft.homeGymAddress?.trim(),
+      homeGymName: draft.homeGymName?.trim(),
       why: draft.why?.trim(),
     });
   }
@@ -174,6 +217,29 @@ function ProgressiveSetup({
           <NumberField label="Target weight" value={draft.targetWeight} onChange={(value) => update("targetWeight", value)} suffix="lb" />
           <NumberField label="Default workout minutes" value={draft.preferredTrainingMinutes} onChange={(value) => update("preferredTrainingMinutes", value ?? 25)} />
           <ChipGroup title="Additional goals" options={goalOptions} selected={draft.goals ?? []} onSelect={(value) => toggle(value, "goals")} />
+          <HomeGymSelector value={draft.homeGymId ?? "none"} onChange={selectHomeGym} />
+          {(draft.homeGymId === "custom" || draft.homeGymName) && draft.homeGymId !== "none" ? (
+            <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+              <div className="flex items-start gap-3">
+                <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+                  <Building2 size={18} strokeWidth={2.2} aria-hidden />
+                </div>
+                <div className="min-w-0">
+                  <p className="metric-label">Home gym profile</p>
+                  <p className="mt-1 text-sm leading-5 text-white/45">Equipment here becomes available inside the Gym Machine log.</p>
+                </div>
+              </div>
+              <Field label="Gym name" value={draft.homeGymName ?? ""} onChange={(value) => update("homeGymName", value)} placeholder="Total Fitness" />
+              <Field label="Gym address" value={draft.homeGymAddress ?? ""} onChange={(value) => update("homeGymAddress", value)} placeholder="71717 29 Palms Hwy" />
+              <ChipGroup
+                title="Gym equipment"
+                helper="Scroll and select what this gym has. This powers machine logging and program matching."
+                options={defaultGymEquipment}
+                selected={draft.homeGymEquipment ?? []}
+                onSelect={toggleHomeGymEquipment}
+              />
+            </div>
+          ) : null}
           <ChipGroup title="Private habit loops" helper="Stored privately. Main UI only shows the replacement behavior." options={behaviorFocusOptions} selected={draft.behaviorFocus} onSelect={(value) => toggle(value, "behaviorFocus")} />
           <SelectGroup label="Default location" options={locationOptions} value={draft.defaultLocation ?? "gym"} onChange={(value) => update("defaultLocation", value)} />
           <SelectGroup label="Coaching tone" options={toneOptions} value={draft.coachingTone ?? "calm"} onChange={(value) => update("coachingTone", value)} />
@@ -323,6 +389,40 @@ function SelectGroup<T extends string>({
   );
 }
 
+function HomeGymSelector({
+  onChange,
+  value,
+}: {
+  onChange: (value: string) => void;
+  value: string;
+}) {
+  return (
+    <label className="block">
+      <span className="metric-label mb-2 block">Home gym</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-porcelain outline-none focus:border-champagne"
+      >
+        {gymSelectorOptions.map((option) => {
+          const preset = getGymPreset(option);
+          return (
+            <option key={option} value={option}>
+              {preset ? `${preset.name} - ${preset.city}` : option === "custom" ? "Custom gym" : "No home gym yet"}
+            </option>
+          );
+        })}
+      </select>
+      {value !== "none" ? (
+        <div className="mt-2 flex items-start gap-2 text-xs leading-5 text-white/42">
+          <MapPin size={14} strokeWidth={2.2} aria-hidden className="mt-0.5 shrink-0 text-champagne" />
+          <span>{getGymPreset(value)?.note ?? "Add the machines and equipment you want available when logging."}</span>
+        </div>
+      ) : null}
+    </label>
+  );
+}
+
 function SetupTile({
   detail,
   icon: Icon,
@@ -350,6 +450,7 @@ function setupCompletion(profile: OnboardingProfile) {
     profile.why,
     profile.goals?.length,
     profile.equipment?.length,
+    profile.homeGymName || profile.homeGymEquipment?.length,
     profile.behaviorFocus?.length,
     profile.defaultLocation,
     profile.coachingTone,
@@ -357,4 +458,8 @@ function setupCompletion(profile: OnboardingProfile) {
   ];
 
   return Math.round((fields.filter(Boolean).length / fields.length) * 100);
+}
+
+function mergeUnique(items: string[]) {
+  return Array.from(new Set(items.filter(Boolean)));
 }

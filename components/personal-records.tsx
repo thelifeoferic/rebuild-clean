@@ -14,6 +14,7 @@ const iconMap = {
   distance: LineChart,
   duration: Timer,
   ladder: CircleGauge,
+  machine: Dumbbell,
   pattern: ShieldCheck,
   push: Trophy,
   scale: Scale,
