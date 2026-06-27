@@ -174,7 +174,7 @@ export function HeroDashboard({
             <div className="grid grid-cols-3 gap-2">
               <PlanButton label="Weigh-in" done={data.weights.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("weight")} />
               <PlanButton label="Move" done={hasMovementToday(data)} onClick={() => onNavigate("log")} />
-              <PlanButton label="Reset" done={data.behaviorWins.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("mood")} />
+              <PlanButton label="Pattern" done={data.behaviorWins.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("mood")} />
             </div>
           </div>
         </div>
@@ -354,7 +354,7 @@ function getLatestHomeEntry(data: RebuildData) {
   }
 
   return {
-    detail: "Log your first session, weigh-in, meal, or reset choice.",
+    detail: "Log your first session, weigh-in, meal, or pattern choice.",
     title: "Your first entry goes here",
   };
 }

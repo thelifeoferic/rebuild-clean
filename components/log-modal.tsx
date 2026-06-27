@@ -54,7 +54,7 @@ const defaults: Record<LogKind, LogDraft> = {
 };
 
 const moodReasons: MoodReason[] = ["stress", "anger", "boredom", "energy", "habit"];
-const replacementActions = ["Went to the gym", "Read", "Journaled", "Meditated", "Walked", "Called a friend", "Early bedtime", "Healthy meal", "Stayed present"];
+const replacementActions = ["Went to the gym", "Meditation", "Read", "Journaled", "Walked", "Called a friend", "Early bedtime", "Healthy meal", "Stayed present"];
 const sleepQualities = ["low", "okay", "good", "great"] as const;
 const dumbbellExercises = [
   "Dumbbell curls",

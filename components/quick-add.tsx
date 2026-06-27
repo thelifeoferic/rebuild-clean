@@ -1,5 +1,6 @@
 import { Bike, Brain, Droplets, Dumbbell, Flame, Footprints, Home, Moon, Salad, Scale, Trophy, Waves, Zap } from "lucide-react";
 import { Section } from "@/components/section";
+import { WorkoutStopwatch } from "@/components/workout-stopwatch";
 import type { LogKind } from "@/types/rebuild";
 
 const logTypes = [
@@ -21,7 +22,7 @@ const logTypes = [
 ];
 
 const moods = ["stress", "anger", "boredom", "energy", "habit"];
-const replacementActions = ["Went to the gym", "Walked", "Journaled", "Meditated", "Called a friend", "Early bedtime"];
+const replacementActions = ["Went to the gym", "Meditation", "Walked", "Journaled", "Called a friend", "Early bedtime"];
 
 const routineShortcuts = [
   {
@@ -50,9 +51,11 @@ const routineShortcuts = [
   },
 ] as const;
 
-export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind) => void }) {
+export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind, draft?: Record<string, string | boolean>) => void }) {
   return (
     <Section id="quick-add" eyebrow="Capture fast" title="Quick Add">
+      <WorkoutStopwatch />
+
       <div className="panel p-4">
         <div className="mb-4">
           <p className="metric-label mb-3">Saved routines</p>
@@ -105,7 +108,7 @@ export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind) => void }) {
               <button
                 key={mood}
                 type="button"
-                onClick={() => onSelect("mood")}
+                onClick={() => onSelect("mood", { reason: mood })}
                 className="rounded-full border border-white/10 px-3 py-2 text-xs font-semibold capitalize text-white/68 transition hover:border-ember/60 hover:text-porcelain"
               >
                 {mood}
@@ -117,7 +120,7 @@ export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind) => void }) {
               <button
                 key={action}
                 type="button"
-                onClick={() => onSelect("mood")}
+                onClick={() => onSelect("mood", { label: action })}
                 className={`rounded-2xl px-3 py-3 text-sm font-bold text-carbon ${index === 0 ? "bg-signal" : "bg-champagne"}`}
               >
                 {action}
