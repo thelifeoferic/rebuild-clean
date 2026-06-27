@@ -29,7 +29,7 @@ import { TodayPlan } from "@/components/today-plan";
 import { getGymPreset, localGymPresets, machineCategoryFor } from "@/data/gym-presets";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import { getActivityCalorieBreakdown, getTodaysActivityCalories } from "@/lib/activity-calories";
-import { getTodaysBikeMinutes, getWeightChangeFromLast, isToday } from "@/lib/rebuild-data";
+import { getTodaysBikeMinutes, getTotalPushUps, getWeightChangeFromLast, isToday } from "@/lib/rebuild-data";
 import { getCoachInsight, getPersonalRecords, getRebuildDay, getRebuildScore, getWeeklyConsistency } from "@/lib/rebuild-insights";
 import { formatMinutes, formatWeight } from "@/lib/metrics";
 
@@ -78,6 +78,7 @@ export function HeroDashboard({
   const weightChange = getWeightChangeFromLast(data);
   const weightDetail = data.weights.length > 1 ? `${weightChange > 0 ? "+" : ""}${weightChange.toFixed(1)} lb` : "weigh-in";
   const todaysBikeMinutes = getTodaysBikeMinutes(data);
+  const totalPushUps = getTotalPushUps(data);
   const firstName = profile?.firstName?.trim();
   const avatarSrc = profile?.avatarDataUrl || profile?.avatarUrl;
   const activeQuotes = getQuotesForStyle(profile?.quoteStyle);
@@ -300,9 +301,10 @@ export function HeroDashboard({
         />
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
+      <div className="mt-4 grid grid-cols-2 gap-2">
         <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} detail={weightDetail} icon={Scale} />
         <MiniStat label="Bike" value={formatMinutes(todaysBikeMinutes)} icon={Bike} />
+        <MiniStat label="Push-ups" value={`${totalPushUps}`} detail="all time" icon={Trophy} />
         <MiniStat label="Choices" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
       </div>
 

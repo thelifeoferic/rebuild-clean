@@ -6,6 +6,7 @@ import {
   getRecentLowWeight,
   getSevenDayAverageWeight,
   getTodaysPushUps,
+  getTotalPushUps,
   getWeightChangeFromLast,
   getWeeklyBikeDistance,
   getWeeklyBikeMinutes,
@@ -22,6 +23,8 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
   const weightChange = getWeightChangeFromLast(data);
   const weightChangeLabel = data.weights.length > 1 ? `${weightChange > 0 ? "+" : ""}${weightChange.toFixed(1)} lb` : "first entry";
   const recentLow = getRecentLowWeight(data);
+  const totalPushUps = getTotalPushUps(data);
+  const todaysPushUps = getTodaysPushUps(data);
 
   return (
     <Section id="trends" eyebrow="Proof, not vibes" title="Progress Trends">
@@ -52,8 +55,8 @@ export function ProgressTrends({ data }: { data: RebuildData }) {
         <MetricCard label="Ladder" value={getBestJacobsLadderTime(data)} detail="best continuous" icon={CircleGauge} tone="gold" />
         <MetricCard
           label="Push-ups"
-          value={`${getTodaysPushUps(data)} total`}
-          detail={getPushUpMaxSet(data) ? `${getPushUpMaxSet(data)} largest set` : "reps today"}
+          value={`${totalPushUps} total`}
+          detail={getPushUpMaxSet(data) ? `${getPushUpMaxSet(data)} largest set · ${todaysPushUps} today` : "first set starts it"}
           icon={Trophy}
           tone="ember"
         />

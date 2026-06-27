@@ -7,6 +7,7 @@ import {
   getRecentLowWeight,
   getSevenDayAverageWeight,
   getTodayIso,
+  getTotalPushUps,
   getWeightChangeFromLast,
   getWeeklyBikeDistance,
   getWeeklyBikeMinutes,
@@ -158,6 +159,12 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
   const records: PersonalRecord[] = [];
   const longestRide = maxBy(data.bikeSessions, (session) => session.minutes);
   const bestPushSession = maxBy(data.pushUpSessions, (session) => Math.max(0, ...session.sets));
+  const totalPushUps = getTotalPushUps(data);
+  const cumulativePushUpHistory = data.pushUpSessions.toReversed().reduce<number[]>((history, session) => {
+    const sessionTotal = session.sets.reduce((sum, reps) => sum + reps, 0);
+    history.push((history.at(-1) ?? 0) + sessionTotal);
+    return history;
+  }, []);
   const longestLadder = maxBy(data.jacobsLadderSessions, (session) => timeToSeconds(session.longestContinuous || session.duration));
   const heaviestCarry = maxBy(data.farmerCarrySessions, (session) => session.weightEachHand);
   const heaviestMachine = maxBy(data.machineWorkoutSessions, (session) => session.weight ?? 0);
@@ -198,6 +205,18 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
     unit: "reps",
     value: getPushUpMaxSet(data) ? `${getPushUpMaxSet(data)}` : "—",
     when: bestPushSession ? formatLogDate(bestPushSession.date) : undefined,
+  });
+
+  records.push({
+    detail: totalPushUps ? "All saved push-up reps across your rebuild." : "Every logged set adds to this.",
+    history: cumulativePushUpHistory,
+    icon: "push",
+    label: "Total Push-ups",
+    logKind: "pushUps",
+    sortValue: totalPushUps,
+    unit: "reps",
+    value: totalPushUps ? `${totalPushUps}` : "—",
+    when: totalPushUps ? "All time" : undefined,
   });
 
   records.push({

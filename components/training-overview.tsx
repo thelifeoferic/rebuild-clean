@@ -6,6 +6,7 @@ import {
   getTodaysBikeDistance,
   getTodaysBikeMinutes,
   getTodaysPushUps,
+  getTotalPushUps,
   getWeeklyBikeDistance,
   getWeeklyBikeMinutes,
 } from "@/lib/rebuild-data";
@@ -62,6 +63,7 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
   const todaysPushUps = getTodaysPushUps(data);
   const todaysBikeDistance = getTodaysBikeDistance(data);
   const pushUpMax = getPushUpMaxSet(data);
+  const totalPushUps = getTotalPushUps(data);
 
   return (
     <Section id="train-overview" eyebrow="Training hub" title="Today's Work">
@@ -71,8 +73,8 @@ export function TrainingOverview({ data }: { data: RebuildData }) {
         <TrainingStat label="Ladder best" value={getBestJacobsLadderTime(data)} icon={Flame} />
         <TrainingStat
           label="Push-ups"
-          value={`${todaysPushUps} total`}
-          detail={pushUpMax ? `${pushUpMax} largest set` : "reps today"}
+          value={`${todaysPushUps} today`}
+          detail={pushUpMax ? `${pushUpMax} largest set · ${totalPushUps} all time` : "first set starts it"}
           icon={Trophy}
         />
       </div>

@@ -122,6 +122,12 @@ export function getTodaysPushUps(data: RebuildData) {
     .reduce((sum, reps) => sum + reps, 0);
 }
 
+export function getTotalPushUps(data: RebuildData) {
+  return data.pushUpSessions
+    .flatMap((session) => session.sets)
+    .reduce((sum, reps) => sum + reps, 0);
+}
+
 export function getTodaysCalories(data: RebuildData) {
   return data.meals.filter((meal) => meal.date && isToday(meal.date)).reduce((sum, meal) => sum + meal.calories, 0);
 }
