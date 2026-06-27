@@ -113,6 +113,11 @@ const visuals = [
 
 type Visual = (typeof visuals)[number];
 type VisualVariant = Visual["variant"];
+type FormMapCue = {
+  detail: string;
+  label: string;
+  tone: "keep" | "watch";
+};
 
 export function FormVisuals() {
   const [expandedVisual, setExpandedVisual] = useState<Visual | null>(null);
@@ -260,6 +265,15 @@ function MotionStage({ fullScreen = false, visual }: { fullScreen?: boolean; vis
           <stop stopColor="#d8b15f" />
           <stop offset="1" stopColor="#e15f3f" />
         </linearGradient>
+        <linearGradient id={`human-${visual.variant}`} x1="0" x2="1" y1="0" y2="1">
+          <stop stopColor="#f3d18a" />
+          <stop offset=".45" stopColor="#d8b15f" />
+          <stop offset="1" stopColor="#8f6330" />
+        </linearGradient>
+        <linearGradient id={`steel-${visual.variant}`} x1="0" x2="1">
+          <stop stopColor="#f2eee7" stopOpacity=".75" />
+          <stop offset="1" stopColor="#52565b" stopOpacity=".8" />
+        </linearGradient>
         <filter id={`soft-${visual.variant}`} x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="14" stdDeviation="9" floodColor="#000000" floodOpacity=".45" />
         </filter>
@@ -313,14 +327,15 @@ function MotionStage({ fullScreen = false, visual }: { fullScreen?: boolean; vis
         {cuePoints.slice(0, 5).map((cue, index) => {
           const y = index * 45;
           const labelLines = splitCueLines(cue.label, 12);
+          const tone = cueTone(cue.tone);
           return (
             <g key={`${cue.label}-${index}`} transform={`translate(0 ${y})`}>
-              <path d="M-66 16H-12" stroke="#2ee6a8" strokeDasharray="4 6" strokeOpacity=".58" />
-              <circle cx="0" cy="16" r="9" fill="#06150f" stroke="#2ee6a8" strokeOpacity=".62" strokeWidth="2" />
-              <text x="-3.5" y="20" fill="#2ee6a8" fontSize="9" fontWeight="900">
+              <path d="M-66 16H-12" stroke={tone.stroke} strokeDasharray="4 6" strokeOpacity=".6" />
+              <circle cx="0" cy="16" r="9" fill={tone.fill} stroke={tone.stroke} strokeOpacity=".68" strokeWidth="2" />
+              <text x="-3.5" y="20" fill={tone.stroke} fontSize="9" fontWeight="900">
                 {index + 1}
               </text>
-              <SvgTextLines x={16} y={labelLines.length > 1 ? 9 : 19} lines={labelLines} />
+              <SvgTextLines x={16} y={labelLines.length > 1 ? 9 : 19} lines={labelLines} tone={cue.tone} />
             </g>
           );
         })}
@@ -353,10 +368,24 @@ function Grid() {
 }
 
 function formMapCues(visual: Visual) {
-  return [...visual.keep, ...visual.watch].slice(0, 6).map((detail) => ({
+  return [
+    ...visual.keep.slice(0, 3).map((detail) => cueFromDetail(detail, "keep")),
+    ...visual.watch.slice(0, 2).map((detail) => cueFromDetail(detail, "watch")),
+  ];
+}
+
+function cueFromDetail(detail: string, tone: FormMapCue["tone"]): FormMapCue {
+  return {
     detail,
     label: cueLabel(detail),
-  }));
+    tone,
+  };
+}
+
+function cueTone(tone: FormMapCue["tone"]) {
+  return tone === "watch"
+    ? { fill: "#1e110d", stroke: "#e15f3f" }
+    : { fill: "#06150f", stroke: "#2ee6a8" };
 }
 
 function cueLabel(value: string) {
@@ -390,9 +419,10 @@ function splitCueLines(value: string, maxLength: number) {
   return lines.slice(0, 3);
 }
 
-function SvgTextLines({ lines, x, y }: { lines: string[]; x: number; y: number }) {
+function SvgTextLines({ lines, tone, x, y }: { lines: string[]; tone: FormMapCue["tone"]; x: number; y: number }) {
+  const color = cueTone(tone).stroke;
   return (
-    <text x={x} y={y} fill="#2ee6a8" fontSize="8" fontWeight="900" letterSpacing=".7">
+    <text x={x} y={y} fill={color} fontSize="8" fontWeight="900" letterSpacing=".7">
       {lines.map((line, index) => (
         <tspan key={`${line}-${index}`} x={x} dy={index === 0 ? 0 : 11}>
           {line}
@@ -409,8 +439,12 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
         <>
           <Wheel cx={92} cy={158} />
           <Wheel cx={232} cy={158} />
-          <path d="M92 158L154 112L232 158M154 112L142 158M154 112H214M214 112L232 158" stroke="#d8b15f" strokeWidth="7" fill="none" strokeLinecap="round" />
-          <Human head={[166, 70]} body="M166 86L154 112L130 145M154 112L205 109M154 112L190 151" />
+          <path d="M92 158L154 112L232 158M154 112L142 158M154 112H214M214 112L232 158" stroke="#08090a" strokeOpacity=".36" strokeWidth="11" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M92 158L154 112L232 158M154 112L142 158M154 112H214M214 112L232 158" stroke="#d8b15f" strokeWidth="7" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M134 96H160M206 105C218 94 229 96 239 106M142 158L158 158M150 148L134 168" stroke={`url(#steel-${variant})`} strokeWidth="5" fill="none" strokeLinecap="round" />
+          <circle cx="142" cy="158" r="13" fill="#08090a" stroke="#d8b15f" strokeWidth="3" />
+          <path d="M134 168H119M158 148H173" stroke="#f2eee7" strokeOpacity=".52" strokeWidth="4" strokeLinecap="round" />
+          <Human variant={variant} head={[166, 70]} body="M166 86L154 112L130 145M154 112L205 109M154 112L190 151" />
           <Joint x={154} y={112} />
           <Joint x={130} y={145} />
           <Joint x={190} y={151} />
@@ -420,7 +454,7 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
         <>
           <path d="M58 174H105V146H152V118H199V90H266" stroke="#d8b15f" strokeWidth="8" fill="none" strokeLinejoin="round" />
           <path d="M76 74H242" stroke="#ffffff" strokeOpacity=".20" strokeWidth="5" />
-          <Human head={[148, 58]} body="M148 74L146 110L119 146M146 110L184 110M146 110L177 146" />
+          <Human variant={variant} head={[148, 58]} body="M148 74L146 110L119 146M146 110L184 110M146 110L177 146" />
           <Joint x={146} y={110} />
           <Joint x={119} y={146} />
         </>
@@ -428,7 +462,7 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
       {variant === "rower" ? (
         <>
           <path d="M48 170H270M96 150L220 92M212 88L270 74" stroke="#d8b15f" strokeWidth="8" fill="none" strokeLinecap="round" />
-          <Human head={[126, 76]} body="M126 92L160 124L214 92M160 124L118 160M160 124L205 160" />
+          <Human variant={variant} head={[126, 76]} body="M126 92L160 124L214 92M160 124L118 160M160 124L205 160" />
           <Joint x={160} y={124} />
           <Joint x={214} y={92} />
         </>
@@ -436,8 +470,9 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
       {variant === "pulldown" ? (
         <>
           <path d="M82 42H238M160 42V76M112 76H208" stroke="#d8b15f" strokeWidth="8" fill="none" strokeLinecap="round" />
+          <path d="M238 48V184M224 58H252M224 76H252M224 94H252M224 112H252M224 130H252" stroke={`url(#steel-${variant})`} strokeWidth="3" strokeLinecap="round" opacity=".58" />
           <path d="M116 174H204" stroke="#ffffff" strokeOpacity=".18" strokeWidth="14" strokeLinecap="round" />
-          <Human head={[160, 88]} body="M160 104L160 144M160 112L112 76M160 112L208 76M160 144L132 174M160 144L188 174" />
+          <Human variant={variant} head={[160, 88]} body="M160 104L160 144M160 112L112 76M160 112L208 76M160 144L132 174M160 144L188 174" />
           <Joint x={112} y={76} />
           <Joint x={208} y={76} />
         </>
@@ -445,8 +480,9 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
       {variant === "legpress" ? (
         <>
           <path d="M76 172L235 68M228 58L270 132" stroke="#d8b15f" strokeWidth="10" fill="none" strokeLinecap="round" />
+          <path d="M232 70L272 70M246 94L286 94M260 118L300 118" stroke={`url(#steel-${variant})`} strokeWidth="5" strokeLinecap="round" opacity=".62" />
           <path d="M68 170H132" stroke="#ffffff" strokeOpacity=".16" strokeWidth="14" strokeLinecap="round" />
-          <Human head={[90, 108]} body="M106 118L152 140L226 102M152 140L104 166M152 140L214 154" />
+          <Human variant={variant} head={[90, 108]} body="M106 118L152 140L226 102M152 140L104 166M152 140L214 154" />
           <Joint x={152} y={140} />
           <Joint x={226} y={102} />
         </>
@@ -454,7 +490,7 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
       {variant === "pushup" ? (
         <>
           <path d="M58 170H268" stroke="#d8b15f" strokeWidth="7" strokeLinecap="round" />
-          <Human head={[86, 120]} body="M104 128L172 140L244 144M172 140L136 170M232 144L266 170" />
+          <Human variant={variant} head={[86, 120]} body="M104 128L172 140L244 144M172 140L136 170M232 144L266 170" />
           <path d="M104 128L244 144" stroke="#2ee6a8" strokeWidth="3" strokeLinecap="round" strokeDasharray="6 7" />
           <Joint x={172} y={140} />
           <Joint x={136} y={170} />
@@ -465,7 +501,7 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
         <>
           <path d="M86 174H236" stroke="#d8b15f" strokeWidth="7" strokeLinecap="round" />
           <path d="M92 78H226" stroke="#ffffff" strokeOpacity=".20" strokeWidth="5" strokeLinecap="round" />
-          <Human head={[154, 74]} body="M154 90L146 126L110 168M146 126L206 126M146 126L204 170" />
+          <Human variant={variant} head={[154, 74]} body="M154 90L146 126L110 168M146 126L206 126M146 126L204 170" />
           <path d="M112 168L204 170" stroke="#2ee6a8" strokeWidth="3" strokeLinecap="round" />
           <Joint x={146} y={126} />
           <Joint x={110} y={168} />
@@ -476,7 +512,7 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
         <>
           <path d="M80 150H220M152 106H272" stroke="#d8b15f" strokeWidth="9" strokeLinecap="round" />
           <circle cx="252" cy="145" r="15" fill={`url(#gold-${variant})`} />
-          <Human head={[96, 76]} body="M112 88L160 108L250 145M160 108L118 166M160 108L202 166" />
+          <Human variant={variant} head={[96, 76]} body="M112 88L160 108L250 145M160 108L118 166M160 108L202 166" />
           <Joint x={160} y={108} />
           <Joint x={250} y={145} />
         </>
@@ -484,7 +520,9 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
       {variant === "bench" ? (
         <>
           <path d="M70 154H224M88 154L66 184M210 154L238 184M96 70H224" stroke="#d8b15f" strokeWidth="8" strokeLinecap="round" />
-          <Human head={[110, 118]} body="M128 124L178 132L218 92M178 132L128 154M178 132L230 154" />
+          <circle cx="88" cy="70" r="14" fill="#08090a" stroke="#d8b15f" strokeWidth="4" />
+          <circle cx="232" cy="70" r="14" fill="#08090a" stroke="#d8b15f" strokeWidth="4" />
+          <Human variant={variant} head={[110, 118]} body="M128 124L178 132L218 92M178 132L128 154M178 132L230 154" />
           <Joint x={218} y={92} />
           <Joint x={178} y={132} />
         </>
@@ -492,7 +530,9 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
       {variant === "press" ? (
         <>
           <path d="M114 60H206" stroke="#d8b15f" strokeWidth="8" strokeLinecap="round" />
-          <Human head={[160, 86]} body="M160 102L160 146M160 108L116 62M160 108L204 62M160 146L132 176M160 146L188 176" />
+          <circle cx="106" cy="60" r="12" fill="#08090a" stroke="#d8b15f" strokeWidth="4" />
+          <circle cx="214" cy="60" r="12" fill="#08090a" stroke="#d8b15f" strokeWidth="4" />
+          <Human variant={variant} head={[160, 86]} body="M160 102L160 146M160 108L116 62M160 108L204 62M160 146L132 176M160 146L188 176" />
           <path d="M160 102V60" stroke="#2ee6a8" strokeWidth="3" strokeDasharray="7 7" />
           <Joint x={160} y={108} />
           <Joint x={116} y={62} />
@@ -502,7 +542,7 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
       {variant === "kettlebell" ? (
         <>
           <Kettlebell x={226} y={152} />
-          <Human head={[114, 82]} body="M126 96L172 120L228 152M172 120L126 170M172 120L198 172" />
+          <Human variant={variant} head={[114, 82]} body="M126 96L172 120L228 152M172 120L126 170M172 120L198 172" />
           <path d="M118 96L228 152" stroke="#2ee6a8" strokeWidth="3" strokeDasharray="7 7" />
           <Joint x={172} y={120} />
           <Joint x={228} y={152} />
@@ -521,7 +561,7 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
       {variant === "yoga" ? (
         <>
           <path d="M82 174H238" stroke="#d8b15f" strokeWidth="7" strokeLinecap="round" />
-          <Human head={[160, 70]} body="M160 86L160 120M160 120L92 172M160 120L232 172M160 96L96 122M160 96L224 122" />
+          <Human variant={variant} head={[160, 70]} body="M160 86L160 120M160 120L92 172M160 120L232 172M160 96L96 122M160 96L224 122" />
           <path d="M160 86V174" stroke="#2ee6a8" strokeWidth="3" strokeDasharray="6 8" />
           <Joint x={160} y={120} />
           <Joint x={92} y={172} />
@@ -532,40 +572,60 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
   );
 }
 
-function Human({ body, head }: { body: string; head: [number, number] }) {
+function Human({ body, head, variant }: { body: string; head: [number, number]; variant: VisualVariant }) {
   const torso = inferTorso(body, head);
+  const points = extractBodyPoints(body);
+  const extremities = points
+    .filter((point) => Math.hypot(point.x - torso.x, point.y - torso.y) > 34)
+    .slice(-5);
 
   return (
     <>
-      <path d={body} stroke="#020303" strokeOpacity=".48" strokeWidth="25" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <path d={body} stroke="#d8b15f" strokeOpacity=".88" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <path d={body} stroke="#f4efe4" strokeOpacity=".86" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d={body} stroke="#020303" strokeOpacity=".54" strokeWidth="27" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d={body} stroke={`url(#human-${variant})`} strokeOpacity=".94" strokeWidth="17" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d={body} stroke="#fff3de" strokeOpacity=".26" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       <ellipse
         cx={torso.x}
         cy={torso.y}
-        rx="15"
-        ry="28"
+        rx="18"
+        ry="30"
         transform={`rotate(${torso.angle} ${torso.x} ${torso.y})`}
-        fill="#121313"
+        fill="#151616"
         stroke="#d8b15f"
-        strokeOpacity=".58"
+        strokeOpacity=".72"
         strokeWidth="2"
       />
-      <path d={`M${head[0]} ${head[1] + 12}L${torso.x} ${torso.y - 14}`} stroke="#d8b15f" strokeWidth="8" strokeLinecap="round" strokeOpacity=".88" />
-      <circle cx={head[0]} cy={head[1]} r="15" fill="#d8b15f" stroke="#08090a" strokeOpacity=".25" strokeWidth="2" />
+      <ellipse
+        cx={torso.x}
+        cy={torso.y - 6}
+        rx="11"
+        ry="22"
+        transform={`rotate(${torso.angle} ${torso.x} ${torso.y - 6})`}
+        fill="#23231f"
+        opacity=".8"
+      />
+      {extremities.map((point, index) => (
+        <ellipse
+          key={`${point.x}-${point.y}-${index}`}
+          cx={point.x}
+          cy={point.y}
+          rx="8"
+          ry="5"
+          fill={`url(#human-${variant})`}
+          stroke="#08090a"
+          strokeOpacity=".3"
+          strokeWidth="1.4"
+        />
+      ))}
+      <path d={`M${head[0]} ${head[1] + 12}L${torso.x} ${torso.y - 16}`} stroke={`url(#human-${variant})`} strokeWidth="9" strokeLinecap="round" strokeOpacity=".95" />
+      <circle cx={head[0]} cy={head[1]} r="15" fill={`url(#human-${variant})`} stroke="#08090a" strokeOpacity=".28" strokeWidth="2" />
       <path d={`M${head[0] + 4} ${head[1] - 3}L${head[0] + 11} ${head[1] - 1}L${head[0] + 4} ${head[1] + 4}`} stroke="#08090a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity=".42" />
     </>
   );
 }
 
 function inferTorso(body: string, head: [number, number]) {
-  const values = body.match(/-?\d+(?:\.\d+)?/g)?.map(Number) ?? [];
-  const points: Array<{ x: number; y: number }> = [];
-
-  for (let index = 0; index < values.length - 1; index += 2) {
-    points.push({ x: values[index], y: values[index + 1] });
-  }
-
+  const points = extractBodyPoints(body);
   const torsoPoints = points.slice(0, Math.min(3, points.length));
   const fallback = { x: head[0], y: head[1] + 42 };
   const center = torsoPoints.length
@@ -579,12 +639,34 @@ function inferTorso(body: string, head: [number, number]) {
   return { ...center, angle };
 }
 
+function extractBodyPoints(body: string) {
+  const values = body.match(/-?\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  const points: Array<{ x: number; y: number }> = [];
+
+  for (let index = 0; index < values.length - 1; index += 2) {
+    points.push({ x: values[index], y: values[index + 1] });
+  }
+
+  return points;
+}
+
 function Wheel({ cx, cy }: { cx: number; cy: number }) {
+  const spokes = Array.from({ length: 10 }, (_, index) => (index * Math.PI) / 5);
+
   return (
     <>
       <circle cx={cx} cy={cy} r="31" fill="#08090a" stroke="#d8b15f" strokeWidth="7" />
+      <circle cx={cx} cy={cy} r="22" fill="none" stroke="#f2eee7" strokeOpacity=".14" strokeWidth="1.5" />
       <circle cx={cx} cy={cy} r="8" fill="#d8b15f" />
-      <path d={`M${cx - 20} ${cy}H${cx + 20}M${cx} ${cy - 20}V${cy + 20}`} stroke="#ffffff" strokeOpacity=".18" strokeWidth="3" />
+      {spokes.map((angle) => (
+        <path
+          key={angle}
+          d={`M${cx} ${cy}L${cx + Math.cos(angle) * 24} ${cy + Math.sin(angle) * 24}`}
+          stroke="#ffffff"
+          strokeOpacity=".13"
+          strokeWidth="1.5"
+        />
+      ))}
     </>
   );
 }
