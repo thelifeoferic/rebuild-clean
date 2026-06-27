@@ -1,4 +1,15 @@
+export type ProgressPhotoAnalysis = {
+  disclaimer: string;
+  nextActions: string[];
+  observations: string[];
+  progressPhotoTips: string[];
+  summary: string;
+  trainingPriorities: string[];
+};
+
 export type ProgressPhoto = {
+  analysis?: ProgressPhotoAnalysis;
+  analysisMock?: boolean;
   id: string;
   analysisSummary?: string;
   createdAt: string;

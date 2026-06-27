@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BikeDashboard } from "@/components/bike-dashboard";
+import { ClassSchedule } from "@/components/class-schedule";
 import { ExerciseGuides } from "@/components/exercise-guides";
 import { FormVisuals } from "@/components/form-visuals";
 import { FuelGuide } from "@/components/fuel-guide";
@@ -14,7 +15,7 @@ import { WorkoutStopwatch } from "@/components/workout-stopwatch";
 import { WorkoutPrograms } from "@/components/workout-programs";
 import type { LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
-const tabs = ["Today", "Programs", "Guides", "Meditation", "Nutrition", "Media"] as const;
+const tabs = ["Today", "Programs", "Guides", "Classes", "Meditation", "Nutrition", "Media"] as const;
 type ProgramsTab = (typeof tabs)[number];
 const programsTabIntentKey = "rebuild:programs-tab:intent";
 
@@ -83,6 +84,7 @@ export function ProgramsHub({
         </>
       ) : null}
 
+      {activeTab === "Classes" ? <ClassSchedule onOpenLog={onOpenLog} /> : null}
       {activeTab === "Meditation" ? <MeditationPrograms onOpenLog={onOpenLog} /> : null}
       {activeTab === "Nutrition" ? <FuelGuide /> : null}
       {activeTab === "Media" ? <VideoLibrary profile={profile} /> : null}

@@ -4,17 +4,16 @@ import { AlertTriangle, Camera, ImagePlus, Loader2, Save, ShieldCheck, Sparkles,
 import { useEffect, useMemo, useState } from "react";
 import { ActionButton } from "@/components/action-button";
 import { Section } from "@/components/section";
-import { deleteProgressPhoto, listProgressPhotos, saveProgressPhoto, type ProgressPhoto } from "@/lib/progress-photos";
+import {
+  deleteProgressPhoto,
+  listProgressPhotos,
+  saveProgressPhoto,
+  type ProgressPhoto,
+  type ProgressPhotoAnalysis,
+} from "@/lib/progress-photos";
 import type { OnboardingProfile } from "@/types/rebuild";
 
-type BodyAnalysis = {
-  summary: string;
-  observations: string[];
-  trainingPriorities: string[];
-  nextActions: string[];
-  progressPhotoTips: string[];
-  disclaimer: string;
-};
+type BodyAnalysis = ProgressPhotoAnalysis;
 
 type AnalysisResponse = {
   analysis: BodyAnalysis;
@@ -122,9 +121,11 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
         throw new Error(payload.error ?? "Analysis failed.");
       }
 
-      setAnalysis(normalizeAnalysis(payload.analysis));
-      setIsMock(Boolean(payload.mock));
-      setSaveStatus("Analysis ready. Save this photo if you want it in comparisons.");
+      const nextAnalysis = normalizeAnalysis(payload.analysis);
+      const nextIsMock = Boolean(payload.mock);
+      setAnalysis(nextAnalysis);
+      setIsMock(nextIsMock);
+      await saveAnalyzedPhoto(nextAnalysis, nextIsMock);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Analysis failed. Try again.");
     } finally {
@@ -139,6 +140,8 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
     setSaveStatus("");
 
     const photo: ProgressPhoto = {
+      analysis: analysis ?? undefined,
+      analysisMock: isMock || undefined,
       id: createPhotoId(),
       analysisSummary: analysis?.summary,
       createdAt: new Date().toISOString(),
@@ -152,9 +155,32 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
       setPhotos(nextPhotos);
       setSelectedAfterId(photo.id);
       if (!selectedBeforeId && nextPhotos.length > 1) setSelectedBeforeId(nextPhotos[nextPhotos.length - 1].id);
-      setSaveStatus("Photo saved to progress library.");
+      setSaveStatus(analysis ? "Body check saved to progress library." : "Photo saved to progress library.");
     } catch {
       setError("Could not save this photo on this device.");
+    }
+  }
+
+  async function saveAnalyzedPhoto(nextAnalysis: BodyAnalysis, nextIsMock: boolean) {
+    const photo: ProgressPhoto = {
+      analysis: nextAnalysis,
+      analysisMock: nextIsMock || undefined,
+      analysisSummary: nextAnalysis.summary,
+      createdAt: new Date().toISOString(),
+      id: createPhotoId(),
+      imageData,
+      note: context.trim(),
+    };
+
+    try {
+      await saveProgressPhoto(photo);
+      const nextPhotos = await listProgressPhotos();
+      setPhotos(nextPhotos);
+      setSelectedAfterId(photo.id);
+      if (!selectedBeforeId && nextPhotos.length > 1) setSelectedBeforeId(nextPhotos[nextPhotos.length - 1].id);
+      setSaveStatus("Body check saved. You can reopen this analysis from the progress library.");
+    } catch {
+      setSaveStatus("Analysis ready. Save this photo if you want it in comparisons.");
     }
   }
 
@@ -193,9 +219,9 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
     setImageData(photo.imageData);
     setFileName(`Saved ${formatPhotoDate(photo.createdAt)}`);
     setContext(photo.note ?? "");
-    setAnalysis(photo.analysisSummary ? { ...emptyAnalysis, summary: photo.analysisSummary } : null);
-    setIsMock(false);
-    setSaveStatus("Saved photo loaded as current preview.");
+    setAnalysis(photo.analysis ? normalizeAnalysis(photo.analysis) : photo.analysisSummary ? { ...emptyAnalysis, summary: photo.analysisSummary } : null);
+    setIsMock(Boolean(photo.analysisMock));
+    setSaveStatus(photo.analysis ? "Saved body check loaded." : "Saved photo loaded as current preview.");
     setError("");
   }
 
@@ -318,7 +344,7 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
           <div className="rounded-2xl border border-white/10 bg-carbon/70 p-3">
             <p className="metric-label">Privacy posture</p>
             <p className="mt-2 text-sm font-semibold leading-5 text-white/50">
-              REBUILD does not save the photo automatically. Tap Save to progress to keep it on this device for comparisons.
+              Body checks save on this device after analysis so you can revisit them. Delete any saved photo from the progress library whenever you want.
             </p>
           </div>
 
@@ -367,7 +393,10 @@ function ProgressPhotoLibrary({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="metric-label">Progress library</p>
-          <h3 className="mt-1 text-lg font-black text-porcelain">Before / after</h3>
+          <h3 className="mt-1 text-lg font-black text-porcelain">Saved body checks</h3>
+          <p className="mt-1 text-sm font-semibold leading-5 text-white/45">
+            Tap a photo to reopen its image, note, and saved analysis.
+          </p>
         </div>
         <span className="rounded-full bg-carbon px-3 py-1 text-xs font-black text-white/50">
           {photos.length} saved
@@ -406,7 +435,14 @@ function ProgressPhotoLibrary({
                 <img src={photo.imageData} alt="" className="h-full w-full object-cover" />
               </button>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-porcelain">{formatPhotoDate(photo.createdAt)}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-black text-porcelain">{formatPhotoDate(photo.createdAt)}</p>
+                  {photo.analysis ? (
+                    <span className="rounded-full bg-signal/10 px-2 py-0.5 text-[0.62rem] font-black uppercase tracking-[0.12em] text-signal">
+                      Analysis saved
+                    </span>
+                  ) : null}
+                </div>
                 <p className="mt-1 line-clamp-2 text-xs font-semibold leading-4 text-white/45">
                   {photo.note || photo.analysisSummary || "Saved progress photo"}
                 </p>

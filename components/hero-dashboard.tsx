@@ -6,6 +6,7 @@ import {
   Bike,
   BookOpen,
   Building2,
+  CalendarDays,
   CheckCircle2,
   Dumbbell,
   Flame,
@@ -668,13 +669,13 @@ function HomeGymPanel({
 function HomeSectionShortcuts({
   onOpenProgramsTab,
 }: {
-  onOpenProgramsTab: (tab: "Programs" | "Guides" | "Nutrition" | "Media") => void;
+  onOpenProgramsTab: (tab: "Programs" | "Guides" | "Classes" | "Nutrition" | "Media") => void;
 }) {
   const shortcuts = [
     {
       detail: "Plans matched to your goals and equipment.",
       icon: Dumbbell,
-      image: "/rebuild-kettlebell-outdoor.jpg",
+      image: "/rebuild-class-metcon.jpg",
       tab: "Programs" as const,
       title: "Programs",
     },
@@ -684,6 +685,13 @@ function HomeSectionShortcuts({
       image: "/rebuild-kettlebell-pushup.jpg",
       tab: "Guides" as const,
       title: "Guides",
+    },
+    {
+      detail: "Total Fitness studio schedule and class logging.",
+      icon: CalendarDays,
+      image: "/rebuild-class-studio.jpg",
+      tab: "Classes" as const,
+      title: "Classes",
     },
     {
       detail: "Protein anchors, quick foods, and calorie context.",
@@ -815,7 +823,7 @@ function ActivityBurnSheet({
   );
 }
 
-function openProgramsTab(tab: "Programs" | "Guides" | "Nutrition" | "Media", onNavigate: (view: AppView) => void) {
+function openProgramsTab(tab: "Programs" | "Guides" | "Classes" | "Nutrition" | "Media", onNavigate: (view: AppView) => void) {
   window.sessionStorage.setItem(programsTabIntentKey, tab);
   onNavigate("programs");
 }

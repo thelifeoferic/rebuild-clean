@@ -58,11 +58,11 @@ export function WorkoutPrograms({ profile }: { profile: OnboardingProfile | null
       <div className="panel p-4">
         <div className="relative mb-4 min-h-40 overflow-hidden rounded-2xl bg-black">
           <Image
-            src="/rebuild-bodyweight.jpg"
+            src="/rebuild-class-studio.jpg"
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, 448px"
-            className="object-cover object-center opacity-70"
+            className="object-cover object-center opacity-72"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4">
@@ -125,52 +125,64 @@ function ProgramCard({
   program: WorkoutProgram;
 }) {
   return (
-    <article className="rounded-2xl bg-white/[0.055] p-4">
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <div>
-          <p className="metric-label">
+    <article className="overflow-hidden rounded-2xl bg-white/[0.055] shadow-panel">
+      <div className="relative min-h-44 bg-black">
+        <Image
+          src={imageForProgram(program)}
+          alt=""
+          fill
+          sizes="(max-width: 768px) 100vw, 448px"
+          className="object-cover object-center opacity-82"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/22 to-transparent" />
+        <div className="absolute bottom-4 left-4 right-4">
+          <p className="metric-label text-white/68">
             {program.location} · {program.time}
           </p>
-          <h3 className="mt-1 text-lg font-semibold text-porcelain">{program.title}</h3>
-          <p className="mt-1 text-sm leading-5 text-white/50">{program.intent}</p>
+          <h3 className="mt-1 max-w-[18rem] text-2xl font-black uppercase leading-[0.96] tracking-normal text-white">
+            {program.title}
+          </h3>
         </div>
-        <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
-          <ClipboardList size={18} strokeWidth={2.2} aria-hidden />
+        <div className="absolute right-4 top-4 grid size-10 shrink-0 place-items-center rounded-full bg-white text-carbon">
+          <ClipboardList size={18} strokeWidth={2.3} aria-hidden />
         </div>
       </div>
-      <div className="mb-3 flex flex-wrap gap-2">
-        {program.equipment.slice(0, 4).map((item) => (
-          <span key={item} className="rounded-full bg-carbon/70 px-3 py-1 text-xs font-bold text-white/42">
-            {item}
-          </span>
-        ))}
-      </div>
-      <div className="space-y-2">
-        {program.blocks.map((block, index) => {
-          const done = Boolean(completedBlocks[blockKey(program.title, index)]);
+      <div className="p-4">
+        <p className="mb-3 text-sm leading-5 text-white/58">{program.intent}</p>
+        <div className="mb-3 flex flex-wrap gap-2">
+          {program.equipment.slice(0, 4).map((item) => (
+            <span key={item} className="rounded-full bg-carbon/70 px-3 py-1 text-xs font-bold text-white/42">
+              {item}
+            </span>
+          ))}
+        </div>
+        <div className="space-y-2">
+          {program.blocks.map((block, index) => {
+            const done = Boolean(completedBlocks[blockKey(program.title, index)]);
 
-          return (
-            <button
-              key={`${program.title}-${block}`}
-              type="button"
-              onClick={() => onToggleBlock(index)}
-              className={`flex w-full gap-3 rounded-xl p-3 text-left transition active:scale-[0.98] ${
-                done ? "bg-signal/12" : "bg-carbon/70"
-              }`}
-            >
-              <span
-                className={`grid size-6 shrink-0 place-items-center rounded-full text-xs font-bold ${
-                  done ? "bg-signal/20 text-signal" : "bg-champagne/10 text-champagne"
+            return (
+              <button
+                key={`${program.title}-${block}`}
+                type="button"
+                onClick={() => onToggleBlock(index)}
+                className={`flex w-full gap-3 rounded-xl p-3 text-left transition active:scale-[0.98] ${
+                  done ? "bg-signal/12" : "bg-carbon/70"
                 }`}
               >
-                {done ? <CheckCircle2 size={15} strokeWidth={2.4} aria-hidden /> : index + 1}
-              </span>
-              <p className={`text-sm leading-5 ${done ? "text-white/40 line-through decoration-signal/70" : "text-white/62"}`}>
-                {block}
-              </p>
-            </button>
-          );
-        })}
+                <span
+                  className={`grid size-6 shrink-0 place-items-center rounded-full text-xs font-bold ${
+                    done ? "bg-signal/20 text-signal" : "bg-champagne/10 text-champagne"
+                  }`}
+                >
+                  {done ? <CheckCircle2 size={15} strokeWidth={2.4} aria-hidden /> : index + 1}
+                </span>
+                <p className={`text-sm leading-5 ${done ? "text-white/40 line-through decoration-signal/70" : "text-white/62"}`}>
+                  {block}
+                </p>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </article>
   );
@@ -204,6 +216,16 @@ function scoreProgram(program: WorkoutProgram, profile: OnboardingProfile | null
 
 function hasAny(values: string[], targets: string[]) {
   return targets.some((target) => values.includes(target));
+}
+
+function imageForProgram(program: WorkoutProgram) {
+  if (program.location === "Pool") return "/rebuild-swim-lane.jpg";
+  if (program.location === "Recovery") return "/rebuild-yoga-light.jpg";
+  if (program.focus.includes("cardio")) return "/rebuild-air-bike.jpg";
+  if (program.equipment.some((item) => item.toLowerCase().includes("kettlebell"))) return "/rebuild-class-metcon.jpg";
+  if (program.equipment.some((item) => item.toLowerCase().includes("dumbbell"))) return "/rebuild-class-studio.jpg";
+  if (program.location === "Home") return "/rebuild-bodyweight.jpg";
+  return "/rebuild-class-silver.jpg";
 }
 
 function normalize(value: ProgramLocation | string) {
