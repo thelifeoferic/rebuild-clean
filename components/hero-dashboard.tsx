@@ -26,7 +26,7 @@ import { tidalPlaylistUrl } from "@/data/mock-data";
 import { CountUp } from "@/components/count-up";
 import { NutritionTracker } from "@/components/nutrition-tracker";
 import { TodayPlan } from "@/components/today-plan";
-import { getGymPreset, localGymPresets, machineCategoryFor } from "@/data/gym-presets";
+import { equipmentLogKindFor, getGymPreset, localGymPresets, machineCategoryFor } from "@/data/gym-presets";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import { getActivityCalorieBreakdown, getTodaysActivityCalories } from "@/lib/activity-calories";
 import { getTodaysBikeMinutes, getTotalPushUps, getWeightChangeFromLast, isToday } from "@/lib/rebuild-data";
@@ -500,6 +500,51 @@ function HomeGymPanel({
     });
   }
 
+  function openEquipmentLog(item: string) {
+    const logKind = equipmentLogKindFor(item);
+
+    if (logKind === "bike") {
+      onOpenLog("bike", { notes: `${gymName} - ${item}` });
+      return;
+    }
+
+    if (logKind === "jacobsLadder") {
+      onOpenLog("jacobsLadder", {});
+      return;
+    }
+
+    if (logKind === "kettlebell") {
+      onOpenLog("kettlebell", { exercise: "Swings" });
+      return;
+    }
+
+    if (logKind === "dumbbellCurls") {
+      onOpenLog("dumbbellCurls", { exercise: "Dumbbell curls" });
+      return;
+    }
+
+    if (logKind === "farmerCarries") {
+      onOpenLog("farmerCarries", {});
+      return;
+    }
+
+    if (logKind === "yoga") {
+      onOpenLog("yoga", { focus: item.includes("Foam") ? "Recovery" : "Mobility" });
+      return;
+    }
+
+    if (logKind === "strength") {
+      onOpenLog("strength", { exercise: strengthExerciseFor(item), notes: `${gymName} - ${item}` });
+      return;
+    }
+
+    onOpenLog("machine", {
+      category: machineCategoryFor(item),
+      gymName,
+      machine: item,
+    });
+  }
+
   return (
     <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-panel">
       <div className="relative min-h-36 bg-black">
@@ -548,16 +593,17 @@ function HomeGymPanel({
           <div className="mt-3">
             <p className="metric-label mb-2">Available here</p>
             <div className="flex gap-2 overflow-x-auto pb-1">
-              {equipment.slice(0, 12).map((item) => (
-                <span key={item} className="shrink-0 rounded-full bg-carbon px-3 py-2 text-xs font-bold text-white/62">
+              {equipment.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => openEquipmentLog(item)}
+                  className="shrink-0 rounded-full bg-carbon px-3 py-2 text-xs font-bold text-white/70 transition active:scale-[0.97]"
+                  aria-label={`Log ${item}`}
+                >
                   {item}
-                </span>
+                </button>
               ))}
-              {equipment.length > 12 ? (
-                <span className="shrink-0 rounded-full bg-carbon px-3 py-2 text-xs font-bold text-white/62">
-                  +{equipment.length - 12} more
-                </span>
-              ) : null}
             </div>
           </div>
         ) : (
@@ -685,6 +731,16 @@ function HomeSectionShortcuts({
       </div>
     </div>
   );
+}
+
+function strengthExerciseFor(item: string) {
+  const normalized = item.toLowerCase();
+  if (normalized.includes("bench")) return "Bench press";
+  if (normalized.includes("barbell")) return "Squat";
+  if (normalized.includes("squat")) return "Squat";
+  if (normalized.includes("curl")) return "Biceps curls";
+  if (normalized.includes("ez")) return "Biceps curls";
+  return item;
 }
 
 function ActivityBurnSheet({

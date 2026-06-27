@@ -38,7 +38,7 @@ export function StreakSummary({ data }: { data: RebuildData }) {
   return (
     <Section id="streaks" eyebrow="Proof, not vibes" title="Consistency">
       <div className="grid grid-cols-2 gap-2">
-        <ProofCard label="Show-up days" value={`${proofDays}`} detail="days with any saved proof" icon={CalendarCheck2} />
+        <ProofCard label="Show-up days" value={`${proofDays}`} detail="days with at least one saved log" icon={CalendarCheck2} />
         <ProofCard label="Training" value={`${trainingSessions}`} detail="movement sessions logged" icon={Activity} />
         <ProofCard label="Protein hits" value={`${proteinHits}`} detail="meals at 25g+" icon={Salad} />
         <ProofCard label="Pattern wins" value={`${patternWins}`} detail="replacement behavior logged" icon={ShieldCheck} />

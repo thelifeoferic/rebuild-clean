@@ -210,6 +210,10 @@ export function Onboarding({
 
   return (
     <section className="px-4 pb-4 pt-5">
+      <div className="mb-5 flex justify-center">
+        <RebuildWordmark align="center" className="drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]" />
+      </div>
+
       <div className="mb-4 flex items-center justify-between gap-3">
         <button
           type="button"
@@ -253,7 +257,6 @@ export function Onboarding({
             Step {step + 1} of {stepMeta.length}
           </div>
           <div className="absolute bottom-4 left-4 right-4">
-            <RebuildWordmark align="left" className="mb-5 drop-shadow-[0_2px_18px_rgba(0,0,0,0.65)]" />
             <p className="metric-label text-white/62">{currentMeta.eyebrow}</p>
             <h1 className="mt-1 text-3xl font-semibold leading-none text-porcelain">{headlineFor(step)}</h1>
           </div>

@@ -7,6 +7,9 @@ import {
   getRecentLowWeight,
   getSevenDayAverageWeight,
   getTodayIso,
+  getTodaysCalories,
+  getTodaysProtein,
+  getTodaysWaterOunces,
   getTotalPushUps,
   getWeightChangeFromLast,
   getWeeklyBikeDistance,
@@ -91,7 +94,7 @@ export function getRebuildScore(data: RebuildData, profile: OnboardingProfile | 
       weight: 20,
     },
     {
-      detail: `${streak} active day${streak === 1 ? "" : "s"} with proof.`,
+      detail: `${streak} day${streak === 1 ? "" : "s"} in a row with at least one saved log.`,
       label: "Streak length",
       score: streakScore,
       weight: 15,
@@ -126,33 +129,108 @@ export function getCoachInsight(data: RebuildData, profile: OnboardingProfile | 
   const prefix = firstName ? `${firstName}, ` : "";
 
   if (!hasAnyProof(data)) {
-    return `${prefix}your rebuild starts with one honest entry. Log a weigh-in, one movement session, or one pattern interrupt and the app will start reflecting the trend back.`;
+    const starters = [
+      "your rebuild starts with one honest entry. Log a weigh-in, one movement session, or one pattern interrupt and the app will start reflecting the trend back.",
+      "the first entry does not need to be impressive. It just needs to be true enough to give tomorrow something to build from.",
+      "start with the cleanest signal: body weight, movement, food, water, sleep, or one better choice. The system wakes up after the first log.",
+    ];
+    return `${prefix}${pickDailyInsight(starters, "empty")}`;
   }
 
   const bikeMinutes = getWeeklyBikeMinutes(data);
   const bestPush = getPushUpMaxSet(data);
+  const totalPushUps = getTotalPushUps(data);
   const patternCount = data.behaviorWins.length;
   const latestWeight = data.weights[0]?.weight;
   const weightDelta = getWeightChangeFromLast(data);
+  const todaysProtein = getTodaysProtein(data);
+  const todaysCalories = getTodaysCalories(data);
+  const todaysWater = getTodaysWaterOunces(data);
+  const workouts = workoutSessions(data);
+  const todaysWorkouts = workouts.filter((workout) => isToday(workout.date));
+  const latestWorkout = workouts.toSorted((a, b) => b.date.localeCompare(a.date))[0];
+  const streak = activeStreak(data);
+  const longestLadderSeconds = Math.max(0, ...data.jacobsLadderSessions.map((session) => timeToSeconds(session.longestContinuous || session.duration)));
+  const machineCount = data.machineWorkoutSessions.length;
+  const kettlebellReps = data.kettlebellSessions.reduce((sum, session) => sum + session.reps, 0);
+  const swimMinutes = data.swimSessions.reduce((sum, session) => sum + session.minutes, 0);
+  const yogaMinutes = data.yogaSessions.reduce((sum, session) => sum + session.minutes, 0);
+  const latestSleep = data.sleepLogs[0];
+  const candidates: string[] = [];
 
   if (patternCount >= 2) {
-    return `${prefix}you have ${patternCount} pattern interrupts logged. That is not motivation, it is replacement behavior showing up in the record.`;
+    candidates.push(`you have ${patternCount} pattern interrupts logged. That is not motivation; it is replacement behavior showing up in the record.`);
   }
 
   if (bikeMinutes > 0) {
-    return `${prefix}you have ${bikeMinutes} bike minutes logged this week. If your legs feel flat tomorrow, recovery work still counts as keeping the promise.`;
+    candidates.push(`you have ${bikeMinutes} bike minutes logged this week. If your legs feel flat tomorrow, recovery work still counts as keeping the promise.`);
   }
 
   if (bestPush > 0) {
-    return `${prefix}your best push-up set is ${bestPush}. The next useful target is not heroic; it is one cleaner set than last time.`;
+    candidates.push(`your best push-up set is ${bestPush}. The next useful target is not heroic; it is one cleaner set than last time.`);
+  }
+
+  if (totalPushUps >= 20) {
+    candidates.push(`you have ${totalPushUps} total push-ups saved. That number matters because it is accumulated identity, not one perfect workout.`);
   }
 
   if (latestWeight) {
     const direction = data.weights.length > 1 ? `, ${weightDelta > 0 ? "up" : "down"} ${Math.abs(weightDelta).toFixed(1)} lb from the last weigh-in` : "";
-    return `${prefix}your current logged weight is ${latestWeight.toFixed(1)} lb${direction}. Keep weighing in the same way so the trend stays honest.`;
+    candidates.push(`your current logged weight is ${latestWeight.toFixed(1)} lb${direction}. Keep weighing in the same way so the trend stays honest.`);
   }
 
-  return `${prefix}you have proof in the system now. The next entry does not need to be dramatic; it needs to be real.`;
+  if (streak >= 2) {
+    candidates.push(`${streak} days in a row have at least one saved log. The streak is useful because it proves the floor is getting stronger.`);
+  }
+
+  if (todaysWorkouts.length >= 2) {
+    candidates.push(`today already has ${todaysWorkouts.length} movement logs. The next high-return move might be food, water, or sleep so the training has somewhere to land.`);
+  } else if (latestWorkout) {
+    candidates.push(`your latest saved session was ${latestWorkout.title.toLowerCase()} with ${latestWorkout.detail}. The next session should make the pattern easier to repeat, not harder to recover from.`);
+  }
+
+  if (longestLadderSeconds > 0) {
+    candidates.push(`your best Jacob's Ladder effort is ${formatSeconds(longestLadderSeconds)}. That machine rewards patience; one controlled round is better than one sloppy sprint.`);
+  }
+
+  if (machineCount > 0) {
+    const latestMachine = data.machineWorkoutSessions[0];
+    candidates.push(`you have ${machineCount} gym machine log${machineCount === 1 ? "" : "s"} saved. ${latestMachine.machine} is now part of the record, so load and reps can start telling a real story.`);
+  }
+
+  if (kettlebellReps > 0) {
+    candidates.push(`you have ${kettlebellReps} kettlebell reps saved. Keep the hinge clean and let the weight follow the form, not the other way around.`);
+  }
+
+  if (todaysProtein > 0) {
+    candidates.push(`you have ${todaysProtein}g protein logged today. That is the kind of boring anchor that makes the training count later.`);
+  } else if (todaysCalories > 0) {
+    candidates.push(`you have food logged today, but no protein signal yet. Add one protein anchor and the nutrition picture gets much more useful.`);
+  } else if (data.meals.length > 0) {
+    candidates.push("no food is logged yet today. One boring protein entry is enough to keep the day visible.");
+  }
+
+  if (todaysWater > 0) {
+    candidates.push(`you have ${todaysWater} oz of water logged today. Hydration is not dramatic, but it changes how tomorrow's training feels.`);
+  }
+
+  if (latestSleep) {
+    candidates.push(`your last sleep log was ${latestSleep.hours} hours and marked ${latestSleep.quality}. Recovery is part of the rebuild, not time away from it.`);
+  }
+
+  if (swimMinutes > 0) {
+    candidates.push(`you have ${swimMinutes} swim minutes saved. That gives you a low-impact lane for conditioning when joints or legs need a break.`);
+  }
+
+  if (yogaMinutes > 0) {
+    candidates.push(`you have ${yogaMinutes} yoga or mobility minutes saved. That is not filler; it is maintenance for the body doing the work.`);
+  }
+
+  if (!candidates.length) {
+    candidates.push("you have logs in the system now. The next entry does not need to be dramatic; it needs to be real.");
+  }
+
+  return `${prefix}${pickDailyInsight(candidates, `${profile?.coachingTone ?? "calm"}:${totalProofCount(data)}`)}`;
 }
 
 export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
@@ -255,7 +333,7 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
   });
 
   records.push({
-    detail: "Consecutive days with any saved proof.",
+    detail: "Days in a row with at least one saved log.",
     history: [activeStreak(data)],
     icon: "streak",
     label: "Active Streak",
@@ -385,6 +463,28 @@ function weightTrendScore(data: RebuildData, profile: OnboardingProfile | null) 
   if (target < previous) return latest <= previous ? 85 : 45;
   if (target > previous) return latest >= previous ? 85 : 45;
   return 60;
+}
+
+function pickDailyInsight(insights: string[], seed: string) {
+  const cleanInsights = insights.filter(Boolean);
+  if (!cleanInsights.length) return "";
+  return cleanInsights[dailyIndex(`${getTodayIso()}:${seed}`, cleanInsights.length)] ?? cleanInsights[0];
+}
+
+function dailyIndex(seed: string, count: number) {
+  if (count <= 1) return 0;
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) >>> 0;
+  }
+  return hash % count;
+}
+
+function formatSeconds(seconds: number) {
+  const cleanSeconds = Math.max(0, Math.round(seconds));
+  const minutes = Math.floor(cleanSeconds / 60);
+  const remainder = cleanSeconds % 60;
+  return `${minutes}:${String(remainder).padStart(2, "0")}`;
 }
 
 function activeStreak(data: RebuildData) {

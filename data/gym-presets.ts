@@ -23,12 +23,13 @@ export const totalFitnessMachineInventory: GymMachinePreset[] = [
   { category: "Strength machine", logKind: "machine", name: "Rotary torso" },
   { category: "Strength machine", logKind: "machine", name: "Abdominal" },
   { category: "Strength machine", logKind: "machine", name: "Converging chest press" },
+  { category: "Strength machine", logKind: "machine", name: "Converging shoulder press" },
   { category: "Strength machine", logKind: "machine", name: "Inner thigh" },
   { category: "Cardio", logKind: "machine", name: "Treadmill" },
   { category: "Cardio", logKind: "machine", name: "StairMasters" },
   { category: "Cardio", logKind: "machine", name: "Elliptical machines" },
+  { category: "Cardio", logKind: "machine", name: "Concept 2 row machine" },
   { category: "Cardio", logKind: "jacobsLadder", name: "Jacob's Ladder" },
-  { category: "Free weights", logKind: "strength", name: "Bench Press" },
   { category: "Free weights", logKind: "kettlebell", name: "Kettlebells" },
   { category: "Free weights", logKind: "strength", name: "Barbells" },
   { category: "Cardio", logKind: "bike", name: "Stationary bike" },
@@ -42,6 +43,8 @@ export const totalFitnessMachineInventory: GymMachinePreset[] = [
   { category: "Strength machine", logKind: "machine", name: "Smith machine" },
   { category: "Strength machine", logKind: "machine", name: "Chest press" },
   { category: "Strength machine", logKind: "machine", name: "Shoulder press" },
+  { category: "Strength machine", logKind: "machine", name: "Lateral raise" },
+  { category: "Strength machine", logKind: "machine", name: "Bicep curl" },
   { category: "Strength machine", logKind: "machine", name: "Lat pulldown" },
   { category: "Strength machine", logKind: "machine", name: "Seated row" },
   { category: "Strength machine", logKind: "machine", name: "Cable station" },
@@ -126,6 +129,10 @@ export function getProfileMachineOptions(profile: OnboardingProfile | null): Gym
 
 export function machineCategoryFor(name: string) {
   return totalFitnessMachineInventory.find((machine) => machine.name === name)?.category ?? "Strength machine";
+}
+
+export function equipmentLogKindFor(name: string): LogKind {
+  return totalFitnessMachineInventory.find((machine) => machine.name === name)?.logKind ?? "machine";
 }
 
 function unique(items: string[]) {
