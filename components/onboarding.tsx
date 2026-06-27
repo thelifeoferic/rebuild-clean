@@ -33,6 +33,7 @@ const equipment = [
   "Dumbbells",
   "Adjustable dumbbells",
   "Barbell",
+  "Barbells",
   "EZ curl bar",
   "Trap bar",
   "Weight bench",
@@ -44,7 +45,12 @@ const equipment = [
   "Leg press",
   "Hack squat",
   "Leg extension",
+  "Seated leg curl",
   "Hamstring curl",
+  "Rotary torso",
+  "Abdominal",
+  "Converging chest press",
+  "Inner thigh",
   "Chest press",
   "Shoulder press",
   "Lat pulldown",
@@ -81,7 +87,7 @@ const behaviorFocus = [
   "Prefer not to say",
 ];
 const themeOptions = ["dark", "light", "auto"] as const;
-const accentOptions = ["ember", "white", "champagne", "volt"] as const;
+const accentOptions = ["ember", "cobalt", "white", "champagne", "volt"] as const;
 const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
 const quoteOptions = ["goggins", "calm", "athlete", "none"] as const;
 const locationOptions = ["home", "gym", "travel", "pool"] as const;

@@ -84,10 +84,15 @@ export function ProfileCard({
           </div>
         </div>
 
-        <div className="mb-3 rounded-2xl bg-white/[0.055] p-3">
+        <div className={`mb-3 rounded-2xl ${avatarSrc ? "border border-white/10 bg-transparent p-3" : "bg-white/[0.055] p-3"}`}>
           <p className="metric-label mb-2">Profile photo</p>
-          <div className="grid grid-cols-[1fr_auto] gap-2">
-            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-black text-carbon">
+          <div className={avatarSrc ? "flex items-center justify-between gap-2" : "grid grid-cols-[1fr_auto] gap-2"}>
+            {avatarSrc ? <p className="text-sm font-semibold text-white/55">Photo saved</p> : null}
+            <label
+              className={`inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-2xl px-3 text-sm font-black ${
+                avatarSrc ? "border border-white/10 bg-white/[0.055] text-white/70" : "bg-champagne text-carbon"
+              }`}
+            >
               {isUploadingAvatar ? <Loader2 size={16} className="animate-spin" aria-hidden /> : <Camera size={16} strokeWidth={2.2} aria-hidden />}
               {avatarSrc ? "Change photo" : "Add photo"}
               <input
@@ -101,7 +106,7 @@ export function ProfileCard({
               <button
                 type="button"
                 onClick={removeAvatar}
-                className="grid size-11 place-items-center rounded-2xl bg-white/[0.075] text-white/62"
+                className="grid size-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.055] text-white/62"
                 aria-label="Remove profile photo"
               >
                 <Trash2 size={16} strokeWidth={2.2} aria-hidden />

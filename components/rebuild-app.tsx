@@ -27,6 +27,7 @@ export function RebuildApp() {
   const [createDraft, setCreateDraft] = useState<Draft | null>(null);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
   const [profile, setProfile] = useState<OnboardingProfile | null>(null);
+  const [recordsResetSignal, setRecordsResetSignal] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -71,6 +72,11 @@ export function RebuildApp() {
     setProfile(nextProfile);
     window.localStorage.setItem(profileKey, JSON.stringify(nextProfile));
     setToast("Profile updated");
+  }
+
+  function navigate(view: AppView) {
+    if (view === "records") setRecordsResetSignal((current) => current + 1);
+    setActiveView(view);
   }
 
   function saveLog(kind: LogKind, draft: Draft) {
@@ -166,12 +172,13 @@ export function RebuildApp() {
   }
 
   return (
-    <AppShell activeView={activeView} onNavigate={setActiveView} profile={profile}>
+    <AppShell activeView={activeView} onNavigate={navigate} profile={profile}>
       {activeView === "home" ? (
         <HeroDashboard
           data={data}
-          onNavigate={setActiveView}
+          onNavigate={navigate}
           onOpenLog={openLog}
+          onUpdateProfile={updateProfile}
           profile={profile}
         />
       ) : null}
@@ -183,6 +190,7 @@ export function RebuildApp() {
           onDuplicate={duplicateLog}
           onEdit={openEditLog}
           onOpenLog={openLog}
+          resetSignal={recordsResetSignal}
           timeline={timeline}
         />
       ) : null}

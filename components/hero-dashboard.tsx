@@ -2,13 +2,31 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { Bike, BookOpen, CheckCircle2, Dumbbell, Flame, Headphones, LineChart, PlayCircle, Salad, Scale, ShieldCheck, Sparkles, Trophy, X } from "lucide-react";
+import {
+  Bike,
+  BookOpen,
+  Building2,
+  CheckCircle2,
+  Dumbbell,
+  Flame,
+  Headphones,
+  LineChart,
+  MapPin,
+  PlayCircle,
+  Salad,
+  Scale,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import { CountUp } from "@/components/count-up";
 import { NutritionTracker } from "@/components/nutrition-tracker";
 import { TodayPlan } from "@/components/today-plan";
+import { getGymPreset, localGymPresets, machineCategoryFor } from "@/data/gym-presets";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import { getActivityCalorieBreakdown, getTodaysActivityCalories } from "@/lib/activity-calories";
 import { getTodaysBikeMinutes, getWeightChangeFromLast, isToday } from "@/lib/rebuild-data";
@@ -47,11 +65,13 @@ export function HeroDashboard({
   data,
   onNavigate,
   onOpenLog,
+  onUpdateProfile,
   profile,
 }: {
   data: RebuildData;
   onNavigate: (view: AppView) => void;
-  onOpenLog: (kind: LogKind) => void;
+  onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
+  onUpdateProfile: (profile: OnboardingProfile) => void;
   profile: OnboardingProfile | null;
 }) {
   const todayWeight = data.weights[0]?.weight ?? 0;
@@ -100,9 +120,14 @@ export function HeroDashboard({
               </h1>
             </div>
             {avatarSrc ? (
-              <div className="size-14 shrink-0 overflow-hidden rounded-full border border-white/20 bg-black/45 shadow-panel">
+              <button
+                type="button"
+                onClick={() => onNavigate("me")}
+                className="size-14 shrink-0 overflow-hidden rounded-full border border-white/20 bg-black/45 shadow-panel"
+                aria-label="Open profile"
+              >
                 <img src={avatarSrc} alt={`${firstName || "Member"} profile`} className="h-full w-full object-cover" />
-              </div>
+              </button>
             ) : null}
           </div>
 
@@ -176,7 +201,9 @@ export function HeroDashboard({
         Start TIDAL playlist
       </a>
 
-      <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
+      <HomeGymPanel onOpenLog={onOpenLog} onUpdateProfile={onUpdateProfile} profile={profile} />
+
+      <div className="mt-4 grid gap-3">
         <ImageTile
           src="/rebuild-air-bike.jpg"
           label="Cardio"
@@ -430,6 +457,147 @@ function MiniStat({
   );
 }
 
+function HomeGymPanel({
+  onOpenLog,
+  onUpdateProfile,
+  profile,
+}: {
+  onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
+  onUpdateProfile: (profile: OnboardingProfile) => void;
+  profile: OnboardingProfile | null;
+}) {
+  if (!profile) return null;
+
+  const currentProfile = profile;
+  const selectedPreset = getGymPreset(profile.homeGymId);
+  const selectedValue = selectedPreset ? selectedPreset.id : profile.homeGymName ? "custom" : "none";
+  const equipment = profile.homeGymEquipment?.length
+    ? profile.homeGymEquipment
+    : selectedPreset?.machines.map((machine) => machine.name) ?? [];
+  const gymName = profile.homeGymName || selectedPreset?.name || "Home gym";
+  const firstMachine = equipment[0] || "Leg extension";
+
+  function chooseGym(value: string) {
+    const preset = getGymPreset(value);
+
+    if (!preset) {
+      if (value === "none") {
+        onUpdateProfile({
+          ...currentProfile,
+          homeGymAddress: undefined,
+          homeGymEquipment: [],
+          homeGymId: undefined,
+          homeGymName: undefined,
+        });
+      }
+      return;
+    }
+
+    const homeGymEquipment = preset.machines.map((machine) => machine.name);
+    onUpdateProfile({
+      ...currentProfile,
+      defaultLocation: "gym",
+      equipment: mergeUnique([...(currentProfile.equipment ?? []), ...homeGymEquipment]),
+      homeGymAddress: preset.address,
+      homeGymEquipment,
+      homeGymId: preset.id,
+      homeGymName: preset.name,
+    });
+  }
+
+  return (
+    <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-panel">
+      <div className="relative min-h-36 bg-black">
+        <Image
+          src="/rebuild-leg-press-side.jpg"
+          alt=""
+          fill
+          sizes="(max-width: 768px) 100vw, 448px"
+          className="object-cover object-center opacity-72"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/42 to-black/10" />
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="mb-3 grid size-10 place-items-center rounded-full bg-champagne text-carbon">
+            <Building2 size={18} strokeWidth={2.3} aria-hidden />
+          </div>
+          <p className="metric-label text-white/68">Home gym</p>
+          <h2 className="mt-1 text-2xl font-black uppercase leading-none text-white">{selectedValue === "none" ? "Choose your floor" : gymName}</h2>
+          {profile.homeGymAddress ? (
+            <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-white/72">
+              <MapPin size={15} strokeWidth={2.2} aria-hidden />
+              {profile.homeGymAddress}
+            </p>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="p-4">
+        <label className="block">
+          <span className="metric-label mb-2 block">Select gym</span>
+          <select
+            value={selectedValue}
+            onChange={(event) => chooseGym(event.target.value)}
+            className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-porcelain outline-none focus:border-champagne"
+          >
+            <option value="none">No home gym selected</option>
+            {localGymPresets.map((gym) => (
+              <option key={gym.id} value={gym.id}>
+                {gym.name} - {gym.city}
+              </option>
+            ))}
+            {selectedValue === "custom" ? <option value="custom">Custom gym</option> : null}
+          </select>
+        </label>
+
+        {equipment.length ? (
+          <div className="mt-3">
+            <p className="metric-label mb-2">Available here</p>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {equipment.slice(0, 12).map((item) => (
+                <span key={item} className="shrink-0 rounded-full bg-carbon px-3 py-2 text-xs font-bold text-white/62">
+                  {item}
+                </span>
+              ))}
+              {equipment.length > 12 ? (
+                <span className="shrink-0 rounded-full bg-carbon px-3 py-2 text-xs font-bold text-white/62">
+                  +{equipment.length - 12} more
+                </span>
+              ) : null}
+            </div>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm leading-5 text-white/50">Pick Total Fitness or another local preset to load that gym&apos;s machine list.</p>
+        )}
+
+        <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              onOpenLog("machine", {
+                category: machineCategoryFor(firstMachine),
+                gymName,
+                machine: firstMachine,
+              })
+            }
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-champagne px-4 text-sm font-black text-carbon shadow-glow"
+          >
+            <Dumbbell size={17} strokeWidth={2.2} aria-hidden />
+            Use gym
+          </button>
+          <button
+            type="button"
+            onClick={() => onOpenLog("bike")}
+            className="grid min-h-12 min-w-12 place-items-center rounded-2xl border border-white/10 bg-white/[0.055] text-champagne"
+            aria-label="Log cardio"
+          >
+            <Bike size={18} strokeWidth={2.2} aria-hidden />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HomeSectionShortcuts({
   onOpenProgramsTab,
 }: {
@@ -474,7 +642,7 @@ function HomeSectionShortcuts({
           <h2 className="mt-1 text-xl font-semibold text-porcelain">Where to go next</h2>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3">
         {shortcuts.map((shortcut) => {
           const Icon = shortcut.icon;
 
@@ -483,18 +651,21 @@ function HomeSectionShortcuts({
               key={shortcut.title}
               type="button"
               onClick={() => onOpenProgramsTab(shortcut.tab)}
-              className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] text-left shadow-panel active:scale-[0.98]"
+              className="group relative min-h-48 overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
             >
-              <span className="relative block min-h-24 bg-black">
-                <Image src={shortcut.image} alt="" fill sizes="50vw" className="object-cover opacity-72 transition group-active:scale-[1.02]" />
-                <span className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                <span className="absolute bottom-3 left-3 grid size-9 place-items-center rounded-full bg-champagne text-carbon">
-                  <Icon size={17} strokeWidth={2.3} aria-hidden />
+              <Image src={shortcut.image} alt="" fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover opacity-78 transition group-active:scale-[1.02]" />
+              <span className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/28 to-transparent" />
+              <span className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
+                <span>
+                  <span className="mb-3 grid size-10 place-items-center rounded-full bg-champagne text-carbon">
+                    <Icon size={18} strokeWidth={2.3} aria-hidden />
+                  </span>
+                  <span className="block text-lg font-black uppercase tracking-[0.08em] text-white">{shortcut.title}</span>
+                  <span className="mt-1 block text-sm leading-5 text-white/72">{shortcut.detail}</span>
                 </span>
-              </span>
-              <span className="block p-3">
-                <span className="block text-sm font-black uppercase tracking-[0.08em] text-porcelain">{shortcut.title}</span>
-                <span className="mt-1 block text-xs leading-4 text-white/45">{shortcut.detail}</span>
+                <span className="shrink-0 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-white">
+                  Open
+                </span>
               </span>
             </button>
           );
@@ -609,9 +780,9 @@ function ImageTile({
     <button
       type="button"
       onClick={onClick}
-      className="relative min-h-36 min-w-[74%] overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
+      className="relative min-h-44 w-full overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
     >
-      <Image src={src} alt="" fill sizes="74vw" className="object-cover opacity-78" />
+      <Image src={src} alt="" fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover opacity-78" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent" />
       <span className="absolute bottom-4 left-4 right-4">
         <span className="block text-[0.68rem] font-black uppercase tracking-[0.18em] text-white/68">{label}</span>
@@ -646,6 +817,10 @@ function HomeSignalCard({
       <p className="mt-2 line-clamp-3 text-xs leading-4 text-white/45">{detail}</p>
     </button>
   );
+}
+
+function mergeUnique(items: string[]) {
+  return Array.from(new Set(items.filter(Boolean)));
 }
 
 function greeting() {

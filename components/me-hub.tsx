@@ -40,7 +40,7 @@ const goalOptions = [
 ];
 
 const themeOptions = ["dark", "light", "auto"] as const;
-const accentOptions = ["ember", "white", "champagne", "volt"] as const;
+const accentOptions = ["ember", "cobalt", "white", "champagne", "volt"] as const;
 const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
 const quoteOptions = ["goggins", "calm", "athlete", "none"] as const;
 const locationOptions = ["home", "gym", "travel", "pool"] as const;

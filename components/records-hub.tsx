@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DailyCalendar } from "@/components/daily-calendar";
 import { PersonalRecords } from "@/components/personal-records";
 import { ProgressTrends } from "@/components/progress-trends";
@@ -17,6 +17,7 @@ export function RecordsHub({
   onDuplicate,
   onEdit,
   onOpenLog,
+  resetSignal,
   timeline,
 }: {
   data: RebuildData;
@@ -24,9 +25,14 @@ export function RecordsHub({
   onDuplicate: (kind: LogKind, id: string) => void;
   onEdit: (kind: LogKind, id: string) => void;
   onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
+  resetSignal: number;
   timeline: TimelineItem[];
 }) {
   const [activeTab, setActiveTab] = useState<RecordsTab>("Records");
+
+  useEffect(() => {
+    setActiveTab("Records");
+  }, [resetSignal]);
 
   return (
     <>
