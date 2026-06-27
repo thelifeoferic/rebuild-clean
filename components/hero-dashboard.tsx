@@ -265,7 +265,7 @@ export function HeroDashboard({
           icon={Flame}
           label="Activity burn"
           title={`${activityBurn} cal`}
-          detail="Estimated from today's saved workouts using your height and weight."
+          detail="Estimated from today's saved workouts using your profile and current weight."
           onClick={() => setShowBurnBreakdown(true)}
         />
         <HomeSignalRow

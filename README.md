@@ -74,7 +74,7 @@ If `OPENAI_API_KEY` is missing, the app shows a safe demo analysis so the screen
 
 ## Current product depth
 
-- Onboarding with first name, baseline weight, height, goals, equipment, behavior loops, and personal why
+- Onboarding with first name, age, calorie-estimate sex, baseline weight, height, goals, home gym, equipment, behavior loops, and personal why
 - Local-first workout, food, weight, swim, yoga, and reset logging
 - Calorie/protein guide on the home dashboard
 - Cloud Sync card for Supabase magic-link auth, backup, and restore

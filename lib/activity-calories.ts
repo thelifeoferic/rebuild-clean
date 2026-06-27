@@ -164,11 +164,19 @@ export function estimateDraftActivityCalories(kind: LogKind, draft: DraftLike, p
 function getBaseCalorieGuide(data: RebuildData, profile: OnboardingProfile | null) {
   const weightLb = getReferenceWeight(data, profile);
   const heightInches = parseHeightInches(profile?.height);
+  const bmr = estimateBmr({
+    age: profile?.age,
+    heightInches,
+    sex: profile?.calorieSex,
+    weightLb,
+  });
   const goalText = [...(profile?.goals ?? []), profile?.goal ?? ""].join(" ").toLowerCase();
-  const multiplier = goalText.includes("lose") || goalText.includes("weight") ? 10 : goalText.includes("muscle") ? 13 : 12;
-  const heightAdjustment = heightInches ? (heightInches - 68) * 12 : 0;
+  const isCutting = goalText.includes("lose") || goalText.includes("weight");
+  const isBuilding = goalText.includes("muscle") || goalText.includes("strength");
+  const activityFactor = isCutting ? 1.3 : isBuilding ? 1.45 : 1.38;
+  const goalAdjustment = isCutting ? -350 : isBuilding ? 150 : 0;
 
-  return clamp(roundToNearest(weightLb * multiplier + heightAdjustment, 25), 1700, 3400);
+  return clamp(roundToNearest(bmr * activityFactor + goalAdjustment, 25), 1500, 3800);
 }
 
 function getReferenceWeight(data?: RebuildData, profile?: OnboardingProfile | null) {
@@ -179,6 +187,27 @@ function caloriesFromMinutes(minutes: number, met: number, weightLb: number) {
   if (!Number.isFinite(minutes) || minutes <= 0) return 0;
   const weightKg = weightLb * 0.453592;
   return Math.round((met * 3.5 * weightKg * minutes) / 200);
+}
+
+function estimateBmr({
+  age,
+  heightInches,
+  sex,
+  weightLb,
+}: {
+  age?: number;
+  heightInches: number | null;
+  sex?: OnboardingProfile["calorieSex"];
+  weightLb: number;
+}) {
+  const weightKg = weightLb * 0.453592;
+  const heightCm = (heightInches ?? 70) * 2.54;
+  const profileAge = age && age >= 13 && age <= 100 ? age : 35;
+  const base = 10 * weightKg + 6.25 * heightCm - 5 * profileAge;
+
+  if (sex === "male") return base + 5;
+  if (sex === "female") return base - 161;
+  return base - 78;
 }
 
 function machineMet(name: string) {

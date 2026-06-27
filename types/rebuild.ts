@@ -186,8 +186,10 @@ export type AppView = "home" | "log" | "records" | "programs" | "me";
 
 export type OnboardingProfile = {
   accentColor?: "champagne" | "white" | "ember" | "volt" | "teal" | "cobalt";
+  age?: number;
   avatarDataUrl?: string;
   avatarUrl?: string;
+  calorieSex?: "male" | "female" | "prefer_not_to_say";
   firstName?: string;
   goal: string;
   goals?: string[];

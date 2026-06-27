@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, CheckCircle2, Cloud, Dumbbell, Scale, ShieldCheck, Target } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Cloud, Dumbbell, HeartPulse, Scale, ShieldCheck, Target } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { LoginPanel } from "@/components/login-panel";
@@ -94,14 +94,17 @@ const accentOptions = ["ember", "cobalt", "white", "champagne", "volt"] as const
 const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
 const quoteOptions = ["goggins", "calm", "athlete", "none"] as const;
 const locationOptions = ["home", "gym", "travel", "pool"] as const;
+const calorieSexOptions = ["male", "female", "prefer_not_to_say"] as const;
 const durationOptions = [10, 20, 25, 30, 45] as const;
 const homeGymOptions = ["none", ...localGymPresets.map((gym) => gym.id), "custom"] as const;
 
 const stepMeta = [
-  { title: "Welcome", eyebrow: "Start here", icon: ShieldCheck },
-  { title: "Baseline", eyebrow: "Tell the truth", icon: Scale },
-  { title: "Goal", eyebrow: "Choose the lane", icon: Target },
+  { title: "Welcome", eyebrow: "The first honest entry", icon: ShieldCheck },
+  { title: "Identity", eyebrow: "Make it personal", icon: CalendarDays },
+  { title: "Body", eyebrow: "Calorie baseline", icon: Scale },
+  { title: "Mission", eyebrow: "Choose the lane", icon: Target },
   { title: "Equipment", eyebrow: "Use what is real", icon: Dumbbell },
+  { title: "Mode", eyebrow: "Set the cockpit", icon: HeartPulse },
 ];
 
 export function Onboarding({
@@ -111,6 +114,8 @@ export function Onboarding({
 }) {
   const [step, setStep] = useState(0);
   const [firstName, setFirstName] = useState("");
+  const [age, setAge] = useState("");
+  const [calorieSex, setCalorieSex] = useState<NonNullable<OnboardingProfile["calorieSex"]>>("prefer_not_to_say");
   const [selectedGoals, setSelectedGoals] = useState<string[]>(["Lose weight"]);
   const [currentWeight, setCurrentWeight] = useState("");
   const [height, setHeight] = useState("");
@@ -170,7 +175,9 @@ export function Onboarding({
     const selectedHomeGym = getGymPreset(homeGymId);
     onComplete({
       accentColor,
+      age: numberOrUndefined(age),
       behaviorFocus: selectedFocus,
+      calorieSex,
       coachingTone,
       completed: true,
       currentWeight: numberOrUndefined(currentWeight),
@@ -242,6 +249,9 @@ export function Onboarding({
             className="object-cover object-center opacity-72"
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.22),rgba(0,0,0,0.35)_42%,rgba(0,0,0,0.92))]" />
+          <div className="absolute left-4 top-4 rounded-full border border-white/12 bg-black/45 px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.2em] text-white/70 backdrop-blur-md">
+            Step {step + 1} of {stepMeta.length}
+          </div>
           <div className="absolute bottom-4 left-4 right-4">
             <RebuildWordmark align="left" className="mb-5 drop-shadow-[0_2px_18px_rgba(0,0,0,0.65)]" />
             <p className="metric-label text-white/62">{currentMeta.eyebrow}</p>
@@ -253,12 +263,12 @@ export function Onboarding({
           {step === 0 ? (
             <div className="space-y-3">
               <p className="text-sm leading-5 text-white/58">
-                REBUILD starts local-first: log the next right action, protect your streaks, and sync to Supabase when you want cloud backup.
+                Welcome. REBUILD is a private record of becoming someone different. Start with the facts, then let the app reflect the pattern back.
               </p>
               <div className="grid gap-2">
-                <IntroPoint icon={Scale} title="Baseline" detail="Weight, height, target, and why." />
-                <IntroPoint icon={Target} title="Training logic" detail="Goals and equipment shape the recommendations." />
-                <IntroPoint icon={Cloud} title="Account optional" detail="Sign in with email for cloud backup, or start local first." />
+                <IntroPoint icon={Scale} title="Baseline" detail="Weight, height, age, and calorie estimate inputs." />
+                <IntroPoint icon={Target} title="Mission" detail="Goals and equipment shape the plan you see first." />
+                <IntroPoint icon={Cloud} title="Private by default" detail="Start local first, then sync to Supabase whenever you want backup." />
               </div>
             </div>
           ) : null}
@@ -266,26 +276,52 @@ export function Onboarding({
           {step === 1 ? (
             <div className="space-y-3">
               <Field label="First name" value={firstName} onChange={setFirstName} placeholder="First name" />
-              <div className="grid gap-3">
-                <Field label="Current weight" value={currentWeight} onChange={setCurrentWeight} placeholder="Current" inputMode="decimal" suffix="lb" />
-              </div>
-              <p className="rounded-2xl bg-white/[0.055] p-3 text-sm leading-5 text-white/50">
-                Height, target weight, style, and private habit loops move to Me → Setup after you enter the app.
+              <Field label="Age" value={age} onChange={setAge} placeholder="Age" inputMode="numeric" />
+              <PreferenceGroup
+                title="Sex for calorie estimates"
+                helper="Used only to make calorie guidance less generic. It is not displayed on the home screen."
+                options={calorieSexOptions}
+                selected={calorieSex}
+                onSelect={setCalorieSex}
+              />
+              <p className="rounded-2xl border border-white/10 bg-white/[0.055] p-3 text-sm leading-5 text-white/50">
+                These fields help estimate your daily baseline. They can be changed later under Me → Setup.
               </p>
             </div>
           ) : null}
 
           {step === 2 ? (
-            <ChoiceGroup
-              title="Primary goal"
-              helper="Pick one now. Add more goals later under Me → Setup."
-              options={goals}
-              selected={selectedGoals}
-              onSelect={(value) => setSelectedGoals([value])}
-            />
+            <div className="space-y-3">
+              <Field label="Current weight" value={currentWeight} onChange={setCurrentWeight} placeholder="Current" inputMode="decimal" suffix="lb" />
+              <Field label="Height" value={height} onChange={setHeight} placeholder={`5'10"`} inputMode="text" />
+              <Field label="Target weight" value={targetWeight} onChange={setTargetWeight} placeholder="Optional" inputMode="decimal" suffix="lb" />
+              <p className="rounded-2xl border border-white/10 bg-white/[0.055] p-3 text-sm leading-5 text-white/50">
+                Your calorie guide uses weight, height, age, and the estimate field from the previous step. Training burn is added on top as you log work.
+              </p>
+            </div>
           ) : null}
 
           {step === 3 ? (
+            <div className="space-y-4">
+              <ChoiceGroup
+                title="Primary goal"
+                helper="Pick one now. Add more goals later under Me → Setup."
+                options={goals}
+                selected={selectedGoals}
+                onSelect={(value) => setSelectedGoals([value])}
+              />
+              <TextArea label="Why I'm doing this" value={why} onChange={setWhy} placeholder="A sentence you want REBUILD to remember." />
+              <ChoiceGroup
+                title="Private patterns to replace"
+                helper="Optional. These stay private and only inform Coach insights."
+                options={behaviorFocus}
+                selected={selectedFocus}
+                onSelect={(value) => toggle(value, selectedFocus, setSelectedFocus)}
+              />
+            </div>
+          ) : null}
+
+          {step === 4 ? (
             <div className="space-y-4">
               <label className="block">
                 <span className="metric-label mb-2 block">Home gym</span>
@@ -339,8 +375,14 @@ export function Onboarding({
             </div>
           ) : null}
 
-          {false && step === 4 ? (
+          {step === 5 ? (
             <div className="space-y-4">
+              <div className="rounded-2xl border border-champagne/20 bg-champagne/10 p-4">
+                <p className="metric-label mb-2 text-champagne">Operating mode</p>
+                <p className="text-sm leading-5 text-white/58">
+                  These controls tune how REBUILD feels before you enter. You can change all of them later under Me.
+                </p>
+              </div>
               <PreferenceGroup
                 title="Interface"
                 helper="Light mode softens the product. Dark mode keeps the original cockpit feel."
@@ -371,19 +413,6 @@ export function Onboarding({
                   ))}
                 </div>
               </div>
-            </div>
-          ) : null}
-
-          {false && step === 5 ? (
-            <div className="space-y-4">
-              <ChoiceGroup
-                title="Behavior loops to replace"
-                helper="These become reset moments, not identity labels."
-                options={behaviorFocus}
-                selected={selectedFocus}
-                onSelect={(value) => toggle(value, selectedFocus, setSelectedFocus)}
-              />
-
               <div className="rounded-2xl border border-signal/20 bg-signal/10 p-4">
                 <p className="metric-label mb-2 text-signal">Account backup</p>
                 <p className="text-sm leading-5 text-white/58">
@@ -425,19 +454,19 @@ function mergeUnique(items: string[]) {
 
 function headlineFor(step: number) {
   if (step === 0) return "Welcome to the rebuild.";
-  if (step === 1) return "Set your baseline.";
-  if (step === 2) return "Choose the mission.";
-  if (step === 3) return "Map your tools.";
-  if (step === 4) return "Tune the experience.";
-  return "Commit the reset.";
+  if (step === 1) return "Make it yours.";
+  if (step === 2) return "Set the baseline.";
+  if (step === 3) return "Name the mission.";
+  if (step === 4) return "Map your tools.";
+  return "Tune the experience.";
 }
 
 function onboardingImageFor(step: number) {
   if (step === 0) return "/rebuild-conditioning.jpg";
-  if (step === 1) return "/rebuild-bike-room.jpg";
-  if (step === 2) return "/rebuild-leg-press-side.jpg";
-  if (step === 3) return "/rebuild-kettlebell-outdoor.jpg";
-  if (step === 4) return "/rebuild-yoga-light.jpg";
+  if (step === 1) return "/rebuild-run.jpg";
+  if (step === 2) return "/rebuild-bike-room.jpg";
+  if (step === 3) return "/rebuild-leg-press-side.jpg";
+  if (step === 4) return "/rebuild-kettlebell-outdoor.jpg";
   return "/rebuild-swim-lane.jpg";
 }
 

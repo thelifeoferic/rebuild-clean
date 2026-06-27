@@ -44,6 +44,7 @@ const accentOptions = ["ember", "cobalt", "white", "champagne", "volt"] as const
 const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
 const quoteOptions = ["goggins", "calm", "athlete", "none"] as const;
 const locationOptions = ["home", "gym", "travel", "pool"] as const;
+const calorieSexOptions = ["male", "female", "prefer_not_to_say"] as const;
 const gymSelectorOptions = ["none", ...localGymPresets.map((gym) => gym.id), "custom"] as const;
 
 export function MeHub({
@@ -114,9 +115,11 @@ function ProgressiveSetup({
 }) {
   const [draft, setDraft] = useState<OnboardingProfile>(() => ({
     accentColor: profile?.accentColor ?? "ember",
+    age: profile?.age,
     avatarDataUrl: profile?.avatarDataUrl,
     avatarUrl: profile?.avatarUrl,
     behaviorFocus: profile?.behaviorFocus ?? [],
+    calorieSex: profile?.calorieSex ?? "prefer_not_to_say",
     coachingTone: profile?.coachingTone ?? "calm",
     completed: true,
     currentWeight: profile?.currentWeight,
@@ -212,6 +215,16 @@ function ProgressiveSetup({
         </div>
 
         <div className="space-y-4">
+          <NumberField label="Age" value={draft.age} onChange={(value) => update("age", value)} />
+          <SelectGroup
+            label="Sex for calorie estimates"
+            options={calorieSexOptions}
+            value={draft.calorieSex ?? "prefer_not_to_say"}
+            onChange={(value) => update("calorieSex", value)}
+          />
+          <p className="-mt-2 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-5 text-white/42">
+            Used only for calorie math. It never appears as a public profile label.
+          </p>
           <Field label="Height" value={draft.height ?? ""} onChange={(value) => update("height", value)} placeholder={`5'10"`} />
           <Field label="Why I'm doing this" value={draft.why ?? ""} onChange={(value) => update("why", value)} placeholder="The sentence you want REBUILD to remember." />
           <NumberField label="Target weight" value={draft.targetWeight} onChange={(value) => update("targetWeight", value)} suffix="lb" />
@@ -381,7 +394,7 @@ function SelectGroup<T extends string>({
       >
         {options.map((option) => (
           <option key={option} value={option}>
-            {option}
+            {option.replaceAll("_", " ")}
           </option>
         ))}
       </select>
@@ -444,6 +457,8 @@ function SetupTile({
 function setupCompletion(profile: OnboardingProfile) {
   const fields = [
     profile.firstName,
+    profile.age,
+    profile.calorieSex,
     profile.currentWeight,
     profile.height,
     profile.targetWeight,

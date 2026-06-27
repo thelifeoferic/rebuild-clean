@@ -3,8 +3,10 @@ import type { OnboardingProfile, RebuildData } from "@/types/rebuild";
 
 type ProfileRow = {
   accent_color: OnboardingProfile["accentColor"] | null;
+  age?: number | null;
   avatar_url?: string | null;
   behavior_focus: string[] | null;
+  calorie_sex?: OnboardingProfile["calorieSex"] | null;
   coaching_tone: OnboardingProfile["coachingTone"] | null;
   completed: boolean | null;
   current_weight: number | null;
@@ -131,8 +133,10 @@ export async function loadCloudSnapshot(client: SupabaseClient) {
 function profileToRow(userId: string, profile: OnboardingProfile) {
   return {
     accent_color: profile.accentColor ?? "ember",
+    age: profile.age ?? null,
     avatar_url: profile.avatarUrl ?? null,
     behavior_focus: profile.behaviorFocus,
+    calorie_sex: profile.calorieSex ?? "prefer_not_to_say",
     coaching_tone: profile.coachingTone ?? "calm",
     completed: profile.completed,
     current_weight: profile.currentWeight ?? null,
@@ -160,8 +164,10 @@ function profileToRow(userId: string, profile: OnboardingProfile) {
 function rowToProfile(row: ProfileRow): OnboardingProfile {
   return {
     accentColor: row.accent_color ?? "ember",
+    age: row.age ?? undefined,
     avatarUrl: row.avatar_url ?? undefined,
     behaviorFocus: row.behavior_focus ?? [],
+    calorieSex: row.calorie_sex ?? "prefer_not_to_say",
     coachingTone: row.coaching_tone ?? "calm",
     completed: row.completed ?? true,
     currentWeight: row.current_weight ?? undefined,
@@ -187,18 +193,22 @@ function rowToProfile(row: ProfileRow): OnboardingProfile {
 function isMissingNewProfileColumn(error: unknown) {
   const message = error instanceof Error ? error.message : String((error as { message?: unknown })?.message ?? error);
   const lower = message.toLowerCase();
-  return lower.includes("avatar_url") || lower.includes("home_gym_");
+  return lower.includes("age") || lower.includes("avatar_url") || lower.includes("calorie_sex") || lower.includes("home_gym_");
 }
 
 function withoutNewProfileColumns<T extends {
+  age?: number | null;
   avatar_url?: string | null;
+  calorie_sex?: OnboardingProfile["calorieSex"] | null;
   home_gym_address?: string | null;
   home_gym_equipment?: string[] | null;
   home_gym_id?: string | null;
   home_gym_name?: string | null;
 }>(row: T) {
   const legacyRow = { ...row };
+  delete legacyRow.age;
   delete legacyRow.avatar_url;
+  delete legacyRow.calorie_sex;
   delete legacyRow.home_gym_address;
   delete legacyRow.home_gym_equipment;
   delete legacyRow.home_gym_id;

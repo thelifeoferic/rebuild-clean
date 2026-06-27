@@ -25,6 +25,11 @@ export function ProfileCard({
   const equipmentCount = profile?.equipment?.length ?? 0;
   const homeGymEquipment = profile?.homeGymEquipment ?? [];
   const avatarSrc = profile?.avatarDataUrl || profile?.avatarUrl;
+  const profileSignals = [
+    profile?.age ? `${profile.age} years` : null,
+    profile?.height || null,
+    profile?.targetWeight ? `${profile.targetWeight} lb target` : null,
+  ].filter(Boolean) as string[];
   const [avatarStatus, setAvatarStatus] = useState("");
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
@@ -150,6 +155,7 @@ export function ProfileCard({
         <div className="mb-3 flex flex-wrap gap-2">
           {[
             ...goals.slice(0, 4),
+            ...profileSignals,
             `${profile?.preferredTrainingMinutes ?? 25} min`,
             profile?.defaultLocation ?? "gym",
             profile?.themePreference ?? "dark",

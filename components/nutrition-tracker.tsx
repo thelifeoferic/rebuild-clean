@@ -16,12 +16,20 @@ export function NutritionTracker({
   const calories = getTodaysCalories(data);
   const protein = getTodaysProtein(data);
   const calorieGuide = getDailyCalorieGuide(data, profile, calories);
-  const proteinGuide = profile?.currentWeight ? Math.round(profile.currentWeight * 0.7) : 150;
+  const referenceWeight = data.weights[0]?.weight || profile?.currentWeight || 200;
+  const proteinGuide = Math.round(referenceWeight * 0.7);
   const calorieProgress = Math.min((calories / calorieGuide.totalGuide) * 100, 100);
   const proteinProgress = Math.min((protein / proteinGuide) * 100, 100);
   const proteinRemaining = Math.max(proteinGuide - protein, 0);
   const proteinAnchorsLeft = Math.ceil(proteinRemaining / 35);
   const todaysMeals = data.meals.filter((meal) => !meal.date || isToday(meal.date)).slice(0, 3);
+  const estimateBasis = [
+    profile?.age ? `${profile.age}y` : null,
+    profile?.height,
+    profile?.calorieSex && profile.calorieSex !== "prefer_not_to_say" ? profile.calorieSex : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
@@ -77,7 +85,7 @@ export function NutritionTracker({
           Log food
         </button>
         <p className="mt-3 text-xs leading-5 text-white/40">
-          Activity calories are estimates based on logged work, height, and weight. Adjust targets once you learn your real trend.
+          Base calories use your latest weight{estimateBasis ? `, ${estimateBasis}` : ""}. Activity burn is estimated from logged work and current body weight.
         </p>
       </div>
     </div>

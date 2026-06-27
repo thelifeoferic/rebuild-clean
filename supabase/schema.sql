@@ -8,7 +8,9 @@ create table if not exists public.rebuild_profiles (
   goal text not null default 'Rebuild discipline',
   goals text[] not null default '{}',
   theme_preference text not null default 'dark',
-  accent_color text not null default 'champagne',
+  accent_color text not null default 'ember',
+  age integer,
+  calorie_sex text not null default 'prefer_not_to_say',
   coaching_tone text not null default 'calm',
   quote_style text not null default 'goggins',
   preferred_training_minutes integer not null default 25,
@@ -31,8 +33,10 @@ create table if not exists public.rebuild_profiles (
 
 alter table public.rebuild_profiles add column if not exists theme_preference text not null default 'dark';
 alter table public.rebuild_profiles add column if not exists avatar_url text;
-alter table public.rebuild_profiles add column if not exists accent_color text not null default 'champagne';
-alter table public.rebuild_profiles alter column accent_color set default 'champagne';
+alter table public.rebuild_profiles add column if not exists accent_color text not null default 'ember';
+alter table public.rebuild_profiles alter column accent_color set default 'ember';
+alter table public.rebuild_profiles add column if not exists age integer;
+alter table public.rebuild_profiles add column if not exists calorie_sex text not null default 'prefer_not_to_say';
 alter table public.rebuild_profiles add column if not exists coaching_tone text not null default 'calm';
 alter table public.rebuild_profiles add column if not exists quote_style text not null default 'goggins';
 alter table public.rebuild_profiles add column if not exists preferred_training_minutes integer not null default 25;
