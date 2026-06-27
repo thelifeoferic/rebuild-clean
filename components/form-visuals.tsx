@@ -197,11 +197,11 @@ export function FormVisuals() {
                 <X size={21} strokeWidth={2.2} aria-hidden />
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-y-auto pb-[calc(7rem+env(safe-area-inset-bottom))]">
               <div className="overflow-hidden rounded-[1.75rem] border border-white/10 shadow-panel">
                 <MotionStage visual={expandedVisual} fullScreen />
               </div>
-              <div className="mt-3 grid gap-3 pb-6 md:grid-cols-2">
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <CueBlock icon="keep" title="Keep" items={expandedVisual.keep} />
                 <CueBlock icon="watch" title="Watch" items={expandedVisual.watch} />
               </div>
@@ -242,7 +242,7 @@ function MotionStage({ fullScreen = false, visual }: { fullScreen?: boolean; vis
   return (
     <svg
       viewBox="0 0 520 320"
-      className={`${fullScreen ? "h-[min(72vh,620px)] min-h-[320px]" : "h-64"} w-full bg-carbon`}
+      className={`${fullScreen ? "max-h-[68vh]" : ""} aspect-[520/320] w-full bg-carbon`}
       role="img"
       aria-label={`${visual.title} form map`}
     >
@@ -279,18 +279,28 @@ function MotionStage({ fullScreen = false, visual }: { fullScreen?: boolean; vis
       </g>
 
       <g transform="translate(26 94)">
-        <rect width="116" height="154" rx="16" fill="#08090a" fillOpacity=".42" stroke="#ffffff" strokeOpacity=".12" />
-        {cuePoints.slice(0, 6).map((cue, index) => (
-          <g key={cue.label} transform={`translate(18 ${26 + index * 22})`}>
-            <circle cx="0" cy="0" r="8" fill="#06150f" stroke="#2ee6a8" strokeOpacity=".48" strokeWidth="2" />
-            <text x="-3.5" y="4" fill="#2ee6a8" fontSize="9" fontWeight="900">
-              {index + 1}
-            </text>
-            <text x="20" y="4" fill="#f2eee7" fontSize="7.8" fontWeight="800" letterSpacing=".8">
-              {cue.label.toUpperCase()}
-            </text>
-          </g>
-        ))}
+        <rect width="112" height="122" rx="16" fill="#08090a" fillOpacity=".42" stroke="#ffffff" strokeOpacity=".12" />
+        <text x="16" y="25" fill="#f2eee7" fontSize="9" fontWeight="900" letterSpacing="1.6">
+          READ THE MAP
+        </text>
+        <g transform="translate(18 52)">
+          <circle cx="0" cy="0" r="8" fill="#06150f" stroke="#2ee6a8" strokeOpacity=".62" strokeWidth="2" />
+          <text x="18" y="-2" fill="#2ee6a8" fontSize="8.5" fontWeight="900" letterSpacing="1.1">
+            GREEN
+          </text>
+          <text x="18" y="12" fill="#f2eee7" fillOpacity=".58" fontSize="7.4" fontWeight="700">
+            hold form
+          </text>
+        </g>
+        <g transform="translate(18 86)">
+          <circle cx="0" cy="0" r="8" fill="#1e110d" stroke="#e15f3f" strokeOpacity=".7" strokeWidth="2" />
+          <text x="18" y="-2" fill="#e15f3f" fontSize="8.5" fontWeight="900" letterSpacing="1.1">
+            EMBER
+          </text>
+          <text x="18" y="12" fill="#f2eee7" fillOpacity=".58" fontSize="7.4" fontWeight="700">
+            fix early
+          </text>
+        </g>
       </g>
 
       <g transform="translate(148 74) scale(.82)">
@@ -302,6 +312,7 @@ function MotionStage({ fullScreen = false, visual }: { fullScreen?: boolean; vis
       <g transform="translate(374 58)">
         {cuePoints.slice(0, 5).map((cue, index) => {
           const y = index * 45;
+          const labelLines = splitCueLines(cue.label, 12);
           return (
             <g key={`${cue.label}-${index}`} transform={`translate(0 ${y})`}>
               <path d="M-66 16H-12" stroke="#2ee6a8" strokeDasharray="4 6" strokeOpacity=".58" />
@@ -309,12 +320,7 @@ function MotionStage({ fullScreen = false, visual }: { fullScreen?: boolean; vis
               <text x="-3.5" y="20" fill="#2ee6a8" fontSize="9" fontWeight="900">
                 {index + 1}
               </text>
-              <text x="16" y="12" fill="#2ee6a8" fontSize="8.1" fontWeight="900" letterSpacing=".9">
-                {cue.label.toUpperCase()}
-              </text>
-              <text x="16" y="29" fill="#f2eee7" fillOpacity=".72" fontSize="7.6" fontWeight="600">
-                {truncateCue(cue.detail, 25)}
-              </text>
+              <SvgTextLines x={16} y={labelLines.length > 1 ? 9 : 19} lines={labelLines} />
             </g>
           );
         })}
@@ -356,7 +362,7 @@ function formMapCues(visual: Visual) {
 function cueLabel(value: string) {
   const clean = value.replace(/[^a-zA-Z0-9 /-]/g, "").trim();
   const words = clean.split(/\s+/).filter(Boolean);
-  return words.slice(0, Math.min(words.length, 2)).join(" ");
+  return words.slice(0, Math.min(words.length, 3)).join(" ");
 }
 
 function shortMapTitle(value: string) {
@@ -368,8 +374,32 @@ function shortMapTitle(value: string) {
     .slice(0, 15);
 }
 
-function truncateCue(value: string, maxLength: number) {
-  return value.length > maxLength ? `${value.slice(0, maxLength - 1)}…` : value;
+function splitCueLines(value: string, maxLength: number) {
+  const words = value.toUpperCase().split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+
+  words.forEach((word) => {
+    const current = lines[lines.length - 1];
+    if (!current || `${current} ${word}`.length > maxLength) {
+      lines.push(word);
+      return;
+    }
+    lines[lines.length - 1] = `${current} ${word}`;
+  });
+
+  return lines.slice(0, 3);
+}
+
+function SvgTextLines({ lines, x, y }: { lines: string[]; x: number; y: number }) {
+  return (
+    <text x={x} y={y} fill="#2ee6a8" fontSize="8" fontWeight="900" letterSpacing=".7">
+      {lines.map((line, index) => (
+        <tspan key={`${line}-${index}`} x={x} dy={index === 0 ? 0 : 11}>
+          {line}
+        </tspan>
+      ))}
+    </text>
+  );
 }
 
 function VariantDrawing({ variant }: { variant: VisualVariant }) {
@@ -503,13 +533,50 @@ function VariantDrawing({ variant }: { variant: VisualVariant }) {
 }
 
 function Human({ body, head }: { body: string; head: [number, number] }) {
+  const torso = inferTorso(body, head);
+
   return (
     <>
-      <circle cx={head[0]} cy={head[1]} r="15" fill="#d8b15f" />
-      <path d={body} stroke="#08090a" strokeOpacity=".34" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <path d={body} stroke="#f2eee7" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d={body} stroke="#020303" strokeOpacity=".48" strokeWidth="25" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d={body} stroke="#d8b15f" strokeOpacity=".88" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d={body} stroke="#f4efe4" strokeOpacity=".86" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <ellipse
+        cx={torso.x}
+        cy={torso.y}
+        rx="15"
+        ry="28"
+        transform={`rotate(${torso.angle} ${torso.x} ${torso.y})`}
+        fill="#121313"
+        stroke="#d8b15f"
+        strokeOpacity=".58"
+        strokeWidth="2"
+      />
+      <path d={`M${head[0]} ${head[1] + 12}L${torso.x} ${torso.y - 14}`} stroke="#d8b15f" strokeWidth="8" strokeLinecap="round" strokeOpacity=".88" />
+      <circle cx={head[0]} cy={head[1]} r="15" fill="#d8b15f" stroke="#08090a" strokeOpacity=".25" strokeWidth="2" />
+      <path d={`M${head[0] + 4} ${head[1] - 3}L${head[0] + 11} ${head[1] - 1}L${head[0] + 4} ${head[1] + 4}`} stroke="#08090a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity=".42" />
     </>
   );
+}
+
+function inferTorso(body: string, head: [number, number]) {
+  const values = body.match(/-?\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  const points: Array<{ x: number; y: number }> = [];
+
+  for (let index = 0; index < values.length - 1; index += 2) {
+    points.push({ x: values[index], y: values[index + 1] });
+  }
+
+  const torsoPoints = points.slice(0, Math.min(3, points.length));
+  const fallback = { x: head[0], y: head[1] + 42 };
+  const center = torsoPoints.length
+    ? {
+        x: torsoPoints.reduce((sum, point) => sum + point.x, 0) / torsoPoints.length,
+        y: torsoPoints.reduce((sum, point) => sum + point.y, 0) / torsoPoints.length,
+      }
+    : fallback;
+  const angle = (Math.atan2(center.y - head[1], center.x - head[0]) * 180) / Math.PI - 90;
+
+  return { ...center, angle };
 }
 
 function Wheel({ cx, cy }: { cx: number; cy: number }) {
