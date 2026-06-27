@@ -6,6 +6,7 @@ import type { FormEvent, HTMLAttributes } from "react";
 import { FoodPresetPicker } from "@/components/food-preset-picker";
 import type { FoodPreset } from "@/data/food-presets";
 import { getProfileMachineOptions, machineCategoryFor } from "@/data/gym-presets";
+import { estimateBikeDistanceMiles } from "@/lib/bike-distance";
 import { getTodayIso, normalizeLogDate } from "@/lib/rebuild-data";
 import type { LogKind, MoodReason, OnboardingProfile } from "@/types/rebuild";
 
@@ -154,6 +155,14 @@ export function LogModal({
 
   if (!kind) return null;
   const activeKind = kind;
+  const estimatedBikeDistance = activeKind === "bike" && number(draft.minutes) > 0 && number(draft.distanceMiles) <= 0
+    ? estimateBikeDistanceMiles({
+        calories: number(draft.calories),
+        minutes: number(draft.minutes),
+        resistance: number(draft.resistance),
+        weightLb: profile?.currentWeight,
+      })
+    : 0;
 
   function update(name: string, value: string | boolean) {
     setDraft((current) => ({ ...current, [name]: value }));
@@ -219,6 +228,11 @@ export function LogModal({
               <DateField value={String(draft.date)} onChange={update} />
               <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
               <Field label="Distance" name="distanceMiles" value={String(draft.distanceMiles)} onChange={update} inputMode="decimal" suffix="mi" />
+              {estimatedBikeDistance ? (
+                <p className="rounded-2xl border border-white/10 bg-white/[0.055] px-3 py-2 text-sm font-semibold leading-5 text-white/50">
+                  Leave distance blank to use an estimated {formatBikeDistance(estimatedBikeDistance)} based on time, resistance, calories, and weight.
+                </p>
+              ) : null}
               <Field label="Resistance" name="resistance" value={String(draft.resistance)} onChange={update} inputMode="numeric" />
               <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
               <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
@@ -414,6 +428,15 @@ function selectedFoodNames(draft: LogDraft) {
     .split("||")
     .map((name) => name.trim())
     .filter(Boolean);
+}
+
+function number(value: unknown) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatBikeDistance(value: number) {
+  return `${value.toFixed(value >= 10 ? 1 : 2)} mi`;
 }
 
 function DateField({

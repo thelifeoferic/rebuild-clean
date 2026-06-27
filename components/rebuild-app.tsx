@@ -10,6 +10,7 @@ import { ProgramsHub } from "@/components/programs-hub";
 import { QuickAdd } from "@/components/quick-add";
 import { RecordsHub } from "@/components/records-hub";
 import { estimateDraftActivityCalories } from "@/lib/activity-calories";
+import { estimateBikeDistanceMiles } from "@/lib/bike-distance";
 import { buildTimeline, cloneSeedData, createId, getTodayIso, normalizeLogDate, normalizeRebuildData, storageKey } from "@/lib/rebuild-data";
 import type { AppView, LogKind, MoodReason, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
@@ -467,14 +468,25 @@ function bikeFromDraft(
   data?: RebuildData,
 ) {
   const savedCalories = number(draft.calories);
+  const minutes = number(draft.minutes);
+  const resistance = number(draft.resistance);
+  const calories = savedCalories > 0 ? savedCalories : estimateDraftActivityCalories("bike", draft, profile, data);
+  const savedDistance = number(draft.distanceMiles);
+  const estimatedDistance = estimateBikeDistanceMiles({
+    calories,
+    minutes,
+    resistance,
+    weightLb: data?.weights[0]?.weight || profile?.currentWeight,
+  });
 
   return {
     id,
     date: dateFromDraft(draft),
-    minutes: number(draft.minutes),
-    distanceMiles: number(draft.distanceMiles),
-    resistance: number(draft.resistance),
-    calories: savedCalories > 0 ? savedCalories : estimateDraftActivityCalories("bike", draft, profile, data),
+    minutes,
+    distanceEstimated: savedDistance <= 0 && estimatedDistance > 0,
+    distanceMiles: savedDistance > 0 ? savedDistance : estimatedDistance,
+    resistance,
+    calories,
     notes: text(draft.notes, "Logged from Quick Add."),
     location,
   };
@@ -632,7 +644,7 @@ function draftFromLog(data: RebuildData, kind: LogKind, id: string): Draft | nul
       ? {
           date: editDate(session.date),
           minutes: String(session.minutes),
-          distanceMiles: String(session.distanceMiles ?? ""),
+          distanceMiles: session.distanceEstimated ? "" : String(session.distanceMiles ?? ""),
           resistance: String(session.resistance),
           calories: String(session.calories),
           notes: session.notes,

@@ -29,6 +29,7 @@ import { TodayPlan } from "@/components/today-plan";
 import { equipmentLogKindFor, getGymPreset, localGymPresets, machineCategoryFor } from "@/data/gym-presets";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import { getActivityCalorieBreakdown, getTodaysActivityCalories } from "@/lib/activity-calories";
+import { bikeDistanceForSession } from "@/lib/bike-distance";
 import { getTodaysBikeMinutes, getTotalPushUps, getWeightChangeFromLast, isToday } from "@/lib/rebuild-data";
 import { getCoachInsight, getPersonalRecords, getRebuildDay, getRebuildScore, getWeeklyConsistency } from "@/lib/rebuild-insights";
 import { formatMinutes, formatWeight } from "@/lib/metrics";
@@ -51,6 +52,13 @@ const quotes = [
     style: "goggins",
   },
   { line: "Analyze your schedule, kill your empty habits, burn out the bullshit, and see what's left.", source: "David Goggins", style: "goggins" },
+  { line: "Nobody cares what you did yesterday. What have you done today to better yourself?", source: "David Goggins", style: "goggins" },
+  { line: "The only way to gain mental toughness is to do things you're not happy doing.", source: "David Goggins", style: "goggins" },
+  {
+    line: "When you're driven, whatever is in front of you, whether it's racism, sexism, injuries, divorce, depression, obesity, tragedy, or poverty, becomes fuel for your metamorphosis.",
+    source: "David Goggins",
+    style: "goggins",
+  },
   { line: "Take care of your body. It's the only place you have to live.", source: "Jim Rohn", style: "calm" },
   { line: "Look in the mirror. That's your competition.", source: "John Assaraf", style: "athlete" },
   { line: "We are what we repeatedly do. Excellence then is not an act, but a habit.", source: "Aristotle", style: "calm" },
@@ -330,7 +338,8 @@ function randomQuoteIndex(length: number, current?: number) {
 function getLatestHomeEntry(data: RebuildData) {
   const latestRide = data.bikeSessions[0];
   if (latestRide) {
-    const distance = latestRide.distanceMiles ? ` · ${latestRide.distanceMiles.toFixed(1)} mi` : "";
+    const rideDistance = bikeDistanceForSession(latestRide);
+    const distance = rideDistance ? ` · ${rideDistance.toFixed(1)} mi${latestRide.distanceEstimated || !latestRide.distanceMiles ? " est." : ""}` : "";
     return {
       detail: `${latestRide.minutes} minutes${distance} · ${latestRide.calories} calories saved.`,
       title: "Bike ride saved",

@@ -1,4 +1,5 @@
 import { seedData } from "@/data/mock-data";
+import { bikeDistanceForSession } from "@/lib/bike-distance";
 import type { RebuildData, TimelineItem } from "@/types/rebuild";
 
 export const storageKey = "rebuild:data:v3";
@@ -89,7 +90,7 @@ export function getWeeklyBikeMinutes(data: RebuildData) {
 }
 
 export function getWeeklyBikeDistance(data: RebuildData) {
-  return roundDistance(data.bikeSessions.reduce((sum, session) => sum + (session.distanceMiles ?? 0), 0));
+  return roundDistance(data.bikeSessions.reduce((sum, session) => sum + bikeDistanceForSession(session), 0));
 }
 
 export function getTodaysBikeMinutes(data: RebuildData) {
@@ -100,7 +101,7 @@ export function getTodaysBikeDistance(data: RebuildData) {
   return roundDistance(
     data.bikeSessions
       .filter((session) => isToday(session.date))
-      .reduce((sum, session) => sum + (session.distanceMiles ?? 0), 0),
+      .reduce((sum, session) => sum + bikeDistanceForSession(session), 0),
   );
 }
 
@@ -184,7 +185,8 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
   });
 
   data.bikeSessions.slice(0, 3).forEach((ride) => {
-    const distance = ride.distanceMiles ? ` · ${formatDistance(ride.distanceMiles)}` : "";
+    const rideDistance = bikeDistanceForSession(ride);
+    const distance = rideDistance ? ` · ${formatDistance(rideDistance)}${ride.distanceEstimated || !ride.distanceMiles ? " est." : ""}` : "";
     items.push({
       id: `tl-${ride.id}`,
       date: formatLogDate(ride.date),

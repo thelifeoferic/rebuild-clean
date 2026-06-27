@@ -182,8 +182,10 @@ function CueBlock({ icon, items, title }: { icon: "keep" | "watch"; items: reado
 }
 
 function MotionStage({ visual }: { visual: Visual }) {
+  const cuePoints = formMapCues(visual);
+
   return (
-    <svg viewBox="0 0 320 210" className="h-56 w-full bg-carbon" role="img" aria-label={`${visual.title} form visual`}>
+    <svg viewBox="0 0 520 320" className="h-72 w-full bg-carbon" role="img" aria-label={`${visual.title} form map`}>
       <defs>
         <radialGradient id={`aura-${visual.variant}`} cx="50%" cy="40%" r="70%">
           <stop stopColor="#2ee6a8" stopOpacity=".20" />
@@ -203,14 +205,69 @@ function MotionStage({ visual }: { visual: Visual }) {
         </filter>
       </defs>
       <rect width="320" height="210" fill={`url(#aura-${visual.variant})`} />
+      <rect width="520" height="320" fill={`url(#aura-${visual.variant})`} />
+      <rect x="8" y="8" width="504" height="304" rx="28" fill="none" stroke="#ffffff" strokeOpacity=".16" />
       <Grid />
-      <path d="M26 174H294" stroke="#f2eee7" strokeOpacity=".12" strokeWidth="2" />
-      <path d="M44 182C98 165 214 165 276 182" stroke="#d8b15f" strokeOpacity=".28" strokeWidth="2" fill="none" />
-      <VariantDrawing variant={visual.variant} />
-      <g transform="translate(20 18)">
-        <rect width="92" height="28" rx="14" fill="#08090a" fillOpacity=".62" stroke="#ffffff" strokeOpacity=".10" />
-        <text x="14" y="18" fill="#d8b15f" fontSize="10" fontWeight="700" letterSpacing="1.6">
+
+      <g transform="translate(24 24)">
+        <rect width="132" height="48" rx="18" fill="#08090a" fillOpacity=".58" stroke="#ffffff" strokeOpacity=".12" />
+        <text x="18" y="25" fill="#d8b15f" fontSize="15" fontWeight="800" letterSpacing="4">
           FORM MAP
+        </text>
+        <text x="18" y="43" fill="#2ee6a8" fontSize="11" fontWeight="800" letterSpacing="5">
+          {visual.title.toUpperCase().slice(0, 18)}
+        </text>
+      </g>
+
+      <g transform="translate(26 94)">
+        <rect width="116" height="154" rx="16" fill="#08090a" fillOpacity=".42" stroke="#ffffff" strokeOpacity=".12" />
+        {cuePoints.slice(0, 6).map((cue, index) => (
+          <g key={cue.label} transform={`translate(18 ${26 + index * 22})`}>
+            <circle cx="0" cy="0" r="8" fill="#06150f" stroke="#2ee6a8" strokeOpacity=".48" strokeWidth="2" />
+            <text x="-3.5" y="4" fill="#2ee6a8" fontSize="9" fontWeight="900">
+              {index + 1}
+            </text>
+            <text x="20" y="4" fill="#f2eee7" fontSize="8.5" fontWeight="800" letterSpacing="1.4">
+              {cue.label.toUpperCase().slice(0, 16)}
+            </text>
+          </g>
+        ))}
+      </g>
+
+      <g transform="translate(146 74) scale(.82)">
+        <path d="M26 174H294" stroke="#f2eee7" strokeOpacity=".12" strokeWidth="2" />
+        <path d="M44 182C98 165 214 165 276 182" stroke="#d8b15f" strokeOpacity=".28" strokeWidth="2" fill="none" />
+        <VariantDrawing variant={visual.variant} />
+      </g>
+
+      <g transform="translate(382 58)">
+        {cuePoints.slice(0, 5).map((cue, index) => {
+          const y = index * 45;
+          return (
+            <g key={`${cue.label}-${index}`} transform={`translate(0 ${y})`}>
+              <path d="M-78 16H-12" stroke="#2ee6a8" strokeDasharray="4 6" strokeOpacity=".58" />
+              <circle cx="0" cy="16" r="9" fill="#06150f" stroke="#2ee6a8" strokeOpacity=".62" strokeWidth="2" />
+              <text x="-3.5" y="20" fill="#2ee6a8" fontSize="9" fontWeight="900">
+                {index + 1}
+              </text>
+              <text x="18" y="12" fill="#2ee6a8" fontSize="9" fontWeight="900" letterSpacing="1.6">
+                {cue.label.toUpperCase().slice(0, 18)}
+              </text>
+              <text x="18" y="29" fill="#f2eee7" fillOpacity=".72" fontSize="8.5" fontWeight="600">
+                {cue.detail.slice(0, 34)}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+
+      <g transform="translate(26 268)">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="#2ee6a8" strokeWidth="4" />
+        <text x="34" y="11" fill="#2ee6a8" fontSize="10" fontWeight="900" letterSpacing="2">
+          IDEAL ZONE
+        </text>
+        <text x="34" y="28" fill="#f2eee7" fillOpacity=".62" fontSize="9" fontWeight="600">
+          Stay inside the green cues under fatigue.
         </text>
       </g>
     </svg>
@@ -219,15 +276,28 @@ function MotionStage({ visual }: { visual: Visual }) {
 
 function Grid() {
   return (
-    <g opacity=".16">
-      {[0, 1, 2, 3, 4, 5].map((index) => (
-        <path key={`h-${index}`} d={`M22 ${54 + index * 24}H298`} stroke="#ffffff" strokeWidth=".8" />
+    <g opacity=".13">
+      {[0, 1, 2, 3, 4, 5, 6].map((index) => (
+        <path key={`h-${index}`} d={`M154 ${62 + index * 34}H370`} stroke="#ffffff" strokeWidth=".8" />
       ))}
       {[0, 1, 2, 3, 4, 5, 6].map((index) => (
-        <path key={`v-${index}`} d={`M${42 + index * 40} 38V176`} stroke="#ffffff" strokeWidth=".8" />
+        <path key={`v-${index}`} d={`M${166 + index * 34} 42V272`} stroke="#ffffff" strokeWidth=".8" strokeDasharray="7 9" />
       ))}
     </g>
   );
+}
+
+function formMapCues(visual: Visual) {
+  return [...visual.keep, ...visual.watch].slice(0, 6).map((detail) => ({
+    detail,
+    label: cueLabel(detail),
+  }));
+}
+
+function cueLabel(value: string) {
+  const clean = value.replace(/[^a-zA-Z0-9 /-]/g, "").trim();
+  const words = clean.split(/\s+/).filter(Boolean);
+  return words.slice(0, Math.min(words.length, 3)).join(" ");
 }
 
 function VariantDrawing({ variant }: { variant: VisualVariant }) {

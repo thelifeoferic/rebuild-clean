@@ -1,4 +1,5 @@
 import type { LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
+import { bikeDistanceForSession } from "@/lib/bike-distance";
 import {
   daysBetweenCalendarDates,
   formatLogDate,
@@ -262,8 +263,8 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
   });
 
   records.push({
-    detail: getWeeklyBikeDistance(data) ? "Current saved bike distance." : "Log bike distance to unlock this.",
-    history: data.bikeSessions.map((session) => session.distanceMiles ?? 0),
+    detail: getWeeklyBikeDistance(data) ? "Current bike distance, with estimates when mileage was not entered." : "First ride unlocks estimated bike miles.",
+    history: data.bikeSessions.map((session) => bikeDistanceForSession(session)),
     icon: "distance",
     label: "Bike Miles",
     logKind: "bike",
@@ -418,7 +419,16 @@ export function allProofDates(data: RebuildData) {
 
 function workoutSessions(data: RebuildData) {
   return [
-    ...data.bikeSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.minutes} min${item.distanceMiles ? ` · ${item.distanceMiles} mi` : ""}`, kind: "bike" as LogKind, minutes: item.minutes, title: "Bike session" })),
+    ...data.bikeSessions.map((item) => {
+      const distance = bikeDistanceForSession(item);
+      return {
+        date: normalizeLogDate(item.date),
+        detail: `${item.minutes} min${distance ? ` · ${distance} mi${item.distanceEstimated || !item.distanceMiles ? " est." : ""}` : ""}`,
+        kind: "bike" as LogKind,
+        minutes: item.minutes,
+        title: "Bike session",
+      };
+    }),
     ...data.jacobsLadderSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.duration} total · ${item.longestContinuous} continuous`, kind: "jacobsLadder" as LogKind, minutes: Math.round(timeToSeconds(item.duration) / 60), title: "Jacob's Ladder" })),
     ...data.pushUpSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.sets.reduce((sum, reps) => sum + reps, 0)} total reps`, kind: "pushUps" as LogKind, minutes: 5, title: "Push-ups" })),
     ...data.dumbbellCurlSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.weight} lb · ${item.repsEachArm * 2} total reps`, kind: "dumbbellCurls" as LogKind, minutes: 8, title: item.exercise ?? "Dumbbell curls" })),

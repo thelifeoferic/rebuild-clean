@@ -225,16 +225,18 @@ export function Onboarding({
           <ArrowLeft size={18} strokeWidth={2.2} aria-hidden />
         </button>
 
-        <div className="flex items-center gap-2">
-          {stepMeta.map((item, index) => (
-            <button
-              key={item.title}
-              type="button"
-              onClick={() => setStep(index)}
-              className={`h-2.5 rounded-full transition-all ${index === step ? "w-8 bg-champagne" : "w-2.5 bg-white/18"}`}
-              aria-label={`Go to ${item.title}`}
-            />
-          ))}
+        <div
+          className="h-2 w-36 overflow-hidden rounded-full bg-white/12"
+          aria-label={`Onboarding step ${step + 1} of ${stepMeta.length}`}
+          aria-valuemax={stepMeta.length}
+          aria-valuemin={1}
+          aria-valuenow={step + 1}
+          role="progressbar"
+        >
+          <div
+            className="h-full rounded-full bg-champagne transition-all duration-300 ease-out"
+            style={{ width: `${((step + 1) / stepMeta.length) * 100}%` }}
+          />
         </div>
 
         <div className="grid size-11 place-items-center rounded-full bg-champagne/10 text-champagne">
@@ -250,7 +252,7 @@ export function Onboarding({
             fill
             priority
             sizes="(max-width: 768px) 100vw, 448px"
-            className="object-cover object-center opacity-72"
+            className={`object-cover opacity-72 ${onboardingImageClassFor(step)}`}
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.22),rgba(0,0,0,0.35)_42%,rgba(0,0,0,0.92))]" />
           <div className="absolute left-4 top-4 rounded-full border border-white/12 bg-black/45 px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.2em] text-white/70 backdrop-blur-md">
@@ -471,6 +473,14 @@ function onboardingImageFor(step: number) {
   if (step === 3) return "/rebuild-leg-press-side.jpg";
   if (step === 4) return "/rebuild-kettlebell-outdoor.jpg";
   return "/rebuild-swim-lane.jpg";
+}
+
+function onboardingImageClassFor(step: number) {
+  if (step === 1) return "object-[58%_22%]";
+  if (step === 2) return "object-[58%_36%]";
+  if (step === 3) return "object-[58%_30%]";
+  if (step === 4) return "object-[48%_44%]";
+  return "object-center";
 }
 
 function IntroPoint({

@@ -4,6 +4,7 @@ import { Bike, CalendarDays, ChevronLeft, ChevronRight, Copy, Dumbbell, Flame, P
 import { useMemo, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { Section } from "@/components/section";
+import { bikeDistanceForSession } from "@/lib/bike-distance";
 import { formatLogDate, getTodayIso, normalizeLogDate, timeToSeconds } from "@/lib/rebuild-data";
 import type { LogKind, RebuildData } from "@/types/rebuild";
 
@@ -185,13 +186,16 @@ function getDayEntries(data: RebuildData, selectedDate: string): DayEntry[] {
     });
   });
 
-  data.bikeSessions.filter((entry) => matches(entry.date)).forEach((entry) => entries.push({
-    detail: `${entry.minutes} minutes${entry.distanceMiles ? ` - ${entry.distanceMiles} mi` : ""} - resistance ${entry.resistance}`,
-    id: entry.id,
-    kind: "bike",
-    stat: `${entry.calories} cal`,
-    title: "Bike session",
-  }));
+  data.bikeSessions.filter((entry) => matches(entry.date)).forEach((entry) => {
+    const distance = bikeDistanceForSession(entry);
+    entries.push({
+      detail: `${entry.minutes} minutes${distance ? ` - ${distance} mi${entry.distanceEstimated || !entry.distanceMiles ? " est." : ""}` : ""} - resistance ${entry.resistance}`,
+      id: entry.id,
+      kind: "bike",
+      stat: `${entry.calories} cal`,
+      title: "Bike session",
+    });
+  });
 
   data.jacobsLadderSessions.filter((entry) => matches(entry.date)).forEach((entry) => entries.push({
     detail: `${entry.duration} total - ${entry.longestContinuous} longest continuous`,
