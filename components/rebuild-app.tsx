@@ -20,6 +20,7 @@ type EditTarget = {
   kind: LogKind;
 };
 const profileKey = "rebuild:profile:v2";
+const accentMigrationKey = "rebuild:accent-default-cobalt:v1";
 
 export function RebuildApp() {
   const [data, setData] = useState<RebuildData>(() => cloneSeedData());
@@ -40,7 +41,19 @@ export function RebuildApp() {
         const restored = normalizeRebuildData(JSON.parse(stored) as Partial<RebuildData>);
         setData(restored);
       }
-      if (storedProfile) setProfile(JSON.parse(storedProfile) as OnboardingProfile);
+      if (storedProfile) {
+        const parsedProfile = JSON.parse(storedProfile) as OnboardingProfile;
+        const migratedProfile =
+          !window.localStorage.getItem(accentMigrationKey) && parsedProfile.accentColor === "ember"
+            ? { ...parsedProfile, accentColor: "cobalt" as const }
+            : parsedProfile;
+
+        if (migratedProfile !== parsedProfile) {
+          window.localStorage.setItem(profileKey, JSON.stringify(migratedProfile));
+        }
+        window.localStorage.setItem(accentMigrationKey, "true");
+        setProfile(migratedProfile);
+      }
     } catch {
       setToast("Using fresh local data");
     }

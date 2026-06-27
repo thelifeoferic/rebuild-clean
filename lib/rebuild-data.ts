@@ -86,11 +86,15 @@ export function getSevenDayAverageWeight(data: RebuildData) {
 }
 
 export function getWeeklyBikeMinutes(data: RebuildData) {
-  return data.bikeSessions.reduce((sum, session) => sum + session.minutes, 0);
+  return data.bikeSessions.filter((session) => isCurrentWeek(session.date)).reduce((sum, session) => sum + session.minutes, 0);
 }
 
 export function getWeeklyBikeDistance(data: RebuildData) {
-  return roundDistance(data.bikeSessions.reduce((sum, session) => sum + bikeDistanceForSession(session), 0));
+  return roundDistance(
+    data.bikeSessions
+      .filter((session) => isCurrentWeek(session.date))
+      .reduce((sum, session) => sum + bikeDistanceForSession(session), 0),
+  );
 }
 
 export function getTodaysBikeMinutes(data: RebuildData) {
@@ -147,6 +151,17 @@ export function getLatestSleep(data: RebuildData) {
 
 export function isToday(date: string) {
   return normalizeLogDate(date) === getTodayIso();
+}
+
+export function isCurrentWeek(date: string) {
+  const today = getTodayIso();
+  const dayOfWeek = dateFromIso(today).getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const start = addDaysIso(today, mondayOffset);
+  const end = addDaysIso(start, 6);
+  const normalized = normalizeLogDate(date);
+
+  return normalized >= start && normalized <= end;
 }
 
 export function getRecentLowWeight(data: RebuildData) {

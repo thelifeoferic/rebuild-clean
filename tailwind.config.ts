@@ -19,7 +19,7 @@ const config: Config = {
         porcelain: "rgb(var(--color-porcelain) / <alpha-value>)",
       },
       boxShadow: {
-        glow: "0 0 40px rgba(232, 91, 62, 0.2)",
+        glow: "0 0 40px rgb(var(--color-accent) / 0.24)",
         panel: "0 24px 80px rgba(0, 0, 0, 0.45)",
       },
       fontFamily: {

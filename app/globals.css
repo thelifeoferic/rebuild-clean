@@ -7,9 +7,9 @@
   --color-carbon: 5 6 7;
   --color-graphite: 18 19 17;
   --color-steel: 45 43 38;
-  --color-accent: 232 91 62;
+  --color-accent: 16 106 159;
   --color-ember: 232 91 62;
-  --color-signal: 246 243 237;
+  --color-signal: 16 106 159;
   --color-porcelain: 246 243 237;
   --app-bg: #08090a;
   background: #08090a;
@@ -30,7 +30,7 @@ body {
   margin: 0;
   color: rgb(var(--color-porcelain));
   background:
-    linear-gradient(180deg, rgba(232, 91, 62, 0.12), transparent 26rem),
+    linear-gradient(180deg, rgba(var(--color-accent), 0.14), transparent 26rem),
     radial-gradient(circle at 20% -10%, rgba(246, 243, 237, 0.08), transparent 18rem),
     var(--app-bg);
 }
@@ -80,18 +80,43 @@ button:active {
   --app-bg: #08090a;
 }
 
+.theme-auto {
+  color-scheme: dark;
+  --color-carbon: 5 6 7;
+  --color-graphite: 18 19 17;
+  --color-steel: 45 43 38;
+  --color-porcelain: 246 243 237;
+  --app-bg: #08090a;
+}
+
 .theme-light {
   color-scheme: light;
-  --color-carbon: 251 248 242;
+  --color-carbon: 251 250 247;
   --color-graphite: 255 255 255;
-  --color-steel: 229 223 213;
+  --color-steel: 226 226 224;
   --color-porcelain: 18 22 26;
-  --app-bg: #f6f1e8;
+  --app-bg: #f7f7f4;
   background:
-    linear-gradient(180deg, rgba(var(--color-accent), 0.18), transparent 22rem),
-    radial-gradient(circle at 86% 2%, rgba(var(--color-signal), 0.08), transparent 17rem),
+    linear-gradient(180deg, rgba(var(--color-accent), 0.1), transparent 22rem),
+    radial-gradient(circle at 86% 2%, rgba(18, 22, 26, 0.05), transparent 17rem),
     var(--app-bg);
   color: rgb(var(--color-porcelain));
+}
+
+@media (prefers-color-scheme: light) {
+  .theme-auto {
+    color-scheme: light;
+    --color-carbon: 251 250 247;
+    --color-graphite: 255 255 255;
+    --color-steel: 226 226 224;
+    --color-porcelain: 18 22 26;
+    --app-bg: #f7f7f4;
+    background:
+      linear-gradient(180deg, rgba(var(--color-accent), 0.1), transparent 22rem),
+      radial-gradient(circle at 86% 2%, rgba(18, 22, 26, 0.05), transparent 17rem),
+      var(--app-bg);
+    color: rgb(var(--color-porcelain));
+  }
 }
 
 .accent-champagne {
@@ -122,6 +147,11 @@ button:active {
 .accent-volt {
   --color-accent: 190 242 100;
   --color-signal: 190 242 100;
+}
+
+.accent-cobalt .bg-champagne.text-carbon,
+.accent-cobalt .bg-champagne .text-carbon {
+  color: #fff;
 }
 
 .contrast-panel,
@@ -192,7 +222,7 @@ button:active {
 
 .theme-light .panel {
   border-color: rgba(18, 22, 26, 0.1);
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.88);
   box-shadow: 0 24px 70px rgba(52, 42, 24, 0.12);
 }
 
@@ -203,15 +233,18 @@ button:active {
 
 .theme-light .bg-white\/10,
 .theme-light .bg-white\/\[0\.045\],
-.theme-light .bg-white\/\[0\.055\] {
-  background-color: rgba(255, 255, 255, 0.72);
+.theme-light .bg-white\/\[0\.055\],
+.theme-light .bg-white\/\[0\.06\],
+.theme-light .bg-white\/\[0\.08\] {
+  background-color: rgba(255, 255, 255, 0.86);
 }
 
 .theme-light .bg-carbon,
 .theme-light .bg-carbon\/70,
 .theme-light .bg-carbon\/80,
+.theme-light .bg-carbon\/85,
 .theme-light .bg-carbon\/92 {
-  background-color: rgba(255, 255, 255, 0.82);
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 .theme-light .text-porcelain {
@@ -238,6 +271,31 @@ button:active {
 .theme-light .text-white\/70,
 .theme-light .text-white\/75 {
   color: rgba(18, 22, 26, 0.58);
+}
+
+.theme-light .text-white\/80,
+.theme-light .text-white\/82,
+.theme-light .text-white\/85,
+.theme-light .text-white\/90 {
+  color: rgba(18, 22, 26, 0.78);
+}
+
+.theme-light .text-porcelain {
+  color: rgb(var(--color-porcelain));
+}
+
+.theme-light .panel .text-white,
+.theme-light .bg-carbon .text-white,
+.theme-light .bg-carbon\/70 .text-white,
+.theme-light .bg-carbon\/80 .text-white,
+.theme-light .bg-carbon\/85 .text-white,
+.theme-light .bg-carbon\/92 .text-white,
+.theme-light .bg-white\/10 .text-white,
+.theme-light .bg-white\/\[0\.045\] .text-white,
+.theme-light .bg-white\/\[0\.055\] .text-white,
+.theme-light .bg-white\/\[0\.06\] .text-white,
+.theme-light .bg-white\/\[0\.08\] .text-white {
+  color: rgb(var(--color-porcelain));
 }
 
 .theme-light .metric-label {

@@ -1,17 +1,23 @@
 "use client";
 
-import { Flag, Pause, Play, RotateCcw, Timer } from "lucide-react";
+import { BellRing, Flag, Pause, Play, RotateCcw, Timer } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 type StopwatchState = {
+  alarmDismissed?: boolean;
+  alarmMinutes?: number;
   elapsedMs: number;
   laps: number[];
   running: boolean;
   startedAt: number | null;
 };
 
+const alarmOptions = [5, 10, 20, 30] as const;
+
 const storageKey = "rebuild:workout-stopwatch:v1";
 const initialState: StopwatchState = {
+  alarmDismissed: false,
+  alarmMinutes: 0,
   elapsedMs: 0,
   laps: [],
   running: false,
@@ -29,6 +35,8 @@ export function WorkoutStopwatch() {
       if (stored) {
         const parsed = JSON.parse(stored) as Partial<StopwatchState>;
         setState({
+          alarmDismissed: Boolean(parsed.alarmDismissed),
+          alarmMinutes: Number(parsed.alarmMinutes) || 0,
           elapsedMs: Number(parsed.elapsedMs) || 0,
           laps: Array.isArray(parsed.laps) ? parsed.laps.map(Number).filter(Number.isFinite).slice(0, 6) : [],
           running: Boolean(parsed.running),
@@ -55,6 +63,14 @@ export function WorkoutStopwatch() {
 
   const elapsedMs = useMemo(() => currentElapsed(state, now), [now, state]);
   const latestLap = state.laps[0];
+  const alarmTargetMs = (state.alarmMinutes ?? 0) * 60_000;
+  const alarmActive = alarmTargetMs > 0 && elapsedMs >= alarmTargetMs && !state.alarmDismissed;
+
+  useEffect(() => {
+    if (!alarmActive) return;
+    window.navigator.vibrate?.([180, 90, 180]);
+    playAlarmTone();
+  }, [alarmActive]);
 
   function start() {
     setState((current) => (current.running ? current : { ...current, running: true, startedAt: Date.now() }));
@@ -77,8 +93,20 @@ export function WorkoutStopwatch() {
   }
 
   function reset() {
-    setState(initialState);
+    setState((current) => ({ ...initialState, alarmMinutes: current.alarmMinutes ?? 0 }));
     setNow(Date.now());
+  }
+
+  function setAlarm(minutes: number) {
+    setState((current) => ({
+      ...current,
+      alarmDismissed: false,
+      alarmMinutes: current.alarmMinutes === minutes ? 0 : minutes,
+    }));
+  }
+
+  function dismissAlarm() {
+    setState((current) => ({ ...current, alarmDismissed: true }));
   }
 
   return (
@@ -91,16 +119,57 @@ export function WorkoutStopwatch() {
             {state.running ? "Running" : latestLap ? `Last split ${formatElapsed(latestLap)}` : "Ready"}
           </p>
         </div>
-        <div className="grid size-12 shrink-0 place-items-center rounded-full bg-ember/14 text-ember">
+        <div className="grid size-12 shrink-0 place-items-center rounded-full bg-champagne/14 text-champagne">
           <Timer size={22} strokeWidth={2.2} aria-hidden />
         </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-white/10 bg-carbon/70 p-3">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <BellRing size={16} className="text-champagne" strokeWidth={2.2} aria-hidden />
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-white/58">Alarm</p>
+          </div>
+          <p className="text-xs font-bold text-white/45">{state.alarmMinutes ? `${state.alarmMinutes} min` : "Off"}</p>
+        </div>
+        <div className="grid grid-cols-5 gap-2">
+          <button
+            type="button"
+            onClick={() => setAlarm(0)}
+            className={`min-h-10 rounded-xl border px-2 text-xs font-black ${
+              !state.alarmMinutes ? "border-champagne bg-champagne text-white" : "border-white/10 bg-white/[0.055] text-white/60"
+            }`}
+          >
+            Off
+          </button>
+          {alarmOptions.map((minutes) => (
+            <button
+              key={minutes}
+              type="button"
+              onClick={() => setAlarm(minutes)}
+              className={`min-h-10 rounded-xl border px-2 text-xs font-black ${
+                state.alarmMinutes === minutes ? "border-champagne bg-champagne text-white" : "border-white/10 bg-white/[0.055] text-white/60"
+              }`}
+            >
+              {minutes}
+            </button>
+          ))}
+        </div>
+        {alarmActive ? (
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-champagne/25 bg-champagne/12 px-3 py-2">
+            <p className="text-sm font-black text-porcelain">Alarm reached</p>
+            <button type="button" onClick={dismissAlarm} className="rounded-full bg-champagne px-3 py-1.5 text-xs font-black text-white">
+              Dismiss
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         <button
           type="button"
           onClick={state.running ? pause : start}
-          className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-ember px-3 text-sm font-black text-white shadow-glow active:scale-[0.97]"
+          className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-black text-white shadow-glow active:scale-[0.97]"
         >
           {state.running ? <Pause size={17} strokeWidth={2.4} aria-hidden /> : <Play size={17} strokeWidth={2.4} aria-hidden />}
           {state.running ? "Pause" : "Start"}
@@ -156,4 +225,25 @@ function formatElapsed(ms: number) {
 
 function pad(value: number) {
   return String(value).padStart(2, "0");
+}
+
+function playAlarmTone() {
+  try {
+    const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const context = new AudioContextClass();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.frequency.value = 880;
+    oscillator.type = "sine";
+    gain.gain.setValueAtTime(0.001, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.5);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.55);
+  } catch {
+    // Some mobile browsers block audio until the user has interacted; vibration still handles the alarm.
+  }
 }

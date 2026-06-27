@@ -65,8 +65,8 @@ export function getRebuildScore(data: RebuildData, profile: OnboardingProfile | 
     };
   }
 
-  const weeklyGoal = Math.max(1, Math.round((profile?.preferredTrainingMinutes ?? 25) >= 30 ? 4 : 3));
-  const workouts = workoutSessions(data);
+  const weeklyGoal = getWeeklyMovementGoal(profile);
+  const workouts = weeklyWorkoutSessions(data);
   const workoutScore = clamp((workouts.length / weeklyGoal) * 100);
   const patternScore = clamp((data.behaviorWins.length / 3) * 100);
   const weightScore = weightTrendScore(data, profile);
@@ -396,14 +396,28 @@ export function getRecentQuickWin(data: RebuildData) {
 }
 
 export function getWeeklyConsistency(data: RebuildData, profile: OnboardingProfile | null) {
-  const goal = Math.max(3, Math.round(((profile?.preferredTrainingMinutes ?? 25) / 30) * 4));
-  const sessions = workoutSessions(data).length;
+  const goal = getWeeklyMovementGoal(profile);
+  const sessions = weeklyWorkoutSessions(data).length;
   return {
     goal,
     percent: clamp((sessions / goal) * 100),
     sessions,
-    summary: sessions ? `You've logged ${sessions} movement session${sessions === 1 ? "" : "s"} against a ${goal}-session weekly target.` : "Your first workout will start the weekly consistency line.",
+    summary: sessions ? `You've logged ${sessions} movement session${sessions === 1 ? "" : "s"} this week against a ${goal}-session target.` : "Your first workout this week will start the consistency line.",
   };
+}
+
+export function getWeeklyMovementGoal(profile: OnboardingProfile | null) {
+  const goals = [...(profile?.goals ?? []), profile?.goal ?? ""].join(" ").toLowerCase();
+  const preferredMinutes = profile?.preferredTrainingMinutes ?? 25;
+  let target = 5;
+
+  if (preferredMinutes >= 45) target -= 1;
+  if (preferredMinutes <= 20) target += 1;
+  if (goals.includes("cardio") || goals.includes("weight") || goals.includes("discipline")) target += 1;
+  if (goals.includes("strength") || goals.includes("muscle")) target = Math.max(target, 5);
+  if (goals.includes("stress") || goals.includes("sleep") || goals.includes("recovery")) target = Math.max(4, target - 1);
+
+  return Math.max(4, Math.min(6, target));
 }
 
 export function allProofDates(data: RebuildData) {
@@ -439,6 +453,10 @@ function workoutSessions(data: RebuildData) {
     ...data.swimSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.minutes} min · ${item.distance} yd`, kind: "swim" as LogKind, minutes: item.minutes, title: "Swim" })),
     ...data.yogaSessions.map((item) => ({ date: normalizeLogDate(item.date), detail: `${item.minutes} min · ${item.focus}`, kind: "yoga" as LogKind, minutes: item.minutes, title: "Yoga" })),
   ];
+}
+
+function weeklyWorkoutSessions(data: RebuildData) {
+  return workoutSessions(data).filter((session) => isCurrentWeek(session.date));
 }
 
 function machineWorkoutDetail(item: RebuildData["machineWorkoutSessions"][number]) {
@@ -542,6 +560,22 @@ function addDays(iso: string, days: number) {
   const date = new Date(year, month - 1, day);
   date.setDate(date.getDate() + days);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function isCurrentWeek(iso: string) {
+  const today = getTodayIso();
+  const dayOfWeek = dateFromIso(today).getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const start = addDays(today, mondayOffset);
+  const end = addDays(start, 6);
+  const normalized = normalizeLogDate(iso);
+
+  return normalized >= start && normalized <= end;
+}
+
+function dateFromIso(iso: string) {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(year, month - 1, day);
 }
 
 function clamp(value: number) {

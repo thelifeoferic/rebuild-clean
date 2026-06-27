@@ -8,6 +8,7 @@ import {
   Building2,
   CalendarDays,
   CheckCircle2,
+  Clock3,
   Dumbbell,
   Flame,
   Headphones,
@@ -27,6 +28,7 @@ import { tidalPlaylistUrl } from "@/data/mock-data";
 import { CountUp } from "@/components/count-up";
 import { NutritionTracker } from "@/components/nutrition-tracker";
 import { TodayPlan } from "@/components/today-plan";
+import { classesForDay, currentStudioDay } from "@/data/class-schedule";
 import { equipmentLogKindFor, getGymPreset, localGymPresets, machineCategoryFor } from "@/data/gym-presets";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import { getActivityCalorieBreakdown, getTodaysActivityCalories } from "@/lib/activity-calories";
@@ -256,7 +258,12 @@ export function HeroDashboard({
         </div>
       ) : null}
 
-      <HomeGymPanel onOpenLog={onOpenLog} onUpdateProfile={onUpdateProfile} profile={profile} />
+      <HomeGymPanel
+        onOpenClasses={() => openProgramsTab("Classes", onNavigate)}
+        onOpenLog={onOpenLog}
+        onUpdateProfile={onUpdateProfile}
+        profile={profile}
+      />
 
       <div className="mt-4 space-y-2">
         <div className="mb-3">
@@ -453,10 +460,12 @@ function MiniStat({
 }
 
 function HomeGymPanel({
+  onOpenClasses,
   onOpenLog,
   onUpdateProfile,
   profile,
 }: {
+  onOpenClasses: () => void;
   onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
   onUpdateProfile: (profile: OnboardingProfile) => void;
   profile: OnboardingProfile | null;
@@ -473,6 +482,9 @@ function HomeGymPanel({
   );
   const gymName = currentProfile?.homeGymName || selectedPreset?.name || "Home gym";
   const selectedMachineForLog = selectedMachine || equipment[0] || "Leg extension";
+  const studioDay = currentStudioDay();
+  const todaysStudioClasses = selectedPreset?.id === "total-fitness-29-palms" ? classesForDay(studioDay) : [];
+  const nextStudioClasses = todaysStudioClasses.slice(0, 2);
 
   useEffect(() => {
     if (!equipment.length) return;
@@ -598,6 +610,58 @@ function HomeGymPanel({
             {selectedValue === "custom" ? <option value="custom">Custom gym</option> : null}
           </select>
         </label>
+
+        {selectedPreset?.id === "total-fitness-29-palms" ? (
+          <div className="mt-4 rounded-[1.35rem] border border-ember/18 bg-gradient-to-br from-ember/12 via-white/[0.045] to-white/[0.025] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="metric-label text-white/48">Today at Total Fitness</p>
+                <h3 className="mt-1 text-xl font-black uppercase leading-none text-porcelain">
+                  {todaysStudioClasses.length ? `${todaysStudioClasses.length} studio classes` : "Open floor"}
+                </h3>
+                <p className="mt-2 text-sm font-semibold leading-5 text-white/52">
+                  The schedule is tied to this gym. Tap a class to log it, or open the full week.
+                </p>
+              </div>
+              <div className="grid size-11 shrink-0 place-items-center rounded-full bg-ember text-white">
+                <CalendarDays size={18} strokeWidth={2.3} aria-hidden />
+              </div>
+            </div>
+
+            {nextStudioClasses.length ? (
+              <div className="mt-3 grid gap-2">
+                {nextStudioClasses.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onOpenLog(item.logKind, item.logDraft)}
+                    className="flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-carbon px-3 py-2 text-left transition active:scale-[0.98]"
+                    aria-label={`Log ${item.title}`}
+                  >
+                    <span>
+                      <span className="block text-sm font-black text-porcelain">{item.title}</span>
+                      <span className="mt-0.5 flex items-center gap-1 text-xs font-bold uppercase tracking-[0.1em] text-white/42">
+                        <Clock3 size={12} strokeWidth={2.3} aria-hidden />
+                        {item.start}
+                      </span>
+                    </span>
+                    <span className="shrink-0 rounded-full bg-white/8 px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em] text-white/58">
+                      Log
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            <button
+              type="button"
+              onClick={onOpenClasses}
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black uppercase tracking-[0.08em] text-carbon active:scale-[0.98]"
+            >
+              View full schedule
+            </button>
+          </div>
+        ) : null}
 
         {equipment.length ? (
           <div className="mt-3">

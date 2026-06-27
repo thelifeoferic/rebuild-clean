@@ -24,38 +24,40 @@ export function AppShell({
   showNavigation?: boolean;
 }) {
   const themePreference = profile?.themePreference ?? "dark";
-  const themeClass = themePreference === "light" ? "theme-light" : "theme-dark";
-  const accentClass = `accent-${profile?.accentColor ?? "ember"}`;
+  const themeClass = themePreference === "light" ? "theme-light" : themePreference === "auto" ? "theme-auto" : "theme-dark";
+  const accentClass = `accent-${profile?.accentColor ?? "cobalt"}`;
 
   return (
-    <main className={`mx-auto min-h-screen w-full max-w-md ${themeClass} ${accentClass} ${showNavigation ? "pb-24" : "pb-8"}`}>
+    <main className={`mx-auto min-h-screen w-full max-w-md ${themeClass} ${accentClass} ${showNavigation ? "pb-28" : "pb-8"}`}>
       {children}
       {showNavigation ? (
-      <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md border-t border-black/10 bg-porcelain px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 text-carbon shadow-[0_-18px_50px_rgba(0,0,0,0.28)]">
-        <div className="grid grid-cols-5 items-end gap-1">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeView === item.view;
-            const isElevated = item.elevated;
-            return (
-              <button
-                key={item.view}
-                type="button"
-                onClick={() => onNavigate(item.view as AppView)}
-                className={`flex flex-col items-center justify-center gap-1 rounded-2xl font-medium transition active:scale-[0.97] ${
-                  isElevated
-                    ? `-mt-7 min-h-16 shadow-glow ${isActive ? "bg-champagne text-carbon" : "bg-champagne text-carbon"}`
-                    : `min-h-12 text-[0.56rem] ${isActive ? "bg-champagne text-carbon" : "text-carbon/65 hover:bg-black/5 hover:text-carbon"}`
-                }`}
-                aria-label={item.label}
-              >
-                <Icon size={isElevated ? 23 : 18} strokeWidth={2.2} aria-hidden="true" />
-                <span className={isElevated ? "text-[0.62rem] font-black" : ""}>{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+        <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md border-t border-white/10 bg-carbon/92 px-3 pb-[max(0.85rem,env(safe-area-inset-bottom))] pt-2 text-porcelain shadow-[0_-18px_60px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
+          <div className="grid grid-cols-5 items-end gap-1">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeView === item.view;
+              const isElevated = item.elevated;
+              return (
+                <button
+                  key={item.view}
+                  type="button"
+                  onClick={() => onNavigate(item.view as AppView)}
+                  className={`flex flex-col items-center justify-center gap-1 rounded-2xl font-bold transition active:scale-[0.97] ${
+                    isElevated
+                      ? "-mt-7 min-h-16 border border-white/15 bg-champagne text-white shadow-glow"
+                      : `min-h-12 text-[0.56rem] ${
+                          isActive ? "bg-champagne/14 text-champagne" : "text-porcelain/52 hover:bg-white/[0.06] hover:text-porcelain"
+                        }`
+                  }`}
+                  aria-label={item.label}
+                >
+                  <Icon size={isElevated ? 23 : 18} strokeWidth={2.25} aria-hidden="true" />
+                  <span className={isElevated ? "text-[0.62rem] font-black" : ""}>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
       ) : null}
     </main>
   );
