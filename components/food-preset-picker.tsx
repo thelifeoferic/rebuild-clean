@@ -89,7 +89,7 @@ export function FoodPresetPicker({ onChangeSelection, selectedNames = [] }: Food
         <div>
           <p className="metric-label">Food shortcuts</p>
           <p className="mt-1 text-xs font-semibold text-white/38">
-            Tap multiple foods to build one meal
+            Tap multiple foods. Calories and protein below update automatically.
           </p>
         </div>
         <select
@@ -117,7 +117,7 @@ export function FoodPresetPicker({ onChangeSelection, selectedNames = [] }: Food
       </label>
       {query.trim() ? (
         <p className="mt-2 text-xs font-semibold text-white/38">
-          Searching the full food library, across every category.
+          Searching the full food library, across every category · {filteredFoods.length} result{filteredFoods.length === 1 ? "" : "s"}.
         </p>
       ) : null}
 

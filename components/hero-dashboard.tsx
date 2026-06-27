@@ -21,7 +21,7 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import { CountUp } from "@/components/count-up";
 import { NutritionTracker } from "@/components/nutrition-tracker";
@@ -196,34 +196,11 @@ export function HeroDashboard({
         href={tidalPlaylistUrl}
         target="_blank"
         rel="noreferrer"
-        className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-ember px-3 text-base font-black text-white shadow-glow"
+        className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-base font-black text-carbon shadow-glow"
       >
         <Headphones size={18} strokeWidth={2.2} aria-hidden />
         Start TIDAL playlist
       </a>
-
-      <HomeGymPanel onOpenLog={onOpenLog} onUpdateProfile={onUpdateProfile} profile={profile} />
-
-      <div className="mt-4 grid gap-3">
-        <ImageTile
-          src="/rebuild-air-bike.jpg"
-          label="Cardio"
-          detail="Bike, swim, walks, and conditioning"
-          onClick={() => openProgramsTab("Programs", onNavigate)}
-        />
-        <ImageTile
-          src="/rebuild-kettlebell-outdoor.jpg"
-          label="Strength"
-          detail="Programs, kettlebells, and lifting blocks"
-          onClick={() => openProgramsTab("Programs", onNavigate)}
-        />
-        <ImageTile
-          src="/rebuild-yoga-light.jpg"
-          label="Recovery"
-          detail="Mobility, yoga, and reset work"
-          onClick={() => openProgramsTab("Guides", onNavigate)}
-        />
-      </div>
 
       <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
         <div className="relative min-h-32 bg-black">
@@ -270,29 +247,35 @@ export function HeroDashboard({
         </div>
       ) : null}
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <HomeSignalCard
+      <HomeGymPanel onOpenLog={onOpenLog} onUpdateProfile={onUpdateProfile} profile={profile} />
+
+      <div className="mt-4 space-y-2">
+        <div className="mb-3">
+          <p className="metric-label">Proof stack</p>
+          <h2 className="mt-1 text-xl font-semibold text-porcelain">What the app sees today</h2>
+        </div>
+        <HomeSignalRow
           icon={CheckCircle2}
           label="Latest entry"
           title={latestEntry.title}
           detail={latestEntry.detail}
           onClick={() => onNavigate("log")}
         />
-        <HomeSignalCard
+        <HomeSignalRow
           icon={Flame}
           label="Activity burn"
           title={`${activityBurn} cal`}
           detail="Estimated from today's saved workouts using your height and weight."
           onClick={() => setShowBurnBreakdown(true)}
         />
-        <HomeSignalCard
+        <HomeSignalRow
           icon={LineChart}
           label="Consistency"
           title={`${weeklyConsistency.sessions}/${weeklyConsistency.goal} sessions`}
           detail={weeklyConsistency.summary}
           onClick={() => onNavigate("records")}
         />
-        <HomeSignalCard
+        <HomeSignalRow
           icon={Trophy}
           label="Record"
           title={topRecord ? topRecord.label : "First record"}
@@ -468,16 +451,26 @@ function HomeGymPanel({
   onUpdateProfile: (profile: OnboardingProfile) => void;
   profile: OnboardingProfile | null;
 }) {
-  if (!profile) return null;
-
+  const [selectedMachine, setSelectedMachine] = useState("");
   const currentProfile = profile;
-  const selectedPreset = getGymPreset(profile.homeGymId);
-  const selectedValue = selectedPreset ? selectedPreset.id : profile.homeGymName ? "custom" : "none";
-  const equipment = profile.homeGymEquipment?.length
-    ? profile.homeGymEquipment
-    : selectedPreset?.machines.map((machine) => machine.name) ?? [];
-  const gymName = profile.homeGymName || selectedPreset?.name || "Home gym";
-  const firstMachine = equipment[0] || "Leg extension";
+  const selectedPreset = currentProfile ? getGymPreset(currentProfile.homeGymId) : undefined;
+  const selectedValue = selectedPreset ? selectedPreset.id : currentProfile?.homeGymName ? "custom" : "none";
+  const equipment = useMemo(
+    () => currentProfile?.homeGymEquipment?.length
+      ? currentProfile.homeGymEquipment
+      : selectedPreset?.machines.map((machine) => machine.name) ?? [],
+    [currentProfile?.homeGymEquipment, selectedPreset],
+  );
+  const gymName = currentProfile?.homeGymName || selectedPreset?.name || "Home gym";
+  const selectedMachineForLog = selectedMachine || equipment[0] || "Leg extension";
+
+  useEffect(() => {
+    if (!equipment.length) return;
+    if (!equipment.includes(selectedMachine)) setSelectedMachine(equipment[0]);
+  }, [equipment, selectedMachine]);
+
+  if (!currentProfile) return null;
+  const safeProfile = currentProfile;
 
   function chooseGym(value: string) {
     const preset = getGymPreset(value);
@@ -485,7 +478,7 @@ function HomeGymPanel({
     if (!preset) {
       if (value === "none") {
         onUpdateProfile({
-          ...currentProfile,
+          ...safeProfile,
           homeGymAddress: undefined,
           homeGymEquipment: [],
           homeGymId: undefined,
@@ -497,9 +490,9 @@ function HomeGymPanel({
 
     const homeGymEquipment = preset.machines.map((machine) => machine.name);
     onUpdateProfile({
-      ...currentProfile,
+      ...safeProfile,
       defaultLocation: "gym",
-      equipment: mergeUnique([...(currentProfile.equipment ?? []), ...homeGymEquipment]),
+      equipment: mergeUnique([...(safeProfile.equipment ?? []), ...homeGymEquipment]),
       homeGymAddress: preset.address,
       homeGymEquipment,
       homeGymId: preset.id,
@@ -524,10 +517,10 @@ function HomeGymPanel({
           </div>
           <p className="metric-label text-white/68">Home gym</p>
           <h2 className="mt-1 text-2xl font-black uppercase leading-none text-white">{selectedValue === "none" ? "Choose your floor" : gymName}</h2>
-          {profile.homeGymAddress ? (
+          {safeProfile.homeGymAddress ? (
             <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-white/72">
               <MapPin size={15} strokeWidth={2.2} aria-hidden />
-              {profile.homeGymAddress}
+              {safeProfile.homeGymAddress}
             </p>
           ) : null}
         </div>
@@ -571,14 +564,31 @@ function HomeGymPanel({
           <p className="mt-3 text-sm leading-5 text-white/50">Pick Total Fitness or another local preset to load that gym&apos;s machine list.</p>
         )}
 
+        {equipment.length ? (
+          <label className="mt-4 block">
+            <span className="metric-label mb-2 block">Machine / equipment to log</span>
+            <select
+              value={selectedMachineForLog}
+              onChange={(event) => setSelectedMachine(event.target.value)}
+              className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-porcelain outline-none focus:border-champagne"
+            >
+              {equipment.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+
         <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
           <button
             type="button"
             onClick={() =>
               onOpenLog("machine", {
-                category: machineCategoryFor(firstMachine),
+                category: machineCategoryFor(selectedMachineForLog),
                 gymName,
-                machine: firstMachine,
+                machine: selectedMachineForLog,
               })
             }
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-champagne px-4 text-sm font-black text-carbon shadow-glow"
@@ -817,6 +827,40 @@ function HomeSignalCard({
       <p className="metric-label">{label}</p>
       <h3 className="mt-2 text-base font-semibold leading-tight text-porcelain">{title}</h3>
       <p className="mt-2 line-clamp-3 text-xs leading-4 text-white/45">{detail}</p>
+    </button>
+  );
+}
+
+function HomeSignalRow({
+  detail,
+  icon: Icon,
+  label,
+  onClick,
+  title,
+}: {
+  detail: string;
+  icon: typeof Scale;
+  label: string;
+  onClick: () => void;
+  title: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex min-h-24 w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 text-left shadow-panel transition active:scale-[0.98]"
+    >
+      <span className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+        <Icon size={18} strokeWidth={2.2} aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="metric-label block">{label}</span>
+        <span className="mt-1 block text-base font-semibold leading-tight text-porcelain">{title}</span>
+        <span className="mt-1 line-clamp-2 block text-xs leading-4 text-white/48">{detail}</span>
+      </span>
+      <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.055] px-3 py-2 text-[0.62rem] font-black uppercase tracking-[0.12em] text-white/62">
+        Open
+      </span>
     </button>
   );
 }

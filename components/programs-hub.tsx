@@ -22,7 +22,7 @@ export function ProgramsHub({
   profile,
 }: {
   data: RebuildData;
-  onOpenLog: (kind: LogKind) => void;
+  onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
   profile: OnboardingProfile | null;
 }) {
   const [activeTab, setActiveTab] = useState<ProgramsTab>("Today");
@@ -74,7 +74,7 @@ export function ProgramsHub({
       {activeTab === "Guides" ? (
         <>
           <FormVisuals />
-          <ExerciseGuides />
+          <ExerciseGuides onOpenLog={onOpenLog} />
         </>
       ) : null}
 
