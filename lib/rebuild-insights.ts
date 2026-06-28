@@ -28,6 +28,11 @@ type ScoreSignal = {
   detail: string;
 };
 
+type CoachInsightCandidate = {
+  category: string;
+  text: string;
+};
+
 export type RebuildScore = {
   deltaLabel: string;
   signals: ScoreSignal[];
@@ -157,81 +162,141 @@ export function getCoachInsight(data: RebuildData, profile: OnboardingProfile | 
   const swimMinutes = data.swimSessions.reduce((sum, session) => sum + session.minutes, 0);
   const yogaMinutes = data.yogaSessions.reduce((sum, session) => sum + session.minutes, 0);
   const latestSleep = data.sleepLogs[0];
-  const candidates: string[] = [];
+  const candidates: CoachInsightCandidate[] = [];
 
   if (patternCount >= 2) {
-    candidates.push(`you have ${patternCount} pattern interrupts logged. That is not motivation; it is replacement behavior showing up in the record.`);
+    candidates.push({
+      category: "pattern",
+      text: `you have ${patternCount} pattern interrupts logged. That is not motivation; it is replacement behavior showing up in the record.`,
+    });
   }
 
   if (bikeMinutes > 0) {
-    candidates.push(`you have ${bikeMinutes} bike minutes logged this week. If your legs feel flat tomorrow, recovery work still counts as keeping the promise.`);
+    candidates.push({
+      category: "cardio",
+      text: `you have ${bikeMinutes} bike minutes logged this week. If your legs feel flat tomorrow, recovery work still counts as keeping the promise.`,
+    });
   }
 
   if (bestPush > 0) {
-    candidates.push(`your best push-up set is ${bestPush}. The next useful target is not heroic; it is one cleaner set than last time.`);
+    candidates.push({
+      category: "strength",
+      text: `your best push-up set is ${bestPush}. The next useful target is not heroic; it is one cleaner set than last time.`,
+    });
   }
 
   if (totalPushUps >= 20) {
-    candidates.push(`you have ${totalPushUps} total push-ups saved. That number matters because it is accumulated identity, not one perfect workout.`);
+    candidates.push({
+      category: "strength",
+      text: `you have ${totalPushUps} total push-ups saved. That number matters because it is accumulated identity, not one perfect workout.`,
+    });
   }
 
   if (latestWeight) {
     const direction = data.weights.length > 1 ? `, ${weightDelta > 0 ? "up" : "down"} ${Math.abs(weightDelta).toFixed(1)} lb from the last weigh-in` : "";
-    candidates.push(`your current logged weight is ${latestWeight.toFixed(1)} lb${direction}. Keep weighing in the same way so the trend stays honest.`);
+    candidates.push({
+      category: "body",
+      text: `your current logged weight is ${latestWeight.toFixed(1)} lb${direction}. Keep weighing in the same way so the trend stays honest.`,
+    });
   }
 
   if (streak >= 2) {
-    candidates.push(`${streak} days in a row have at least one saved log. The streak is useful because it proves the floor is getting stronger.`);
+    candidates.push({
+      category: "consistency",
+      text: `${streak} days in a row have at least one saved log. The streak is useful because it proves the floor is getting stronger.`,
+    });
   }
 
   if (todaysWorkouts.length >= 2) {
-    candidates.push(`today already has ${todaysWorkouts.length} movement logs. The next high-return move might be food, water, or sleep so the training has somewhere to land.`);
+    candidates.push({
+      category: "training",
+      text: `today already has ${todaysWorkouts.length} movement logs. The next high-return move might be food, water, or sleep so the training has somewhere to land.`,
+    });
   } else if (latestWorkout) {
-    candidates.push(`your latest saved session was ${latestWorkout.title.toLowerCase()} with ${latestWorkout.detail}. The next session should make the pattern easier to repeat, not harder to recover from.`);
+    candidates.push({
+      category: latestWorkout.kind === "bike" || latestWorkout.kind === "swim" ? "cardio" : "training",
+      text: `your latest saved session was ${latestWorkout.title.toLowerCase()} with ${latestWorkout.detail}. The next session should make the pattern easier to repeat, not harder to recover from.`,
+    });
   }
 
   if (longestLadderSeconds > 0) {
-    candidates.push(`your best Jacob's Ladder effort is ${formatSeconds(longestLadderSeconds)}. That machine rewards patience; one controlled round is better than one sloppy sprint.`);
+    candidates.push({
+      category: "conditioning",
+      text: `your best Jacob's Ladder effort is ${formatSeconds(longestLadderSeconds)}. That machine rewards patience; one controlled round is better than one sloppy sprint.`,
+    });
   }
 
   if (machineCount > 0) {
     const latestMachine = data.machineWorkoutSessions[0];
-    candidates.push(`you have ${machineCount} gym machine log${machineCount === 1 ? "" : "s"} saved. ${latestMachine.machine} is now part of the record, so load and reps can start telling a real story.`);
+    candidates.push({
+      category: "strength",
+      text: `you have ${machineCount} gym machine log${machineCount === 1 ? "" : "s"} saved. ${latestMachine.machine} is now part of the record, so load and reps can start telling a real story.`,
+    });
   }
 
   if (kettlebellReps > 0) {
-    candidates.push(`you have ${kettlebellReps} kettlebell reps saved. Keep the hinge clean and let the weight follow the form, not the other way around.`);
+    candidates.push({
+      category: "strength",
+      text: `you have ${kettlebellReps} kettlebell reps saved. Keep the hinge clean and let the weight follow the form, not the other way around.`,
+    });
   }
 
   if (todaysProtein > 0) {
-    candidates.push(`you have ${todaysProtein}g protein logged today. That is the kind of boring anchor that makes the training count later.`);
+    candidates.push({
+      category: "nutrition",
+      text: `you have ${todaysProtein}g protein logged today. That is the kind of boring anchor that makes the training count later.`,
+    });
   } else if (todaysCalories > 0) {
-    candidates.push(`you have food logged today, but no protein signal yet. Add one protein anchor and the nutrition picture gets much more useful.`);
+    candidates.push({
+      category: "nutrition",
+      text: `you have food logged today, but no protein signal yet. Add one protein anchor and the nutrition picture gets much more useful.`,
+    });
   } else if (data.meals.length > 0) {
-    candidates.push("no food is logged yet today. One boring protein entry is enough to keep the day visible.");
+    candidates.push({
+      category: "nutrition",
+      text: "no food is logged yet today. One boring protein entry is enough to keep the day visible.",
+    });
   }
 
   if (todaysWater > 0) {
-    candidates.push(`you have ${todaysWater} oz of water logged today. Hydration is not dramatic, but it changes how tomorrow's training feels.`);
+    candidates.push({
+      category: "recovery",
+      text: `you have ${todaysWater} oz of water logged today. Hydration is not dramatic, but it changes how tomorrow's training feels.`,
+    });
   }
 
   if (latestSleep) {
-    candidates.push(`your last sleep log was ${latestSleep.hours} hours and marked ${latestSleep.quality}. Recovery is part of the rebuild, not time away from it.`);
+    candidates.push({
+      category: "recovery",
+      text: `your last sleep log was ${latestSleep.hours} hours and marked ${latestSleep.quality}. Recovery is part of the rebuild, not time away from it.`,
+    });
   }
 
   if (swimMinutes > 0) {
-    candidates.push(`you have ${swimMinutes} swim minutes saved. That gives you a low-impact lane for conditioning when joints or legs need a break.`);
+    candidates.push({
+      category: "cardio",
+      text: `you have ${swimMinutes} swim minutes saved. That gives you a low-impact lane for conditioning when joints or legs need a break.`,
+    });
   }
 
   if (yogaMinutes > 0) {
-    candidates.push(`you have ${yogaMinutes} yoga or mobility minutes saved. That is not filler; it is maintenance for the body doing the work.`);
+    candidates.push({
+      category: "recovery",
+      text: `you have ${yogaMinutes} yoga or mobility minutes saved. That is not filler; it is maintenance for the body doing the work.`,
+    });
   }
 
   if (!candidates.length) {
-    candidates.push("you have logs in the system now. The next entry does not need to be dramatic; it needs to be real.");
+    candidates.push({
+      category: "general",
+      text: "you have logs in the system now. The next entry does not need to be dramatic; it needs to be real.",
+    });
   }
 
-  return `${prefix}${pickDailyInsight(candidates, `${profile?.coachingTone ?? "calm"}:${totalProofCount(data)}`)}`;
+  return `${prefix}${pickRotatingCoachInsight(
+    candidates,
+    `${profile?.coachingTone ?? "calm"}:${totalProofCount(data)}:${data.weights.length}:${data.meals.length}:${data.machineWorkoutSessions.length}:${data.kettlebellSessions.length}:${data.pushUpSessions.length}:${data.behaviorWins.length}`,
+  )}`;
 }
 
 export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
@@ -479,8 +544,13 @@ function machineWorkoutDetail(item: RebuildData["machineWorkoutSessions"][number
   const load = item.weight ? `${item.weight} lb` : item.category ?? "machine";
   const reps = item.sets && item.reps ? ` · ${item.sets} x ${item.reps}` : "";
   const time = item.minutes ? ` · ${item.minutes} min` : "";
-  const distance = item.distanceMiles ? ` · ${item.distanceMiles} mi` : "";
+  const distance = item.distanceMiles ? ` · ${machineOutputDetail(item.machine, item.distanceMiles)}` : "";
   return `${load}${reps}${time}${distance}`;
+}
+
+function machineOutputDetail(machine: string, value: number) {
+  if (machine.toLowerCase().includes("stair")) return `${value} floors`;
+  return `${value} mi`;
 }
 
 function longestSingleWorkout(data: RebuildData) {
@@ -513,6 +583,19 @@ function pickDailyInsight(insights: string[], seed: string) {
   const cleanInsights = insights.filter(Boolean);
   if (!cleanInsights.length) return "";
   return cleanInsights[dailyIndex(`${getTodayIso()}:${seed}`, cleanInsights.length)] ?? cleanInsights[0];
+}
+
+function pickRotatingCoachInsight(candidates: CoachInsightCandidate[], seed: string) {
+  const cleanCandidates = candidates.filter((candidate) => candidate.text);
+  if (!cleanCandidates.length) return "";
+
+  const categories = Array.from(new Set(cleanCandidates.map((candidate) => candidate.category)));
+  const dayOffset = daysBetweenCalendarDates("2026-01-01", getTodayIso());
+  const category = categories[(dayOffset + dailyIndex(seed, categories.length)) % categories.length] ?? categories[0];
+  const pool = cleanCandidates.filter((candidate) => candidate.category === category);
+  const selectedPool = pool.length ? pool : cleanCandidates;
+
+  return selectedPool[dailyIndex(`${getTodayIso()}:${seed}:${category}`, selectedPool.length)]?.text ?? selectedPool[0].text;
 }
 
 function dailyIndex(seed: string, count: number) {

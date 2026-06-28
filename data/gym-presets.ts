@@ -122,17 +122,49 @@ export function getProfileMachineOptions(profile: OnboardingProfile | null): Gym
   const presetMachines = totalFitnessMachineInventory.filter((machine) => selectedNames.has(machine.name));
   const customMachines = Array.from(selectedNames)
     .filter((name) => !presetMachines.some((machine) => machine.name === name))
-    .map((name) => ({ category: "Functional" as const, logKind: "machine" as const, name }));
+    .map((name) => ({ category: inferMachineCategory(name), logKind: inferLogKind(name), name }));
 
   return [...presetMachines, ...customMachines].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function machineCategoryFor(name: string) {
-  return totalFitnessMachineInventory.find((machine) => machine.name === name)?.category ?? "Strength machine";
+  return machinePresetFor(name)?.category ?? inferMachineCategory(name);
 }
 
 export function equipmentLogKindFor(name: string): LogKind {
-  return totalFitnessMachineInventory.find((machine) => machine.name === name)?.logKind ?? "machine";
+  return machinePresetFor(name)?.logKind ?? inferLogKind(name);
+}
+
+export function machinePresetFor(name: string) {
+  const normalized = normalizeMachineName(name);
+  return totalFitnessMachineInventory.find((machine) => normalizeMachineName(machine.name) === normalized) ?? null;
+}
+
+function inferMachineCategory(name: string): GymMachineCategory {
+  const normalized = normalizeMachineName(name);
+
+  if (/treadmill|elliptical|stair|concept 2|row machine|air bike|assault bike/.test(normalized)) return "Cardio";
+  if (/yoga|mat|foam roller|mobility|recovery/.test(normalized)) return "Recovery";
+  if (/kettlebell|dumbbell|barbell|bench|squat rack|ez curl/.test(normalized)) return "Free weights";
+  if (/leg|curl|press|pulldown|cable|pec|delt|calf|smith|torso|abdominal|thigh|machine/.test(normalized)) return "Strength machine";
+  return "Functional";
+}
+
+function inferLogKind(name: string): LogKind {
+  const normalized = normalizeMachineName(name);
+
+  if (/jacob/.test(normalized)) return "jacobsLadder";
+  if (/stationary bike|recumbent bike|air bike|assault bike/.test(normalized)) return "bike";
+  if (/kettlebell/.test(normalized)) return "kettlebell";
+  if (/dumbbell/.test(normalized)) return "dumbbellCurls";
+  if (/farmer/.test(normalized)) return "farmerCarries";
+  if (/yoga|mat|foam roller/.test(normalized)) return "yoga";
+  if (/barbell|bench|squat rack|ez curl/.test(normalized)) return "strength";
+  return "machine";
+}
+
+function normalizeMachineName(name: string) {
+  return name.trim().toLowerCase().replace(/[’']/g, "").replace(/\s+/g, " ");
 }
 
 function unique(items: string[]) {

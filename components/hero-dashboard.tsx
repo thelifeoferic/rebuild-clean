@@ -240,29 +240,31 @@ export function HeroDashboard({
         profile={profile}
       />
 
-      <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
-        <div className="relative min-h-32 bg-black">
+      <div className="mt-4 overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-panel">
+        <div className="relative min-h-[17rem] bg-black">
           <Image
             src={recommendation.image}
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, 448px"
-            className="object-cover object-center opacity-72"
+            className="object-cover object-[52%_34%] opacity-82"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-          <div className="absolute bottom-4 left-4 right-4">
-            <p className="metric-label text-white/62">{recommendation.eyebrow}</p>
-            <h3 className="mt-1 text-xl font-semibold text-white">{recommendation.title}</h3>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/98 via-black/54 to-black/10" />
+          <div className="absolute bottom-5 left-5 right-5">
+            <p className="metric-label text-white/72">{recommendation.eyebrow}</p>
+            <h3 className="mt-2 max-w-[16rem] font-display text-4xl font-black uppercase leading-[0.9] text-white">
+              {recommendation.title}
+            </h3>
           </div>
         </div>
-        <div className="p-4">
+        <div className="border-t border-white/10 bg-carbon/92 p-4">
           <div className="mb-3 flex items-start gap-3">
             <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
               {recommendation.logKind ? <Dumbbell size={18} strokeWidth={2.2} aria-hidden /> : <ScanSearch size={18} strokeWidth={2.2} aria-hidden />}
             </div>
             <div>
-              <p className="text-sm leading-5 text-white/55">{recommendation.detail}</p>
-              <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-white/38">
+              <p className="text-sm font-semibold leading-5 text-white/72">{recommendation.detail}</p>
+              <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-white/44">
                 {recommendation.meta}
               </p>
             </div>
@@ -283,13 +285,6 @@ export function HeroDashboard({
           </button>
         </div>
       </div>
-
-      {profile?.why ? (
-        <div className="mt-3 rounded-2xl border border-white/10 bg-carbon/70 p-4">
-          <p className="metric-label mb-2">Why</p>
-          <p className="text-sm leading-5 text-white/62">{profile.why}</p>
-        </div>
-      ) : null}
 
       <div className="mt-4 space-y-2">
         <div className="mb-3">
@@ -732,13 +727,7 @@ function HomeGymPanel({
         <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
           <button
             type="button"
-            onClick={() =>
-              onOpenLog("machine", {
-                category: machineCategoryFor(selectedMachineForLog),
-                gymName,
-                machine: selectedMachineForLog,
-              })
-            }
+            onClick={() => openEquipmentLog(selectedMachineForLog)}
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-champagne px-4 text-sm font-black text-carbon shadow-glow"
           >
             <Dumbbell size={17} strokeWidth={2.2} aria-hidden />
@@ -815,7 +804,7 @@ function HomeSectionShortcuts({
         <button
           type="button"
           onClick={onOpenBodyScan}
-          className="group relative min-h-56 overflow-hidden rounded-3xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
+          className="group relative min-h-64 overflow-hidden rounded-3xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
         >
           <Image
             src="/rebuild-strength.jpg"
@@ -824,8 +813,8 @@ function HomeSectionShortcuts({
             sizes="(max-width: 768px) 100vw, 448px"
             className="object-cover object-[52%_35%] opacity-82 transition group-active:scale-[1.02]"
           />
-          <span className="absolute inset-0 bg-gradient-to-t from-black/96 via-black/34 to-black/10" />
-          <span className="absolute bottom-4 left-4 right-4">
+          <span className="absolute inset-0 bg-gradient-to-t from-black/98 via-black/72 to-black/12" />
+          <span className="absolute bottom-4 left-4 right-4 rounded-[1.35rem] border border-white/10 bg-black/72 p-4 backdrop-blur-md">
             <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-white">
               <ScanSearch size={15} strokeWidth={2.3} aria-hidden />
               Signature feature
@@ -833,7 +822,7 @@ function HomeSectionShortcuts({
             <span className="block font-display text-4xl font-black uppercase leading-none text-white">
               AI Body Scan
             </span>
-            <span className="mt-2 block max-w-[22rem] text-sm font-semibold leading-5 text-white/76">
+            <span className="mt-2 block max-w-[22rem] text-sm font-semibold leading-5 text-white/88">
               Upload progress photos, compare changes over time, and get non-medical coaching on what to track next.
             </span>
             <span className="mt-4 inline-flex rounded-full bg-champagne px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-carbon">

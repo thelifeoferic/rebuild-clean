@@ -125,8 +125,8 @@ export function ProfileCard({
 
         {profile?.why ? (
           <div className="mb-3 rounded-2xl bg-white/[0.055] p-3">
-            <p className="metric-label mb-1">Why</p>
-            <p className="text-sm leading-5 text-white/58">{profile.why}</p>
+            <p className="metric-label mb-1">Why you&apos;re doing this</p>
+            <p className="text-sm font-semibold leading-5 text-white/70">{profile.why}</p>
           </div>
         ) : null}
 

@@ -140,7 +140,18 @@ function logTargetForGuide(title: string): { draft?: Record<string, string>; kin
   if (lower.includes("dumbbell")) return { draft: { exercise: title }, kind: "dumbbellCurls", label: "dumbbell work" };
   if (lower.includes("swim")) return { kind: "swim", label: "swim" };
   if (lower.includes("yoga")) return { kind: "yoga", label: "yoga" };
-  if (/stairmaster|row machine|lat pulldown|leg press|shoulder press/.test(lower)) {
+  if (/stairmaster|row machine|air bike|elliptical|treadmill/.test(lower)) {
+    return {
+      draft: {
+        category: "Cardio",
+        machine: title,
+      },
+      kind: "machine",
+      label: "cardio machine",
+    };
+  }
+
+  if (/lat pulldown|leg press|shoulder press/.test(lower)) {
     return {
       draft: {
         category: "Strength machine",

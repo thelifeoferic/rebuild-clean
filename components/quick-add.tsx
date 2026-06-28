@@ -10,7 +10,7 @@ const logTypes = [
   { kind: "pushUps", label: "Push-ups", detail: "reps by set, total counted", icon: Trophy },
   { kind: "dumbbellCurls", label: "Dumbbell work", detail: "exercise, weight, each arm", icon: Dumbbell },
   { kind: "strength", label: "Strength lift", detail: "exercise, load, reps", icon: Dumbbell },
-  { kind: "machine", label: "Gym machine", detail: "machine, load, sets, time", icon: Dumbbell },
+  { kind: "machine", label: "Gym equipment", detail: "fields match the machine", icon: Dumbbell },
   { kind: "kettlebell", label: "Kettlebell", detail: "exercise, weight, reps", icon: Dumbbell },
   { kind: "farmerCarries", label: "Farmer carries", detail: "load, distance, rounds", icon: Footprints },
   { kind: "swim", label: "Swim", detail: "minutes, distance, stroke", icon: Waves },

@@ -229,7 +229,7 @@ function getDayEntries(data: RebuildData, selectedDate: string): DayEntry[] {
     const load = entry.weight ? `${entry.weight} lb` : entry.category ?? "machine";
     const reps = entry.sets && entry.reps ? ` - ${entry.sets} x ${entry.reps}` : "";
     const minutes = entry.minutes ? ` - ${entry.minutes} min` : "";
-    const distance = entry.distanceMiles ? ` - ${entry.distanceMiles} mi` : "";
+    const distance = entry.distanceMiles ? ` - ${machineOutputDetail(entry.machine, entry.distanceMiles)}` : "";
 
     entries.push({
       detail: `${load}${reps}${minutes}${distance}. ${entry.notes}`,
@@ -320,6 +320,11 @@ function getDaySummary(data: RebuildData, selectedDate: string) {
     movementMinutes,
     protein: meals.reduce((sum, entry) => sum + entry.protein, 0),
   };
+}
+
+function machineOutputDetail(machine: string, value: number) {
+  if (machine.toLowerCase().includes("stair")) return `${value} floors`;
+  return `${value} mi`;
 }
 
 function iconForKind(kind: LogKind) {

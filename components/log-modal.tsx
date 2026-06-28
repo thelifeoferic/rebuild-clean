@@ -97,17 +97,33 @@ const kettlebellExercises = [
   "Pass-arounds",
   "Around-the-worlds",
   "Swings",
+  "Two-hand swings",
+  "One-arm swings",
+  "Alternating swings",
   "Goblet squats",
+  "Front rack squats",
+  "Lunges",
+  "Reverse lunges",
   "Deadlifts",
+  "Suitcase deadlifts",
   "Clean",
   "Clean and press",
   "Snatches",
+  "High pulls",
+  "Sumo deadlift high pulls",
+  "Thrusters",
   "Turkish get-ups",
+  "Windmills",
   "Halos",
   "Figure 8s",
   "Rows",
+  "Single-arm rows",
+  "Floor press",
+  "Overhead press",
+  "Russian twists",
   "Suitcase carries",
   "Rack carries",
+  "Waiter carries",
 ] as const;
 
 function defaultDraftFor(kind: LogKind): LogDraft {
@@ -163,6 +179,13 @@ export function LogModal({
         weightLb: profile?.currentWeight,
       })
     : 0;
+  const selectedMachineName = activeKind === "machine" ? String(draft.machine || machineOptions[0]?.name || "Leg press") : "";
+  const inferredMachineCategory = selectedMachineName ? machineCategoryFor(selectedMachineName) : "";
+  const selectedMachineCategory = activeKind === "machine"
+    ? inferredMachineCategory !== "Strength machine" || !draft.category
+      ? inferredMachineCategory
+      : String(draft.category)
+    : "";
 
   function update(name: string, value: string | boolean) {
     setDraft((current) => ({ ...current, [name]: value }));
@@ -170,16 +193,39 @@ export function LogModal({
 
   function chooseMachine(value: string) {
     const match = machineOptions.find((machine) => machine.name === value);
-    setDraft((current) => ({
-      ...current,
-      category: match?.category ?? machineCategoryFor(value),
-      machine: value,
-    }));
+    const category = match?.category ?? machineCategoryFor(value);
+
+    setDraft((current) => {
+      const next = {
+        ...current,
+        category,
+        machine: value,
+      };
+
+      if (category === "Cardio") {
+        return { ...next, reps: "", sets: "", weight: "" };
+      }
+
+      if (category === "Functional") {
+        return { ...next, distanceMiles: "", weight: "" };
+      }
+
+      return { ...next, distanceMiles: "" };
+    });
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave(activeKind, draft);
+    onSave(
+      activeKind,
+      activeKind === "machine"
+        ? {
+            ...draft,
+            category: selectedMachineCategory,
+            machine: selectedMachineName,
+          }
+        : draft,
+    );
   }
 
   function applyFoodPresets(presets: FoodPreset[]) {
@@ -280,21 +326,48 @@ export function LogModal({
               <SelectField
                 label="Machine"
                 name="machine"
-                value={String(draft.machine || machineOptions[0]?.name || "Leg press")}
+                value={selectedMachineName}
                 options={machineOptions.map((machine) => machine.name)}
                 onChange={(_, value) => chooseMachine(value)}
               />
-              <Field label="Category" name="category" value={String(draft.category || machineCategoryFor(String(draft.machine || "Leg press")))} onChange={update} />
-              <div className="grid grid-cols-2 gap-2">
-                <Field label="Weight / setting" name="weight" value={String(draft.weight)} onChange={update} inputMode="decimal" suffix="lb" />
-                <Field label="Sets" name="sets" value={String(draft.sets)} onChange={update} inputMode="numeric" />
-                <Field label="Reps" name="reps" value={String(draft.reps)} onChange={update} inputMode="numeric" />
-                <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
+              <div className="rounded-2xl border border-white/10 bg-white/[0.055] p-3">
+                <p className="metric-label">Logging profile</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-champagne px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-carbon">
+                    {selectedMachineCategory || "Equipment"}
+                  </span>
+                  <span className="text-sm font-semibold text-white/56">{machineFormHelp(selectedMachineCategory, selectedMachineName)}</span>
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Field label="Distance" name="distanceMiles" value={String(draft.distanceMiles)} onChange={update} inputMode="decimal" suffix="mi" />
-                <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
-              </div>
+
+              {selectedMachineCategory === "Cardio" ? (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
+                    <Field label={cardioDistanceLabel(selectedMachineName)} name="distanceMiles" value={String(draft.distanceMiles)} onChange={update} inputMode="decimal" suffix={cardioDistanceSuffix(selectedMachineName)} />
+                  </div>
+                  <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
+                </>
+              ) : selectedMachineCategory === "Functional" ? (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
+                    <Field label="Rounds / sets" name="sets" value={String(draft.sets)} onChange={update} inputMode="numeric" />
+                    <Field label="Reps / intervals" name="reps" value={String(draft.reps)} onChange={update} inputMode="numeric" />
+                    <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label="Weight / setting" name="weight" value={String(draft.weight)} onChange={update} inputMode="decimal" suffix="lb" />
+                    <Field label="Sets" name="sets" value={String(draft.sets)} onChange={update} inputMode="numeric" />
+                    <Field label="Reps" name="reps" value={String(draft.reps)} onChange={update} inputMode="numeric" />
+                    <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
+                  </div>
+                  <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
+                </>
+              )}
               <TextArea label="Notes" name="notes" value={String(draft.notes)} onChange={update} />
             </>
           ) : null}
@@ -437,6 +510,29 @@ function number(value: unknown) {
 
 function formatBikeDistance(value: number) {
   return `${value.toFixed(value >= 10 ? 1 : 2)} mi`;
+}
+
+function machineFormHelp(category: string, machine: string) {
+  const normalized = machine.toLowerCase();
+
+  if (category === "Cardio") {
+    if (normalized.includes("row")) return "Time, distance, and calories. No load fields.";
+    if (normalized.includes("stair")) return "Time, distance, and calories. No sets or reps.";
+    return "Time, distance, and calories. No weight-lifting fields.";
+  }
+
+  if (category === "Functional") return "Rounds, intervals, time, and optional calories.";
+  if (category === "Free weights") return "Load, sets, reps, and optional time.";
+  if (category === "Recovery") return "Time and notes.";
+  return "Load or setting, sets, reps, and optional time.";
+}
+
+function cardioDistanceLabel(machine: string) {
+  return machine.toLowerCase().includes("stair") ? "Distance / floors" : "Distance";
+}
+
+function cardioDistanceSuffix(machine: string) {
+  return machine.toLowerCase().includes("stair") ? "" : "mi";
 }
 
 function DateField({

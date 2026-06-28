@@ -285,7 +285,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
     const load = move.weight ? `${move.weight} lb` : move.category ?? "machine work";
     const reps = move.sets && move.reps ? ` · ${move.sets} x ${move.reps}` : "";
     const time = move.minutes ? ` · ${move.minutes} min` : "";
-    const distance = move.distanceMiles ? ` · ${formatDistance(move.distanceMiles)}` : "";
+    const distance = move.distanceMiles ? ` · ${formatMachineOutput(move.machine, move.distanceMiles)}` : "";
 
     items.push({
       id: `tl-${move.id}`,
@@ -392,6 +392,11 @@ function roundDistance(value: number) {
 
 function formatDistance(value: number) {
   return `${roundDistance(value).toFixed(value >= 10 ? 1 : 2)} mi`;
+}
+
+function formatMachineOutput(machine: string, value: number) {
+  if (machine.toLowerCase().includes("stair")) return `${roundDistance(value).toFixed(value >= 10 ? 1 : 2)} floors`;
+  return formatDistance(value);
 }
 
 function normalizeDataDates(data: RebuildData): RebuildData {
