@@ -8,7 +8,7 @@ import { RebuildTimeline } from "@/components/rebuild-timeline";
 import { StreakSummary } from "@/components/streak-summary";
 import type { LogKind, RebuildData, TimelineItem } from "@/types/rebuild";
 
-const tabs = ["Records", "Calendar", "Trends", "Timeline", "Consistency"] as const;
+const tabs = ["Today", "Trends", "Records", "Timeline", "Consistency"] as const;
 type RecordsTab = (typeof tabs)[number];
 
 export function RecordsHub({
@@ -28,17 +28,17 @@ export function RecordsHub({
   resetSignal: number;
   timeline: TimelineItem[];
 }) {
-  const [activeTab, setActiveTab] = useState<RecordsTab>("Records");
+  const [activeTab, setActiveTab] = useState<RecordsTab>("Today");
 
   useEffect(() => {
-    setActiveTab("Records");
+    setActiveTab("Today");
   }, [resetSignal]);
 
   return (
     <>
       <div className="sticky top-0 z-30 bg-carbon/92 px-4 pt-5 backdrop-blur-xl">
-        <p className="metric-label">Proof that compounds</p>
-        <h1 className="mt-1 text-3xl font-semibold text-porcelain">Records</h1>
+        <p className="metric-label">Your fitness record</p>
+        <h1 className="mt-1 text-3xl font-semibold text-porcelain">The Rebuild</h1>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-3">
           {tabs.map((tab) => (
             <button
@@ -55,8 +55,7 @@ export function RecordsHub({
         </div>
       </div>
 
-      {activeTab === "Records" ? <PersonalRecords data={data} onOpenLog={onOpenLog} /> : null}
-      {activeTab === "Calendar" ? (
+      {activeTab === "Today" ? (
         <DailyCalendar
           data={data}
           onDelete={onDelete}
@@ -66,6 +65,7 @@ export function RecordsHub({
         />
       ) : null}
       {activeTab === "Trends" ? <ProgressTrends data={data} /> : null}
+      {activeTab === "Records" ? <PersonalRecords data={data} onOpenLog={onOpenLog} /> : null}
       {activeTab === "Timeline" ? (
         <RebuildTimeline
           onDelete={onDelete}

@@ -155,7 +155,7 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
       setPhotos(nextPhotos);
       setSelectedAfterId(photo.id);
       if (!selectedBeforeId && nextPhotos.length > 1) setSelectedBeforeId(nextPhotos[nextPhotos.length - 1].id);
-      setSaveStatus(analysis ? "Body check saved to progress library." : "Photo saved to progress library.");
+      setSaveStatus(analysis ? "AI body scan saved to progress library." : "Photo saved to progress library.");
     } catch {
       setError("Could not save this photo on this device.");
     }
@@ -178,7 +178,7 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
       setPhotos(nextPhotos);
       setSelectedAfterId(photo.id);
       if (!selectedBeforeId && nextPhotos.length > 1) setSelectedBeforeId(nextPhotos[nextPhotos.length - 1].id);
-      setSaveStatus("Body check saved. You can reopen this analysis from the progress library.");
+      setSaveStatus("AI body scan saved. You can reopen this analysis from the progress library.");
     } catch {
       setSaveStatus("Analysis ready. Save this photo if you want it in comparisons.");
     }
@@ -221,15 +221,15 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
     setContext(photo.note ?? "");
     setAnalysis(photo.analysis ? normalizeAnalysis(photo.analysis) : photo.analysisSummary ? { ...emptyAnalysis, summary: photo.analysisSummary } : null);
     setIsMock(Boolean(photo.analysisMock));
-    setSaveStatus(photo.analysis ? "Saved body check loaded." : "Saved photo loaded as current preview.");
+    setSaveStatus(photo.analysis ? "Saved AI body scan loaded." : "Saved photo loaded as current preview.");
     setError("");
   }
 
   return (
     <Section
       id="body-check"
-      eyebrow="AI progress check"
-      title="Body Check"
+      eyebrow="Signature feature"
+      title="AI Body Scan"
       action={<ActionButton label="Private mode" icon={ShieldCheck} variant="dark" />}
     >
       <div className="panel overflow-hidden">
@@ -244,10 +244,10 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
           <div className="absolute bottom-4 left-4 right-4">
             <p className="metric-label text-white/58">Photo analysis</p>
             <h2 className="mt-2 font-display text-4xl uppercase leading-none text-white">
-              Progress, not judgment.
+              See what is changing.
             </h2>
             <p className="mt-3 max-w-[21rem] text-sm font-semibold leading-5 text-white/68">
-              Upload a body photo and get non-medical coaching on posture cues, training priorities, and what to track next.
+              Upload a progress photo and get non-medical coaching on posture cues, training priorities, and what to track next.
             </p>
           </div>
         </div>
@@ -338,13 +338,13 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
             className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-5 text-base font-black text-carbon shadow-glow transition disabled:cursor-not-allowed disabled:opacity-45"
           >
             {isLoading ? <Loader2 size={19} className="animate-spin" strokeWidth={2.4} aria-hidden /> : <Sparkles size={19} strokeWidth={2.4} aria-hidden />}
-            {isLoading ? "Analyzing..." : "Analyze body check"}
+            {isLoading ? "Analyzing..." : "Analyze body scan"}
           </button>
 
           <div className="rounded-2xl border border-white/10 bg-carbon/70 p-3">
             <p className="metric-label">Privacy posture</p>
             <p className="mt-2 text-sm font-semibold leading-5 text-white/50">
-              Body checks save on this device after analysis so you can revisit them. Delete any saved photo from the progress library whenever you want.
+              Body scans save on this device after analysis so you can revisit them. Delete any saved photo from the progress library whenever you want.
             </p>
           </div>
 
@@ -393,7 +393,7 @@ function ProgressPhotoLibrary({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="metric-label">Progress library</p>
-          <h3 className="mt-1 text-lg font-black text-porcelain">Saved body checks</h3>
+          <h3 className="mt-1 text-lg font-black text-porcelain">Saved body scans</h3>
           <p className="mt-1 text-sm font-semibold leading-5 text-white/45">
             Tap a photo to reopen its image, note, and saved analysis.
           </p>

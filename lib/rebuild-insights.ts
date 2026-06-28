@@ -249,6 +249,7 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
   const heaviestMachine = maxBy(data.machineWorkoutSessions, (session) => session.weight ?? 0);
   const lowestWeight = getRecentLowWeight(data);
   const longestWorkout = longestSingleWorkout(data);
+  const workoutStreak = getWorkoutStreak(data);
 
   records.push({
     detail: longestRide ? "Longest single bike session." : "First ride sets the record.",
@@ -334,14 +335,14 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
   });
 
   records.push({
-    detail: "Days in a row with at least one saved log.",
-    history: [activeStreak(data)],
+    detail: "Consecutive days with at least one saved workout.",
+    history: [workoutStreak],
     icon: "streak",
-    label: "Active Streak",
-    sortValue: activeStreak(data),
+    label: "Workout Streak",
+    sortValue: workoutStreak,
     unit: "days",
-    value: activeStreak(data) ? `${activeStreak(data)}` : "—",
-    when: activeStreak(data) ? "Current" : undefined,
+    value: workoutStreak ? `${workoutStreak}` : "—",
+    when: workoutStreak ? "Current" : undefined,
   });
 
   records.push({
@@ -404,6 +405,21 @@ export function getWeeklyConsistency(data: RebuildData, profile: OnboardingProfi
     sessions,
     summary: sessions ? `You've logged ${sessions} movement session${sessions === 1 ? "" : "s"} this week against a ${goal}-session target.` : "Your first workout this week will start the consistency line.",
   };
+}
+
+export function getWorkoutStreak(data: RebuildData) {
+  const dates = new Set(uniqueDates(workoutSessions(data).map((item) => item.date)));
+  if (!dates.size) return 0;
+
+  let cursor = dates.has(getTodayIso()) ? getTodayIso() : addDays(getTodayIso(), -1);
+  let streak = 0;
+
+  while (dates.has(cursor)) {
+    streak += 1;
+    cursor = addDays(cursor, -1);
+  }
+
+  return streak;
 }
 
 export function getWeeklyMovementGoal(profile: OnboardingProfile | null) {

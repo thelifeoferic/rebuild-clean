@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { HeroDashboard } from "@/components/hero-dashboard";
 import { LogModal, type LogDraft } from "@/components/log-modal";
-import { MeHub } from "@/components/me-hub";
+import { MeHub, type MeTab } from "@/components/me-hub";
 import { Onboarding } from "@/components/onboarding";
 import { ProgramsHub } from "@/components/programs-hub";
 import { QuickAdd } from "@/components/quick-add";
@@ -29,6 +29,7 @@ export function RebuildApp() {
   const [createDraft, setCreateDraft] = useState<Draft | null>(null);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
   const [profile, setProfile] = useState<OnboardingProfile | null>(null);
+  const [meTabIntent, setMeTabIntent] = useState<MeTab | undefined>();
   const [recordsResetSignal, setRecordsResetSignal] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -90,7 +91,13 @@ export function RebuildApp() {
 
   function navigate(view: AppView) {
     if (view === "records") setRecordsResetSignal((current) => current + 1);
+    setMeTabIntent(view === "me" ? "Profile" : undefined);
     setActiveView(view);
+  }
+
+  function openBodyScan() {
+    setMeTabIntent("AI Body Scan");
+    setActiveView("me");
   }
 
   function saveLog(kind: LogKind, draft: Draft) {
@@ -191,6 +198,7 @@ export function RebuildApp() {
         <HeroDashboard
           data={data}
           onNavigate={navigate}
+          onOpenBodyScan={openBodyScan}
           onOpenLog={openLog}
           onUpdateProfile={updateProfile}
           profile={profile}
@@ -212,6 +220,7 @@ export function RebuildApp() {
       {activeView === "me" ? (
         <MeHub
           data={data}
+          initialTab={meTabIntent}
           onRestart={restartOnboarding}
           onRestore={restoreFromCloud}
           onUpdateProfile={updateProfile}

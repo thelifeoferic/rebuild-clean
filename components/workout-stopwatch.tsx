@@ -68,8 +68,14 @@ export function WorkoutStopwatch() {
 
   useEffect(() => {
     if (!alarmActive) return;
-    window.navigator.vibrate?.([180, 90, 180]);
-    playAlarmTone();
+    const ring = () => {
+      window.navigator.vibrate?.([260, 120, 260, 120, 420]);
+      playAlarmSequence();
+    };
+
+    ring();
+    const interval = window.setInterval(ring, 1800);
+    return () => window.clearInterval(interval);
   }, [alarmActive]);
 
   function start() {
@@ -107,6 +113,11 @@ export function WorkoutStopwatch() {
 
   function dismissAlarm() {
     setState((current) => ({ ...current, alarmDismissed: true }));
+  }
+
+  function testAlarm() {
+    window.navigator.vibrate?.([260, 120, 260, 120, 420]);
+    playAlarmSequence();
   }
 
   return (
@@ -163,6 +174,14 @@ export function WorkoutStopwatch() {
             </button>
           </div>
         ) : null}
+        <button
+          type="button"
+          onClick={testAlarm}
+          className="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.055] text-xs font-black uppercase tracking-[0.12em] text-white/58"
+        >
+          <BellRing size={14} strokeWidth={2.3} aria-hidden />
+          Test alarm
+        </button>
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2">
@@ -227,22 +246,44 @@ function pad(value: number) {
   return String(value).padStart(2, "0");
 }
 
-function playAlarmTone() {
+function playAlarmSequence() {
   try {
     const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) return;
     const context = new AudioContextClass();
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.frequency.value = 880;
-    oscillator.type = "sine";
-    gain.gain.setValueAtTime(0.001, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.5);
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.55);
+    const master = context.createGain();
+    const start = context.currentTime;
+    const pulses = [
+      { frequency: 740, offset: 0 },
+      { frequency: 988, offset: 0.28 },
+      { frequency: 740, offset: 0.56 },
+      { frequency: 1175, offset: 0.84 },
+    ];
+
+    void context.resume?.();
+    master.gain.setValueAtTime(0.001, start);
+    master.gain.exponentialRampToValueAtTime(0.34, start + 0.04);
+    master.gain.exponentialRampToValueAtTime(0.001, start + 1.18);
+    master.connect(context.destination);
+
+    pulses.forEach(({ frequency, offset }) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const pulseStart = start + offset;
+      oscillator.frequency.setValueAtTime(frequency, pulseStart);
+      oscillator.type = "square";
+      gain.gain.setValueAtTime(0.001, pulseStart);
+      gain.gain.exponentialRampToValueAtTime(0.2, pulseStart + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, pulseStart + 0.2);
+      oscillator.connect(gain);
+      gain.connect(master);
+      oscillator.start(pulseStart);
+      oscillator.stop(pulseStart + 0.22);
+    });
+
+    window.setTimeout(() => {
+      void context.close();
+    }, 1400);
   } catch {
     // Some mobile browsers block audio until the user has interacted; vibration still handles the alarm.
   }

@@ -28,13 +28,14 @@ export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog }
   const [selectedDate, setSelectedDate] = useState(getTodayIso());
   const entries = useMemo(() => getDayEntries(data, selectedDate), [data, selectedDate]);
   const summary = useMemo(() => getDaySummary(data, selectedDate), [data, selectedDate]);
+  const viewingToday = selectedDate === getTodayIso();
 
   function confirmDelete(entry: DayEntry) {
     if (window.confirm(`Delete ${entry.title}?`)) onDelete(entry.kind, entry.id);
   }
 
   return (
-    <Section id="calendar" eyebrow="Choose the day" title="Daily Calendar">
+    <Section id="calendar" eyebrow={viewingToday ? "Today" : "Choose the day"} title={viewingToday ? "Today" : "Daily Calendar"}>
       <div className="panel p-4">
         <div className="flex items-center gap-2">
           <button

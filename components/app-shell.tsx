@@ -4,7 +4,7 @@ import type { AppView, OnboardingProfile } from "@/types/rebuild";
 
 const navigation = [
   { view: "home", label: "Home", icon: Home },
-  { view: "records", label: "Records", icon: Trophy },
+  { view: "records", label: "Rebuild", icon: Trophy },
   { view: "log", label: "Log", icon: CirclePlus, elevated: true },
   { view: "programs", label: "Programs", icon: Play },
   { view: "me", label: "Me", icon: UserRound },

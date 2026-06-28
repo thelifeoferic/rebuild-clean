@@ -17,8 +17,8 @@ import {
   PlayCircle,
   Salad,
   Scale,
+  ScanSearch,
   ShieldCheck,
-  Sparkles,
   Trophy,
   X,
 } from "lucide-react";
@@ -27,14 +27,14 @@ import { useEffect, useMemo, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import { CountUp } from "@/components/count-up";
 import { NutritionTracker } from "@/components/nutrition-tracker";
-import { TodayPlan } from "@/components/today-plan";
 import { classesForDay, currentStudioDay } from "@/data/class-schedule";
 import { equipmentLogKindFor, getGymPreset, localGymPresets, machineCategoryFor } from "@/data/gym-presets";
 import type { AppView, LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 import { getActivityCalorieBreakdown, getTodaysActivityCalories } from "@/lib/activity-calories";
 import { bikeDistanceForSession } from "@/lib/bike-distance";
+import { listProgressPhotos, type ProgressPhoto } from "@/lib/progress-photos";
 import { getTodaysBikeMinutes, getTotalPushUps, getWeightChangeFromLast, isToday } from "@/lib/rebuild-data";
-import { getCoachInsight, getPersonalRecords, getRebuildDay, getRebuildScore, getWeeklyConsistency } from "@/lib/rebuild-insights";
+import { getCoachInsight, getPersonalRecords, getRebuildDay, getRebuildScore, getWorkoutStreak } from "@/lib/rebuild-insights";
 import { formatMinutes, formatWeight } from "@/lib/metrics";
 
 const programsTabIntentKey = "rebuild:programs-tab:intent";
@@ -75,12 +75,14 @@ const quotes = [
 export function HeroDashboard({
   data,
   onNavigate,
+  onOpenBodyScan,
   onOpenLog,
   onUpdateProfile,
   profile,
 }: {
   data: RebuildData;
   onNavigate: (view: AppView) => void;
+  onOpenBodyScan: () => void;
   onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
   onUpdateProfile: (profile: OnboardingProfile) => void;
   profile: OnboardingProfile | null;
@@ -95,21 +97,39 @@ export function HeroDashboard({
   const activeQuotes = getQuotesForStyle(profile?.quoteStyle);
   const [quoteIndex, setQuoteIndex] = useState(() => randomQuoteIndex(quotes.length));
   const [showBurnBreakdown, setShowBurnBreakdown] = useState(false);
+  const [bodyScanPhoto, setBodyScanPhoto] = useState<ProgressPhoto | null>(null);
   const quote = activeQuotes[quoteIndex % activeQuotes.length];
-  const recommendation = getHomeRecommendation(profile, data);
+  const recommendation = getHomeRecommendation(profile, bodyScanPhoto);
   const rebuildScore = getRebuildScore(data, profile);
   const coachInsight = getCoachInsight(data, profile);
   const rebuildDay = getRebuildDay(data);
   const latestEntry = getLatestHomeEntry(data);
   const activityBurn = getTodaysActivityCalories(data, profile);
   const activityBreakdown = getActivityCalorieBreakdown(data, profile);
-  const weeklyConsistency = getWeeklyConsistency(data, profile);
+  const workoutStreak = getWorkoutStreak(data);
   const records = getPersonalRecords(data);
   const topRecord = records.find((record) => record.value !== "—") ?? records[0];
 
   useEffect(() => {
     setQuoteIndex(randomQuoteIndex(activeQuotes.length));
   }, [activeQuotes.length, profile?.quoteStyle]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    listProgressPhotos()
+      .then((photos) => {
+        if (!mounted) return;
+        setBodyScanPhoto(photos.find((photo) => photo.analysis) ?? photos[0] ?? null);
+      })
+      .catch(() => {
+        if (mounted) setBodyScanPhoto(null);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <section className="px-4 pb-4 pt-5">
@@ -213,6 +233,13 @@ export function HeroDashboard({
         Start TIDAL playlist
       </a>
 
+      <HomeGymPanel
+        onOpenClasses={() => openProgramsTab("Classes", onNavigate)}
+        onOpenLog={onOpenLog}
+        onUpdateProfile={onUpdateProfile}
+        profile={profile}
+      />
+
       <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
         <div className="relative min-h-32 bg-black">
           <Image
@@ -231,22 +258,28 @@ export function HeroDashboard({
         <div className="p-4">
           <div className="mb-3 flex items-start gap-3">
             <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
-              <Sparkles size={18} strokeWidth={2.2} aria-hidden />
+              {recommendation.logKind ? <Dumbbell size={18} strokeWidth={2.2} aria-hidden /> : <ScanSearch size={18} strokeWidth={2.2} aria-hidden />}
             </div>
             <div>
               <p className="text-sm leading-5 text-white/55">{recommendation.detail}</p>
               <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-white/38">
-                {profile?.preferredTrainingMinutes ?? 25} min · {profile?.defaultLocation ?? "gym"} · {profile?.coachingTone ?? "calm"}
+                {recommendation.meta}
               </p>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => onOpenLog(recommendation.logKind)}
+            onClick={() => {
+              if (recommendation.logKind) {
+                onOpenLog(recommendation.logKind);
+                return;
+              }
+              onOpenBodyScan();
+            }}
             className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-bold text-carbon shadow-glow"
           >
-            <Dumbbell size={17} strokeWidth={2.2} aria-hidden />
-            Log this action
+            {recommendation.logKind ? <Dumbbell size={17} strokeWidth={2.2} aria-hidden /> : <ScanSearch size={17} strokeWidth={2.2} aria-hidden />}
+            {recommendation.ctaLabel}
           </button>
         </div>
       </div>
@@ -258,17 +291,10 @@ export function HeroDashboard({
         </div>
       ) : null}
 
-      <HomeGymPanel
-        onOpenClasses={() => openProgramsTab("Classes", onNavigate)}
-        onOpenLog={onOpenLog}
-        onUpdateProfile={onUpdateProfile}
-        profile={profile}
-      />
-
       <div className="mt-4 space-y-2">
         <div className="mb-3">
           <p className="metric-label">Proof stack</p>
-          <h2 className="mt-1 text-xl font-semibold text-porcelain">What the app sees today</h2>
+          <h2 className="mt-1 text-xl font-semibold text-porcelain">What you&apos;ve done today</h2>
         </div>
         <HomeSignalRow
           icon={CheckCircle2}
@@ -286,9 +312,13 @@ export function HeroDashboard({
         />
         <HomeSignalRow
           icon={LineChart}
-          label="Consistency"
-          title={`${weeklyConsistency.sessions}/${weeklyConsistency.goal} sessions`}
-          detail={weeklyConsistency.summary}
+          label="Workout streak"
+          title={workoutStreak ? `${workoutStreak} day${workoutStreak === 1 ? "" : "s"}` : "Start today"}
+          detail={
+            workoutStreak
+              ? "Consecutive days with at least one saved workout."
+              : "Log one workout today to start a training streak."
+          }
           onClick={() => onNavigate("records")}
         />
         <HomeSignalRow
@@ -307,10 +337,9 @@ export function HeroDashboard({
         <MiniStat label="Choices" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
       </div>
 
-      <TodayPlan data={data} onOpenLog={onOpenLog} />
       <NutritionTracker data={data} onOpenLog={onOpenLog} profile={profile} />
 
-      <HomeSectionShortcuts onOpenProgramsTab={(tab) => openProgramsTab(tab, onNavigate)} />
+      <HomeSectionShortcuts onOpenBodyScan={onOpenBodyScan} onOpenProgramsTab={(tab) => openProgramsTab(tab, onNavigate)} />
 
       {showBurnBreakdown ? (
         <ActivityBurnSheet
@@ -383,59 +412,58 @@ function homeHeroImage(profile: OnboardingProfile | null) {
   return "/rebuild-leg-press-top.jpg";
 }
 
-function getHomeRecommendation(profile: OnboardingProfile | null, data: RebuildData) {
-  const goals = (profile?.goals ?? [profile?.goal ?? "Rebuild discipline"]).join(" ").toLowerCase();
+function getHomeRecommendation(profile: OnboardingProfile | null, bodyScanPhoto: ProgressPhoto | null) {
+  const analysis = bodyScanPhoto?.analysis;
   const minutes = profile?.preferredTrainingMinutes ?? 25;
   const location = profile?.defaultLocation ?? "gym";
-  const tone = profile?.coachingTone ?? "calm";
 
-  if (goals.includes("eat") || goals.includes("weight")) {
+  if (!analysis) {
     return {
-      detail: tone === "intense" ? "Protein first. Log the next meal before the day gets blurry." : "Anchor the day with protein and keep calories visible.",
-      eyebrow: "Personalized next move",
-      image: "/rebuild-nutrition.jpg",
-      logKind: "meal" as LogKind,
-      title: "Fuel checkpoint",
+      ctaLabel: "Take body scan",
+      detail: "Upload a progress photo and REBUILD will turn it into a practical, non-medical training focus for your next block.",
+      eyebrow: "AI body scan",
+      image: "/rebuild-strength.jpg",
+      meta: "Private by default · saved to your progress library",
+      title: "Build from a photo",
     };
   }
 
-  if (goals.includes("stress") || goals.includes("sleep") || location === "home") {
-    return {
-      detail: `${minutes} minutes of low-friction movement: yoga, mobility, or a quiet circuit. Keep the promise without forcing the mood.`,
-      eyebrow: "Personalized next move",
-      image: "/rebuild-yoga-light.jpg",
-      logKind: "yoga" as LogKind,
-      title: "Downshift without disappearing",
-    };
-  }
-
-  if (location === "pool") {
-    return {
-      detail: `${minutes} minutes in the pool. Smooth laps, controlled breathing, no heroic pacing required.`,
-      eyebrow: "Personalized next move",
-      image: "/rebuild-swim-lane.jpg",
-      logKind: "swim" as LogKind,
-      title: "Low-impact engine",
-    };
-  }
-
-  if (data.bikeSessions.length || goals.includes("cardio")) {
-    return {
-      detail: `${minutes} minutes on the bike. Start easy, finish honest, and log the actual minutes.`,
-      eyebrow: "Personalized next move",
-      image: "/rebuild-air-bike.jpg",
-      logKind: "bike" as LogKind,
-      title: "Cardio base",
-    };
-  }
+  const signal =
+    analysis.nextActions?.[0] ??
+    analysis.trainingPriorities?.[0] ??
+    analysis.observations?.[0] ??
+    analysis.summary;
+  const logKind = logKindFromScanSignal(signal, location);
 
   return {
-    detail: `${minutes} minutes of strength work matched to your equipment. Pick one lift, one pull, one carry.`,
-    eyebrow: "Personalized next move",
-    image: "/rebuild-kettlebell-pushup.jpg",
-    logKind: "strength" as LogKind,
-    title: "Strength proof",
+    ctaLabel: "Log scan workout",
+    detail: `${signal} Turn that into ${minutes} controlled minutes today, then save the proof.`,
+    eyebrow: "AI body scan workout",
+    image: imageForRecommendation(logKind),
+    logKind,
+    meta: `${minutes} min · ${location} · based on latest scan`,
+    title: "Scan-based next move",
   };
+}
+
+function logKindFromScanSignal(signal: string, location: OnboardingProfile["defaultLocation"]): LogKind {
+  const normalized = signal.toLowerCase();
+
+  if (location === "pool" || normalized.includes("swim") || normalized.includes("pool")) return "swim";
+  if (normalized.includes("bike") || normalized.includes("cardio") || normalized.includes("conditioning")) return "bike";
+  if (normalized.includes("yoga") || normalized.includes("mobility") || normalized.includes("stretch") || normalized.includes("recovery")) return "yoga";
+  if (normalized.includes("kettlebell") || normalized.includes("hinge") || normalized.includes("swing")) return "kettlebell";
+  if (normalized.includes("push")) return "pushUps";
+  return "strength";
+}
+
+function imageForRecommendation(logKind: LogKind) {
+  if (logKind === "bike") return "/rebuild-air-bike.jpg";
+  if (logKind === "swim") return "/rebuild-swim-lane.jpg";
+  if (logKind === "yoga") return "/rebuild-yoga-light.jpg";
+  if (logKind === "kettlebell") return "/rebuild-kettlebell-pushup.jpg";
+  if (logKind === "pushUps") return "/rebuild-pushup-box.jpg";
+  return "/rebuild-strength.jpg";
 }
 
 function MiniStat({
@@ -612,18 +640,18 @@ function HomeGymPanel({
         </label>
 
         {selectedPreset?.id === "total-fitness-29-palms" ? (
-          <div className="mt-4 rounded-[1.35rem] border border-ember/18 bg-gradient-to-br from-ember/12 via-white/[0.045] to-white/[0.025] p-4">
+          <div className="mt-4 rounded-[1.35rem] border border-champagne/22 bg-gradient-to-br from-champagne/14 via-white/[0.07] to-white/[0.04] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="metric-label text-white/48">Today at Total Fitness</p>
+                <p className="metric-label text-white/72">Today at Total Fitness</p>
                 <h3 className="mt-1 text-xl font-black uppercase leading-none text-porcelain">
                   {todaysStudioClasses.length ? `${todaysStudioClasses.length} studio classes` : "Open floor"}
                 </h3>
-                <p className="mt-2 text-sm font-semibold leading-5 text-white/52">
+                <p className="mt-2 text-sm font-semibold leading-5 text-white/78">
                   The schedule is tied to this gym. Tap a class to log it, or open the full week.
                 </p>
               </div>
-              <div className="grid size-11 shrink-0 place-items-center rounded-full bg-ember text-white">
+              <div className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne text-white">
                 <CalendarDays size={18} strokeWidth={2.3} aria-hidden />
               </div>
             </div>
@@ -640,12 +668,12 @@ function HomeGymPanel({
                   >
                     <span>
                       <span className="block text-sm font-black text-porcelain">{item.title}</span>
-                      <span className="mt-0.5 flex items-center gap-1 text-xs font-bold uppercase tracking-[0.1em] text-white/42">
+                      <span className="mt-0.5 flex items-center gap-1 text-xs font-bold uppercase tracking-[0.1em] text-white/68">
                         <Clock3 size={12} strokeWidth={2.3} aria-hidden />
                         {item.start}
                       </span>
                     </span>
-                    <span className="shrink-0 rounded-full bg-white/8 px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em] text-white/58">
+                    <span className="shrink-0 rounded-full bg-white/12 px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em] text-white/76">
                       Log
                     </span>
                   </button>
@@ -731,8 +759,10 @@ function HomeGymPanel({
 }
 
 function HomeSectionShortcuts({
+  onOpenBodyScan,
   onOpenProgramsTab,
 }: {
+  onOpenBodyScan: () => void;
   onOpenProgramsTab: (tab: "Programs" | "Guides" | "Classes" | "Nutrition" | "Media") => void;
 }) {
   const shortcuts = [
@@ -782,6 +812,35 @@ function HomeSectionShortcuts({
         </div>
       </div>
       <div className="grid gap-3">
+        <button
+          type="button"
+          onClick={onOpenBodyScan}
+          className="group relative min-h-56 overflow-hidden rounded-3xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
+        >
+          <Image
+            src="/rebuild-strength.jpg"
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 448px"
+            className="object-cover object-[52%_35%] opacity-82 transition group-active:scale-[1.02]"
+          />
+          <span className="absolute inset-0 bg-gradient-to-t from-black/96 via-black/34 to-black/10" />
+          <span className="absolute bottom-4 left-4 right-4">
+            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-white">
+              <ScanSearch size={15} strokeWidth={2.3} aria-hidden />
+              Signature feature
+            </span>
+            <span className="block font-display text-4xl font-black uppercase leading-none text-white">
+              AI Body Scan
+            </span>
+            <span className="mt-2 block max-w-[22rem] text-sm font-semibold leading-5 text-white/76">
+              Upload progress photos, compare changes over time, and get non-medical coaching on what to track next.
+            </span>
+            <span className="mt-4 inline-flex rounded-full bg-champagne px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-carbon">
+              Open scan
+            </span>
+          </span>
+        </button>
         {shortcuts.map((shortcut) => {
           const Icon = shortcut.icon;
 

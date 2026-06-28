@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { Building2, CheckCircle2, ChevronDown, Cloud, MapPin, ScanSearch, UserRound, Watch } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AccountSync } from "@/components/account-sync";
 import { AppleHealthRoadmap } from "@/components/apple-health-roadmap";
 import { BodyCheck } from "@/components/body-check";
@@ -11,8 +11,8 @@ import { ProfileCard } from "@/components/profile-card";
 import { defaultGymEquipment, getGymPreset, localGymPresets } from "@/data/gym-presets";
 import type { OnboardingProfile, RebuildData } from "@/types/rebuild";
 
-const tabs = ["Profile", "Setup", "Sync", "Body Check", "Health"] as const;
-type MeTab = (typeof tabs)[number];
+const tabs = ["Profile", "Setup", "Sync", "AI Body Scan", "Health"] as const;
+export type MeTab = (typeof tabs)[number];
 
 const behaviorFocusOptions = [
   "Alcohol",
@@ -49,20 +49,26 @@ const gymSelectorOptions = ["none", ...localGymPresets.map((gym) => gym.id), "cu
 
 export function MeHub({
   data,
+  initialTab,
   onRestart,
   onRestore,
   onUpdateProfile,
   profile,
 }: {
   data: RebuildData;
+  initialTab?: MeTab;
   onRestart: () => void;
   onRestore: (profile: OnboardingProfile | null, data: RebuildData | null) => void;
   onUpdateProfile: (profile: OnboardingProfile) => void;
   profile: OnboardingProfile | null;
 }) {
-  const [activeTab, setActiveTab] = useState<MeTab>("Profile");
+  const [activeTab, setActiveTab] = useState<MeTab>(initialTab ?? "Profile");
   const firstName = profile?.firstName?.trim() || "Member";
   const avatarSrc = profile?.avatarDataUrl || profile?.avatarUrl;
+
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+  }, [initialTab]);
 
   return (
     <>
@@ -100,7 +106,7 @@ export function MeHub({
       {activeTab === "Profile" ? <ProfileCard onRestart={onRestart} onUpdateProfile={onUpdateProfile} profile={profile} /> : null}
       {activeTab === "Setup" ? <ProgressiveSetup onUpdateProfile={onUpdateProfile} profile={profile} /> : null}
       {activeTab === "Sync" ? <AccountSync data={data} onRestore={onRestore} profile={profile} /> : null}
-      {activeTab === "Body Check" ? <BodyCheck profile={profile} /> : null}
+      {activeTab === "AI Body Scan" ? <BodyCheck profile={profile} /> : null}
       {activeTab === "Health" ? <AppleHealthRoadmap /> : null}
     </>
   );
@@ -273,7 +279,7 @@ function ProgressiveSetup({
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <SetupTile icon={Cloud} label="Cloud ready" detail="Sync lives under Me." />
-        <SetupTile icon={ScanSearch} label="Body Check" detail="Photos stay comparable." />
+        <SetupTile icon={ScanSearch} label="AI Body Scan" detail="Photo history and analysis stay comparable." />
         <SetupTile icon={Watch} label="Apple Watch" detail="Roadmap is preserved." />
         <SetupTile icon={UserRound} label="Private loops" detail="Shown only as patterns." />
       </div>
