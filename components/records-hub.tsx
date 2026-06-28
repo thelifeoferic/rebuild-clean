@@ -6,7 +6,7 @@ import { PersonalRecords } from "@/components/personal-records";
 import { ProgressTrends } from "@/components/progress-trends";
 import { RebuildTimeline } from "@/components/rebuild-timeline";
 import { StreakSummary } from "@/components/streak-summary";
-import type { LogKind, RebuildData, TimelineItem } from "@/types/rebuild";
+import type { LogKind, OnboardingProfile, RebuildData, TimelineItem } from "@/types/rebuild";
 
 const tabs = ["Today", "Trends", "Records", "Timeline", "Consistency"] as const;
 type RecordsTab = (typeof tabs)[number];
@@ -17,6 +17,7 @@ export function RecordsHub({
   onDuplicate,
   onEdit,
   onOpenLog,
+  profile,
   resetSignal,
   timeline,
 }: {
@@ -25,6 +26,7 @@ export function RecordsHub({
   onDuplicate: (kind: LogKind, id: string) => void;
   onEdit: (kind: LogKind, id: string) => void;
   onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
+  profile: OnboardingProfile | null;
   resetSignal: number;
   timeline: TimelineItem[];
 }) {
@@ -62,6 +64,7 @@ export function RecordsHub({
           onDuplicate={onDuplicate}
           onEdit={onEdit}
           onOpenLog={onOpenLog}
+          profile={profile}
         />
       ) : null}
       {activeTab === "Trends" ? <ProgressTrends data={data} /> : null}

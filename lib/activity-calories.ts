@@ -1,4 +1,4 @@
-import { isToday, timeToSeconds } from "@/lib/rebuild-data";
+import { getTodayIso, normalizeLogDate, timeToSeconds } from "@/lib/rebuild-data";
 import type { LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
 type DraftLike = Record<string, unknown>;
@@ -18,7 +18,16 @@ export type ActivityCalorieBreakdownItem = {
 };
 
 export function getDailyCalorieGuide(data: RebuildData, profile: OnboardingProfile | null, eaten: number): DailyCalorieGuide {
-  const activityBurn = getTodaysActivityCalories(data, profile);
+  return getDailyCalorieGuideForDate(data, profile, eaten, getTodayIso());
+}
+
+export function getDailyCalorieGuideForDate(
+  data: RebuildData,
+  profile: OnboardingProfile | null,
+  eaten: number,
+  date = getTodayIso(),
+): DailyCalorieGuide {
+  const activityBurn = getActivityCaloriesForDate(data, profile, date);
   const baseGuide = getBaseCalorieGuide(data, profile);
   const totalGuide = baseGuide + activityBurn;
 
@@ -32,73 +41,88 @@ export function getDailyCalorieGuide(data: RebuildData, profile: OnboardingProfi
 }
 
 export function getTodaysActivityCalories(data: RebuildData, profile: OnboardingProfile | null) {
-  return getActivityCalorieBreakdown(data, profile).reduce((sum, item) => sum + item.calories, 0);
+  return getActivityCaloriesForDate(data, profile, getTodayIso());
+}
+
+export function getActivityCaloriesForDate(data: RebuildData, profile: OnboardingProfile | null, date = getTodayIso()) {
+  return getActivityCalorieBreakdownForDate(data, profile, date).reduce((sum, item) => sum + item.calories, 0);
 }
 
 export function getActivityCalorieBreakdown(data: RebuildData, profile: OnboardingProfile | null): ActivityCalorieBreakdownItem[] {
+  return getActivityCalorieBreakdownForDate(data, profile, getTodayIso());
+}
+
+export function getActivityCalorieBreakdownForDate(
+  data: RebuildData,
+  profile: OnboardingProfile | null,
+  date = getTodayIso(),
+): ActivityCalorieBreakdownItem[] {
   const weightLb = getReferenceWeight(data, profile);
   const items: ActivityCalorieBreakdownItem[] = [];
+  const targetDate = normalizeLogDate(date, getTodayIso());
+  const matches = (sessionDate?: string) => normalizeLogDate(sessionDate, getTodayIso()) === targetDate;
 
   const bikeCalories = data.bikeSessions
-    .filter((session) => isToday(session.date))
+    .filter((session) => matches(session.date))
     .reduce((sum, session) => sum + (session.calories > 0 ? session.calories : caloriesFromMinutes(session.minutes, 7.2, weightLb)), 0);
   if (bikeCalories) {
-    const minutes = data.bikeSessions.filter((session) => isToday(session.date)).reduce((sum, session) => sum + session.minutes, 0);
+    const minutes = data.bikeSessions.filter((session) => matches(session.date)).reduce((sum, session) => sum + session.minutes, 0);
     items.push({ calories: Math.round(bikeCalories), detail: `${minutes} min logged`, label: "Bike" });
   }
 
   const ladderCalories = data.jacobsLadderSessions
-    .filter((session) => isToday(session.date))
+    .filter((session) => matches(session.date))
     .reduce((sum, session) => sum + caloriesFromMinutes(Math.max(timeToSeconds(session.duration) / 60, 1), 9.0, weightLb), 0);
   if (ladderCalories) {
-    const seconds = data.jacobsLadderSessions.filter((session) => isToday(session.date)).reduce((sum, session) => sum + timeToSeconds(session.duration), 0);
+    const seconds = data.jacobsLadderSessions.filter((session) => matches(session.date)).reduce((sum, session) => sum + timeToSeconds(session.duration), 0);
     items.push({ calories: Math.round(ladderCalories), detail: `${Math.round(seconds / 60)} min total`, label: "Jacob's Ladder" });
   }
 
   const pushUpCalories = data.pushUpSessions
-    .filter((session) => isToday(session.date))
+    .filter((session) => matches(session.date))
     .reduce((sum, session) => {
       const reps = session.sets.reduce((innerSum, set) => innerSum + set, 0);
       return sum + caloriesFromMinutes(Math.max(reps * 0.18, 4), 6.8, weightLb);
     }, 0);
   if (pushUpCalories) {
     const reps = data.pushUpSessions
-      .filter((session) => isToday(session.date))
+      .filter((session) => matches(session.date))
       .flatMap((session) => session.sets)
       .reduce((sum, set) => sum + set, 0);
     items.push({ calories: Math.round(pushUpCalories), detail: `${reps} total reps`, label: "Push-ups" });
   }
 
   const curlCalories = data.dumbbellCurlSessions
-    .filter((session) => isToday(session.date))
+    .filter((session) => matches(session.date))
     .reduce((sum, session) => sum + caloriesFromMinutes(Math.max(session.repsEachArm * 2 * 0.12, 4), 4.0, weightLb), 0);
   if (curlCalories) {
     const reps = data.dumbbellCurlSessions
-      .filter((session) => isToday(session.date))
+      .filter((session) => matches(session.date))
       .reduce((sum, session) => sum + session.repsEachArm * 2, 0);
     items.push({ calories: Math.round(curlCalories), detail: `${reps} total reps`, label: "Dumbbell work" });
   }
 
   const strengthCalories = data.strengthAccessorySessions
-    .filter((session) => isToday(session.date))
+    .filter((session) => matches(session.date))
     .reduce((sum, session) => sum + caloriesFromMinutes(Math.max(session.reps * 0.2, 8), 5.0, weightLb), 0);
   if (strengthCalories) {
+    const count = data.strengthAccessorySessions.filter((session) => matches(session.date)).length;
     items.push({
       calories: Math.round(strengthCalories),
-      detail: `${data.strengthAccessorySessions.filter((session) => isToday(session.date)).length} lift log${data.strengthAccessorySessions.filter((session) => isToday(session.date)).length === 1 ? "" : "s"}`,
+      detail: `${count} lift log${count === 1 ? "" : "s"}`,
       label: "Strength",
     });
   }
 
   const machineCalories = data.machineWorkoutSessions
-    .filter((session) => isToday(session.date))
+    .filter((session) => matches(session.date))
     .reduce((sum, session) => {
       if (session.calories && session.calories > 0) return sum + session.calories;
       const minutes = session.minutes ?? Math.max((session.sets ?? 0) * 4, 8);
       return sum + caloriesFromMinutes(minutes, machineMet(session.machine), weightLb);
     }, 0);
   if (machineCalories) {
-    const count = data.machineWorkoutSessions.filter((session) => isToday(session.date)).length;
+    const count = data.machineWorkoutSessions.filter((session) => matches(session.date)).length;
     items.push({
       calories: Math.round(machineCalories),
       detail: `${count} machine log${count === 1 ? "" : "s"}`,
@@ -107,36 +131,36 @@ export function getActivityCalorieBreakdown(data: RebuildData, profile: Onboardi
   }
 
   const kettlebellCalories = data.kettlebellSessions
-    .filter((session) => isToday(session.date))
+    .filter((session) => matches(session.date))
     .reduce((sum, session) => sum + caloriesFromMinutes(Math.max(session.reps * 0.08, 6), 8.0, weightLb), 0);
   if (kettlebellCalories) {
-    const reps = data.kettlebellSessions.filter((session) => isToday(session.date)).reduce((sum, session) => sum + session.reps, 0);
+    const reps = data.kettlebellSessions.filter((session) => matches(session.date)).reduce((sum, session) => sum + session.reps, 0);
     items.push({ calories: Math.round(kettlebellCalories), detail: `${reps} reps logged`, label: "Kettlebell" });
   }
 
   const carryCalories = data.farmerCarrySessions
-    .filter((session) => isToday(session.date))
+    .filter((session) => matches(session.date))
     .reduce((sum, session) => sum + caloriesFromMinutes(Math.max(session.rounds * 2, 4), 6.5, weightLb), 0);
   if (carryCalories) {
     const feet = data.farmerCarrySessions
-      .filter((session) => isToday(session.date))
+      .filter((session) => matches(session.date))
       .reduce((sum, session) => sum + session.distanceFeet * session.rounds, 0);
     items.push({ calories: Math.round(carryCalories), detail: `${feet} ft carried`, label: "Farmer carries" });
   }
 
   const swimCalories = data.swimSessions
-    .filter((session) => isToday(session.date))
+    .filter((session) => matches(session.date))
     .reduce((sum, session) => sum + caloriesFromMinutes(session.minutes, 7.0, weightLb), 0);
   if (swimCalories) {
-    const minutes = data.swimSessions.filter((session) => isToday(session.date)).reduce((sum, session) => sum + session.minutes, 0);
+    const minutes = data.swimSessions.filter((session) => matches(session.date)).reduce((sum, session) => sum + session.minutes, 0);
     items.push({ calories: Math.round(swimCalories), detail: `${minutes} min in pool`, label: "Swim" });
   }
 
   const yogaCalories = data.yogaSessions
-    .filter((session) => isToday(session.date))
+    .filter((session) => matches(session.date))
     .reduce((sum, session) => sum + caloriesFromMinutes(session.minutes, 3.0, weightLb), 0);
   if (yogaCalories) {
-    const minutes = data.yogaSessions.filter((session) => isToday(session.date)).reduce((sum, session) => sum + session.minutes, 0);
+    const minutes = data.yogaSessions.filter((session) => matches(session.date)).reduce((sum, session) => sum + session.minutes, 0);
     items.push({ calories: Math.round(yogaCalories), detail: `${minutes} min recovery`, label: "Yoga" });
   }
 

@@ -212,6 +212,7 @@ export function RebuildApp() {
           onDuplicate={duplicateLog}
           onEdit={openEditLog}
           onOpenLog={openLog}
+          profile={profile}
           resetSignal={recordsResetSignal}
           timeline={timeline}
         />

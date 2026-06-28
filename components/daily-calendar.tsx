@@ -4,9 +4,10 @@ import { Bike, CalendarDays, ChevronLeft, ChevronRight, Copy, Dumbbell, Flame, P
 import { useMemo, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { Section } from "@/components/section";
+import { getDailyCalorieGuideForDate } from "@/lib/activity-calories";
 import { bikeDistanceForSession } from "@/lib/bike-distance";
 import { formatLogDate, getTodayIso, normalizeLogDate, timeToSeconds } from "@/lib/rebuild-data";
-import type { LogKind, RebuildData } from "@/types/rebuild";
+import type { LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
 type DayEntry = {
   detail: string;
@@ -22,12 +23,13 @@ type DailyCalendarProps = {
   onDuplicate: (kind: LogKind, id: string) => void;
   onEdit: (kind: LogKind, id: string) => void;
   onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
+  profile: OnboardingProfile | null;
 };
 
-export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog }: DailyCalendarProps) {
+export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog, profile }: DailyCalendarProps) {
   const [selectedDate, setSelectedDate] = useState(getTodayIso());
   const entries = useMemo(() => getDayEntries(data, selectedDate), [data, selectedDate]);
-  const summary = useMemo(() => getDaySummary(data, selectedDate), [data, selectedDate]);
+  const summary = useMemo(() => getDaySummary(data, profile, selectedDate), [data, profile, selectedDate]);
   const viewingToday = selectedDate === getTodayIso();
 
   function confirmDelete(entry: DayEntry) {
@@ -70,20 +72,30 @@ export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog }
             <p className="metric-label">Viewing</p>
             <h3 className="mt-1 text-2xl font-semibold text-porcelain">{formatLogDate(selectedDate)}</h3>
           </div>
-          <button
-            type="button"
-            onClick={() => setSelectedDate(getTodayIso())}
-            className="min-h-10 rounded-full bg-champagne px-4 text-sm font-black text-carbon"
-          >
-            Today
-          </button>
+          {!viewingToday ? (
+            <button
+              type="button"
+              onClick={() => setSelectedDate(getTodayIso())}
+              className="min-h-10 rounded-full bg-champagne px-4 text-sm font-black text-carbon"
+            >
+              Back to today
+            </button>
+          ) : null}
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <SummaryCard label="Entries" value={`${entries.length}`} />
-          <SummaryCard label="Movement" value={`${summary.movementMinutes} min`} />
-          <SummaryCard label="Food" value={`${summary.calories} cal`} />
-          <SummaryCard label="Protein" value={`${summary.protein}g`} />
+          <SummaryCard label="Activities logged" value={`${entries.length}`} />
+          <SummaryCard label="Exercise time" value={`${summary.exerciseMinutes} min`} />
+          <SummaryCard
+            detail={`${formatCalories(Math.abs(summary.caloriesRemaining))} ${summary.caloriesRemaining >= 0 ? "left" : "over"} · +${formatCalories(summary.activityBurn)} exercise`}
+            label="Food"
+            value={`${formatCalories(summary.calories)} / ${formatCalories(summary.calorieTarget)}`}
+          />
+          <SummaryCard
+            detail={`${Math.max(summary.proteinTarget - summary.protein, 0)}g to ${summary.proteinTarget}g target`}
+            label="Protein"
+            value={`${summary.protein}g`}
+          />
         </div>
 
         <div className="mt-4 space-y-3">
@@ -117,10 +129,10 @@ export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog }
             })
           ) : (
             <EmptyState
-              action={{ label: "Log this day", onClick: () => onOpenLog("weight", { date: selectedDate }) }}
-              detail="Pick a date or save the first entry for this day. Edits you make will move logs into the right calendar day."
+              action={{ label: "Log activity", onClick: () => onOpenLog("weight", { date: selectedDate }) }}
+              detail="Pick a date or save the first activity for this day. Edits you make will move logs into the right calendar day."
               icon={CalendarDays}
-              title="No entries on this date."
+              title="No activity logged on this date."
             />
           )}
         </div>
@@ -138,11 +150,12 @@ export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog }
   );
 }
 
-function SummaryCard({ label, value }: { label: string; value: string }) {
+function SummaryCard({ detail, label, value }: { detail?: string; label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
       <p className="metric-label">{label}</p>
       <p className="mt-1 text-xl font-semibold text-porcelain">{value}</p>
+      {detail ? <p className="mt-1 text-xs font-semibold leading-4 text-white/45">{detail}</p> : null}
     </div>
   );
 }
@@ -305,21 +318,43 @@ function getDayEntries(data: RebuildData, selectedDate: string): DayEntry[] {
   return entries;
 }
 
-function getDaySummary(data: RebuildData, selectedDate: string) {
+function getDaySummary(data: RebuildData, profile: OnboardingProfile | null, selectedDate: string) {
   const matches = (date?: string) => normalizeLogDate(date) === selectedDate;
-  const movementMinutes =
+  const exerciseMinutes =
     data.bikeSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + entry.minutes, 0) +
     data.swimSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + entry.minutes, 0) +
     data.yogaSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + entry.minutes, 0) +
-    data.machineWorkoutSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + (entry.minutes ?? Math.max((entry.sets ?? 0) * 4, 0)), 0) +
-    data.jacobsLadderSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + Math.round(timeToSeconds(entry.duration) / 60), 0);
+    data.machineWorkoutSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + (entry.minutes ?? Math.max((entry.sets ?? 0) * 4, 8)), 0) +
+    data.jacobsLadderSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + Math.round(timeToSeconds(entry.duration) / 60), 0) +
+    data.pushUpSessions
+      .filter((entry) => matches(entry.date))
+      .reduce((sum, entry) => sum + Math.max(entry.sets.reduce((innerSum, set) => innerSum + set, 0) * 0.18, 4), 0) +
+    data.dumbbellCurlSessions
+      .filter((entry) => matches(entry.date))
+      .reduce((sum, entry) => sum + Math.max(entry.repsEachArm * 2 * 0.12, 4), 0) +
+    data.strengthAccessorySessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + Math.max(entry.reps * 0.2, 8), 0) +
+    data.kettlebellSessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + Math.max(entry.reps * 0.08, 6), 0) +
+    data.farmerCarrySessions.filter((entry) => matches(entry.date)).reduce((sum, entry) => sum + Math.max(entry.rounds * 2, 4), 0);
   const meals = data.meals.filter((entry) => matches(entry.date));
+  const calories = meals.reduce((sum, entry) => sum + entry.calories, 0);
+  const calorieGuide = getDailyCalorieGuideForDate(data, profile, calories, selectedDate);
+  const protein = meals.reduce((sum, entry) => sum + entry.protein, 0);
+  const referenceWeight = data.weights[0]?.weight || profile?.currentWeight || 200;
+  const proteinTarget = Math.round(referenceWeight * 0.7);
 
   return {
-    calories: meals.reduce((sum, entry) => sum + entry.calories, 0),
-    movementMinutes,
-    protein: meals.reduce((sum, entry) => sum + entry.protein, 0),
+    activityBurn: calorieGuide.activityBurn,
+    calorieTarget: calorieGuide.totalGuide,
+    calories,
+    caloriesRemaining: calorieGuide.remaining,
+    exerciseMinutes: Math.round(exerciseMinutes),
+    protein,
+    proteinTarget,
   };
+}
+
+function formatCalories(value: number) {
+  return `${Math.round(value).toLocaleString()} cal`;
 }
 
 function machineOutputDetail(machine: string, value: number) {
