@@ -186,7 +186,7 @@ export type LogKind =
 export type AppView = "home" | "log" | "records" | "programs" | "me";
 
 export type OnboardingProfile = {
-  accentColor?: "champagne" | "white" | "ember" | "volt" | "teal" | "cobalt";
+  accentColor?: "champagne" | "white" | "ember" | "volt" | "teal" | "cobalt" | "pink";
   age?: number;
   avatarDataUrl?: string;
   avatarUrl?: string;

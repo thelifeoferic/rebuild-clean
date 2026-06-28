@@ -9,7 +9,7 @@ const items = [
   { key: "weight", label: "Weigh in", detail: "Start with the truth.", icon: Scale },
   { key: "movement", label: "Move", detail: "Choose the work that fits today.", icon: Bike },
   { key: "protein", label: "Fuel", detail: "Log one protein anchor.", icon: Salad },
-  { key: "reset", label: "Pattern", detail: "Track the better choice.", icon: Flame },
+  { key: "reset", label: "Meditate", detail: "Did you meditate today?", icon: Flame },
 ] as const;
 
 const movementChoices: { kind: LogKind; label: string; icon: typeof Bike }[] = [
@@ -28,7 +28,7 @@ export function TodayPlan({
   onOpenLog,
 }: {
   data: RebuildData;
-  onOpenLog: (kind: LogKind) => void;
+  onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
 }) {
   const [selectedMovement, setSelectedMovement] = useState<LogKind>("bike");
   const completed = {
@@ -45,7 +45,7 @@ export function TodayPlan({
       data.swimSessions.some((entry) => isToday(entry.date)) ||
       data.yogaSessions.some((entry) => isToday(entry.date)),
     protein: data.meals.some((meal) => (!meal.date || isToday(meal.date)) && meal.protein >= 25),
-    reset: data.behaviorWins.some((win) => isToday(win.date)),
+    reset: hasMeditatedToday(data),
   };
 
   function targetFor(key: keyof typeof completed): LogKind {
@@ -121,7 +121,14 @@ export function TodayPlan({
             <button
               key={item.key}
               type="button"
-              onClick={() => onOpenLog(targetFor(item.key))}
+              onClick={() => {
+                if (item.key === "reset") {
+                  onOpenLog("mood", { label: "Meditation", reason: "stress" });
+                  return;
+                }
+
+                onOpenLog(targetFor(item.key));
+              }}
               className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition ${
                 isDone ? "border-signal/30 bg-signal/10" : "border-white/10 bg-carbon/70"
               }`}
@@ -139,4 +146,16 @@ export function TodayPlan({
       </div>
     </div>
   );
+}
+
+function hasMeditatedToday(data: RebuildData) {
+  return (
+    data.behaviorWins.some((entry) => isToday(entry.date) && isMeditationLabel(entry.label)) ||
+    data.yogaSessions.some((entry) => isToday(entry.date) && isMeditationLabel(entry.focus))
+  );
+}
+
+function isMeditationLabel(value?: string) {
+  const normalized = String(value ?? "").toLowerCase();
+  return normalized.includes("meditat") || normalized.includes("breath") || normalized.includes("stayed present");
 }

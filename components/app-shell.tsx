@@ -44,7 +44,7 @@ export function AppShell({
                   onClick={() => onNavigate(item.view as AppView)}
                   className={`flex flex-col items-center justify-center gap-1 rounded-2xl font-bold transition active:scale-[0.97] ${
                     isElevated
-                      ? "-mt-7 min-h-16 border border-white/15 bg-champagne text-white shadow-glow"
+                      ? "-mt-7 min-h-16 border border-white/15 bg-champagne text-[rgb(var(--color-accent-foreground))] shadow-glow"
                       : `min-h-12 text-[0.56rem] ${
                           isActive ? "bg-champagne/14 text-champagne" : "text-porcelain/52 hover:bg-white/[0.06] hover:text-porcelain"
                         }`

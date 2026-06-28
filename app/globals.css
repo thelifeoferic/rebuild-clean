@@ -8,6 +8,7 @@
   --color-graphite: 18 19 17;
   --color-steel: 45 43 38;
   --color-accent: 16 106 159;
+  --color-accent-foreground: 255 255 255;
   --color-ember: 232 91 62;
   --color-signal: 16 106 159;
   --color-porcelain: 246 243 237;
@@ -103,6 +104,24 @@ button:active {
   color: rgb(var(--color-porcelain));
 }
 
+.theme-light.accent-pink {
+  --color-carbon: 255 248 252;
+  --color-graphite: 255 255 255;
+  --color-steel: 244 213 229;
+  --color-porcelain: 31 20 29;
+  --app-bg: #fff7fb;
+  background:
+    linear-gradient(180deg, rgba(var(--color-accent), 0.12), transparent 22rem),
+    radial-gradient(circle at 86% 2%, rgba(236, 72, 153, 0.1), transparent 17rem),
+    var(--app-bg);
+}
+
+.theme-light.accent-white {
+  --color-accent: 18 22 26;
+  --color-accent-foreground: 255 255 255;
+  --color-signal: 18 22 26;
+}
+
 @media (prefers-color-scheme: light) {
   .theme-auto {
     color-scheme: light;
@@ -121,37 +140,49 @@ button:active {
 
 .accent-champagne {
   --color-accent: 224 184 96;
+  --color-accent-foreground: 5 6 7;
   --color-signal: 246 243 237;
 }
 
 .accent-white {
   --color-accent: 246 243 237;
-  --color-signal: 232 91 62;
+  --color-accent-foreground: 18 22 26;
+  --color-signal: 246 243 237;
 }
 
 .accent-ember {
   --color-accent: 232 91 62;
+  --color-accent-foreground: 5 6 7;
   --color-signal: 246 243 237;
 }
 
 .accent-teal {
   --color-accent: 45 212 191;
+  --color-accent-foreground: 5 6 7;
   --color-signal: 45 212 191;
 }
 
 .accent-cobalt {
   --color-accent: 16 106 159;
+  --color-accent-foreground: 255 255 255;
   --color-signal: 16 106 159;
 }
 
 .accent-volt {
   --color-accent: 190 242 100;
+  --color-accent-foreground: 5 6 7;
   --color-signal: 190 242 100;
 }
 
-.accent-cobalt .bg-champagne.text-carbon,
-.accent-cobalt .bg-champagne .text-carbon {
-  color: #fff;
+.accent-pink {
+  --color-accent: 236 72 153;
+  --color-accent-foreground: 255 255 255;
+  --color-signal: 236 72 153;
+}
+
+.bg-champagne.text-carbon,
+.bg-champagne .text-carbon {
+  color: rgb(var(--color-accent-foreground));
 }
 
 .contrast-panel,

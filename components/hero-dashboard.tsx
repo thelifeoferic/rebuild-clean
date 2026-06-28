@@ -205,7 +205,11 @@ export function HeroDashboard({
             <div className="grid grid-cols-3 gap-2">
               <PlanButton label="Weigh-in" done={data.weights.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("weight")} />
               <PlanButton label="Move" done={hasMovementToday(data)} onClick={() => onNavigate("log")} />
-              <PlanButton label="Pattern" done={data.behaviorWins.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("mood")} />
+              <PlanButton
+                label="Meditate"
+                done={hasMeditatedToday(data)}
+                onClick={() => onOpenLog("mood", { label: "Meditation", reason: "stress" })}
+              />
             </div>
           </div>
         </div>
@@ -417,7 +421,7 @@ function getHomeRecommendation(profile: OnboardingProfile | null, bodyScanPhoto:
       ctaLabel: "Take body scan",
       detail: "Upload a progress photo and REBUILD will turn it into a practical, non-medical training focus for your next block.",
       eyebrow: "AI body scan",
-      image: "/rebuild-strength.jpg",
+      image: "/rebuild-body-scan-selfie.jpg",
       meta: "Private by default · saved to your progress library",
       title: "Build from a photo",
     };
@@ -646,7 +650,7 @@ function HomeGymPanel({
                   The schedule is tied to this gym. Tap a class to log it, or open the full week.
                 </p>
               </div>
-              <div className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne text-white">
+              <div className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne text-[rgb(var(--color-accent-foreground))]">
                 <CalendarDays size={18} strokeWidth={2.3} aria-hidden />
               </div>
             </div>
@@ -807,11 +811,11 @@ function HomeSectionShortcuts({
           className="group relative min-h-64 overflow-hidden rounded-3xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
         >
           <Image
-            src="/rebuild-strength.jpg"
+            src="/rebuild-body-scan-selfie.jpg"
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, 448px"
-            className="object-cover object-[52%_35%] opacity-82 transition group-active:scale-[1.02]"
+            className="object-cover object-[58%_42%] opacity-88 transition group-active:scale-[1.02]"
           />
           <span className="absolute inset-0 bg-gradient-to-t from-black/98 via-black/72 to-black/12" />
           <span className="absolute bottom-4 left-4 right-4 rounded-[1.35rem] border border-white/10 bg-black/72 p-4 backdrop-blur-md">
@@ -1065,8 +1069,20 @@ function todayCompletion(data: RebuildData) {
   return [
     data.weights.some((entry) => isToday(entry.date)),
     hasMovementToday(data),
-    data.behaviorWins.some((entry) => isToday(entry.date)),
+    hasMeditatedToday(data),
   ].filter(Boolean).length;
+}
+
+function hasMeditatedToday(data: RebuildData) {
+  return (
+    data.behaviorWins.some((entry) => isToday(entry.date) && isMeditationLabel(entry.label)) ||
+    data.yogaSessions.some((entry) => isToday(entry.date) && isMeditationLabel(entry.focus))
+  );
+}
+
+function isMeditationLabel(value?: string) {
+  const normalized = String(value ?? "").toLowerCase();
+  return normalized.includes("meditat") || normalized.includes("breath") || normalized.includes("stayed present");
 }
 
 function hasMovementToday(data: RebuildData) {

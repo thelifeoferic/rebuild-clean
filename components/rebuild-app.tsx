@@ -21,6 +21,8 @@ type EditTarget = {
 };
 const profileKey = "rebuild:profile:v2";
 const accentMigrationKey = "rebuild:accent-default-cobalt:v1";
+const whyIntroSeenKey = "rebuild:why-intro-seen:v1";
+const whyIntroVisitKey = "rebuild:why-intro-visits:v1";
 
 export function RebuildApp() {
   const [data, setData] = useState<RebuildData>(() => cloneSeedData());
@@ -32,6 +34,7 @@ export function RebuildApp() {
   const [meTabIntent, setMeTabIntent] = useState<MeTab | undefined>();
   const [recordsResetSignal, setRecordsResetSignal] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
+  const [showWhyIntro, setShowWhyIntro] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(storageKey);
@@ -69,6 +72,25 @@ export function RebuildApp() {
     const timer = window.setTimeout(() => setToast(null), 2400);
     return () => window.clearTimeout(timer);
   }, [toast]);
+
+  useEffect(() => {
+    if (!profile?.completed) return;
+
+    const visits = Number(window.localStorage.getItem(whyIntroVisitKey) ?? "0") + 1;
+    const hasSeenIntro = window.localStorage.getItem(whyIntroSeenKey) === "true";
+    window.localStorage.setItem(whyIntroVisitKey, String(visits));
+
+    if (!hasSeenIntro || visits % 4 === 0) {
+      window.localStorage.setItem(whyIntroSeenKey, "true");
+      setShowWhyIntro(true);
+    }
+  }, [profile?.completed]);
+
+  useEffect(() => {
+    if (!showWhyIntro) return;
+    const timer = window.setTimeout(() => setShowWhyIntro(false), 4200);
+    return () => window.clearTimeout(timer);
+  }, [showWhyIntro]);
 
   const timeline = useMemo(() => buildTimeline(data), [data]);
   const editDraft = useMemo(
@@ -193,6 +215,7 @@ export function RebuildApp() {
   }
 
   return (
+    <>
     <AppShell activeView={activeView} onNavigate={navigate} profile={profile}>
       {activeView === "home" ? (
         <HeroDashboard
@@ -242,6 +265,39 @@ export function RebuildApp() {
         onSave={saveLog}
       />
     </AppShell>
+      {showWhyIntro ? <WhyIntro onClose={() => setShowWhyIntro(false)} profile={profile} /> : null}
+    </>
+  );
+}
+
+function WhyIntro({ onClose, profile }: { onClose: () => void; profile: OnboardingProfile }) {
+  const firstName = profile.firstName?.trim();
+  const why = profile.why?.trim() || "You are building proof that the next version of you is already in motion.";
+
+  return (
+    <div className="fixed inset-0 z-[120] grid place-items-center bg-black/92 px-5 backdrop-blur-xl">
+      <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-carbon shadow-panel">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,rgba(236,87,57,0.24),transparent_32%),radial-gradient(circle_at_70%_0%,rgba(255,255,255,0.12),transparent_28%)]" />
+        <div className="relative min-h-[27rem]">
+          <div className="absolute inset-0 bg-[url('/rebuild-run.jpg')] bg-cover bg-center opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/78 to-black/20" />
+          <div className="relative flex min-h-[27rem] flex-col justify-end p-6">
+            <p className="metric-label text-white/62">Why you&apos;re doing this</p>
+            <h2 className="mt-3 font-display text-5xl font-black uppercase leading-[0.9] text-white">
+              {firstName ? `${firstName}, remember.` : "Remember."}
+            </h2>
+            <p className="mt-5 text-xl font-semibold leading-snug text-white">{why}</p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="mt-6 min-h-12 rounded-2xl bg-champagne px-4 text-base font-black text-carbon shadow-glow"
+            >
+              Enter REBUILD
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
