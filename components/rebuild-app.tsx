@@ -88,7 +88,7 @@ export function RebuildApp() {
 
   useEffect(() => {
     if (!showWhyIntro) return;
-    const timer = window.setTimeout(() => setShowWhyIntro(false), 4200);
+    const timer = window.setTimeout(() => setShowWhyIntro(false), 5000);
     return () => window.clearTimeout(timer);
   }, [showWhyIntro]);
 
@@ -271,13 +271,35 @@ export function RebuildApp() {
 }
 
 function WhyIntro({ onClose, profile }: { onClose: () => void; profile: OnboardingProfile }) {
+  const [secondsLeft, setSecondsLeft] = useState(5);
   const firstName = profile.firstName?.trim();
   const why = profile.why?.trim() || "You are building proof that the next version of you is already in motion.";
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setSecondsLeft((current) => Math.max(0, current - 1));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
     <div className="fixed inset-0 z-[120] grid place-items-center bg-black/92 px-5 backdrop-blur-xl">
       <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-carbon shadow-panel">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,rgba(236,87,57,0.24),transparent_32%),radial-gradient(circle_at_70%_0%,rgba(255,255,255,0.12),transparent_28%)]" />
+        <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between gap-3">
+          <span className="rounded-full border border-white/12 bg-black/55 px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-white/76 backdrop-blur">
+            {secondsLeft}s
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid size-11 place-items-center rounded-full border border-white/12 bg-black/55 text-lg font-black text-white/78 backdrop-blur"
+            aria-label="Close why reminder"
+          >
+            X
+          </button>
+        </div>
         <div className="relative min-h-[27rem]">
           <div className="absolute inset-0 bg-[url('/rebuild-run.jpg')] bg-cover bg-center opacity-40" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/78 to-black/20" />
@@ -290,7 +312,7 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
             <button
               type="button"
               onClick={onClose}
-              className="mt-6 min-h-12 rounded-2xl bg-champagne px-4 text-base font-black text-carbon shadow-glow"
+              className="mt-6 min-h-12 rounded-2xl bg-champagne px-4 text-base font-black text-[rgb(var(--color-accent-foreground))] shadow-glow"
             >
               Enter REBUILD
             </button>
