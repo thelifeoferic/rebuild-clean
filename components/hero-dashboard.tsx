@@ -251,10 +251,11 @@ export function HeroDashboard({
             alt=""
             className="object-cover object-[52%_34%] opacity-95"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/22 to-transparent" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.2)_0%,rgba(0,0,0,0.08)_36%,rgba(0,0,0,0.92)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(var(--color-accent),0.24),transparent_34%)]" />
           <div className="absolute bottom-5 left-5 right-5">
             <p className="metric-label text-white/72">{recommendation.eyebrow}</p>
-            <h3 className="mt-2 max-w-[16rem] font-display text-4xl font-black uppercase leading-[0.9] text-white">
+            <h3 className="mt-2 max-w-[16rem] font-display text-4xl font-black uppercase leading-[0.9] text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.9)]">
               {recommendation.title}
             </h3>
           </div>
@@ -492,7 +493,7 @@ function workoutFromScanSignal(logKind: LogKind, minutes: number, signal: string
         `${Math.max(8, controlled - 10)} min steady ride, resistance controlled enough to keep posture clean.`,
         "5 min cooldown, then save minutes, resistance, distance, and calories.",
       ],
-      title: "Cardio rebuild block",
+      title: "Conditioning plan",
     };
   }
 
@@ -503,7 +504,7 @@ function workoutFromScanSignal(logKind: LogKind, minutes: number, signal: string
         `${Math.max(10, controlled - 8)} min alternating smooth laps with short rests.`,
         "Finish with 2 calm lengths and save distance plus stroke notes.",
       ],
-      title: "Pool reset block",
+      title: "Low-impact plan",
     };
   }
 
@@ -514,7 +515,7 @@ function workoutFromScanSignal(logKind: LogKind, minutes: number, signal: string
         `${Math.max(10, controlled - 6)} min hips, hamstrings, thoracic rotation, and slow transitions.`,
         "Close with 2 min stillness, then log focus and minutes.",
       ],
-      title: normalized.includes("mobility") ? "Mobility rebuild block" : "Recovery rebuild block",
+      title: normalized.includes("mobility") ? "Mobility plan" : "Recovery plan",
     };
   }
 
@@ -525,7 +526,7 @@ function workoutFromScanSignal(logKind: LogKind, minutes: number, signal: string
         "3 rounds: swings, goblet squat, carry. Stop each set while form still looks sharp.",
         "Log bell weight, reps, and the cue that kept the movement clean.",
       ],
-      title: "Kettlebell rebuild block",
+      title: "Kettlebell strength plan",
     };
   }
 
@@ -536,7 +537,7 @@ function workoutFromScanSignal(logKind: LogKind, minutes: number, signal: string
         "4 quality sets: chest line steady, elbows controlled, no rushed reps.",
         "Save each set separately so the max set and total push-ups stay accurate.",
       ],
-      title: "Push-up rebuild block",
+      title: "Push strength plan",
     };
   }
 
@@ -546,7 +547,7 @@ function workoutFromScanSignal(logKind: LogKind, minutes: number, signal: string
       "3 controlled rounds: push, pull, hinge or squat. Keep the last rep clean.",
       "Save the machine or weight used so the next session has a real baseline.",
     ],
-    title: "Strength rebuild block",
+    title: "Strength plan",
   };
 }
 
@@ -918,16 +919,17 @@ function HomeSectionShortcuts({
             sizes="(max-width: 768px) 100vw, 448px"
             className="object-cover object-[58%_42%] opacity-100 transition group-active:scale-[1.02]"
           />
-          <span className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/12 to-transparent" />
+          <span className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(0,0,0,0.08)_42%,rgba(0,0,0,0.88)_100%)]" />
+          <span className="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(var(--color-accent),0.22),transparent_34%)]" />
           <span className="absolute bottom-5 left-5 right-5">
             <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-white">
               <ScanSearch size={15} strokeWidth={2.3} aria-hidden />
               Signature feature
             </span>
-            <span className="block font-display text-4xl font-black uppercase leading-none text-white">
+            <span className="block font-display text-4xl font-black uppercase leading-none text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.9)]">
               AI Body Scan
             </span>
-            <span className="mt-2 block max-w-[22rem] text-sm font-semibold leading-5 text-white/88">
+            <span className="mt-2 block max-w-[22rem] text-sm font-semibold leading-5 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
               Upload progress photos, compare changes over time, and get non-medical coaching on what to track next.
             </span>
             <span className="mt-4 inline-flex rounded-full bg-champagne px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[rgb(var(--color-accent-foreground))]">

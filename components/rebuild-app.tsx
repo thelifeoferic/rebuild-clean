@@ -286,9 +286,9 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
   return (
     <div className="fixed inset-0 z-[120] grid place-items-center bg-black/92 px-5 backdrop-blur-xl">
       <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-carbon shadow-panel">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,rgba(236,87,57,0.24),transparent_32%),radial-gradient(circle_at_70%_0%,rgba(255,255,255,0.12),transparent_28%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,rgba(var(--color-accent),0.3),transparent_34%),radial-gradient(circle_at_76%_0%,rgba(var(--color-accent),0.16),transparent_30%)]" />
         <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between gap-3">
-          <span className="rounded-full border border-white/12 bg-black/55 px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-white/76 backdrop-blur">
+          <span className="rounded-full border border-white/12 bg-black/55 px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-white/80 backdrop-blur">
             {secondsLeft}s
           </span>
           <button
@@ -301,14 +301,15 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
           </button>
         </div>
         <div className="relative min-h-[27rem]">
-          <div className="absolute inset-0 bg-[url('/rebuild-run.jpg')] bg-cover bg-center opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/78 to-black/20" />
+          <div className="absolute inset-0 bg-[url('/rebuild-run.jpg')] bg-cover bg-center opacity-55 grayscale contrast-125 saturate-0" />
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,rgba(255,255,255,0.06)_0_1px,transparent_1px_6px)] opacity-30" />
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(var(--color-accent),0.32),transparent_38%),linear-gradient(0deg,rgba(0,0,0,0.95)_0%,rgba(0,0,0,0.76)_52%,rgba(0,0,0,0.3)_100%)]" />
           <div className="relative flex min-h-[27rem] flex-col justify-end p-6">
-            <p className="metric-label text-white/62">Why you&apos;re doing this</p>
+            <p className="metric-label text-white/70">Remember why</p>
             <h2 className="mt-3 font-display text-5xl font-black uppercase leading-[0.9] text-white">
-              {firstName ? `${firstName}, remember.` : "Remember."}
+              {firstName ? `${firstName}, remember why you're doing this.` : "Remember why you're doing this."}
             </h2>
-            <p className="mt-5 text-xl font-semibold leading-snug text-white">{why}</p>
+            <p className="mt-5 text-xl font-semibold leading-snug text-white">&ldquo;{why}&rdquo;</p>
             <button
               type="button"
               onClick={onClose}
