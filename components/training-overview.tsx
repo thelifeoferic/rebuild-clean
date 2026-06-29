@@ -33,7 +33,7 @@ const trainingBlocks = [
     detail: "Farmer carries or suitcase holds",
     target: "4 rounds",
     icon: Footprints,
-    tone: "text-ember bg-ember/10",
+    tone: "text-champagne bg-champagne/10",
   },
   {
     title: "Rotation",

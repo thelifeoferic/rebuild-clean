@@ -81,7 +81,7 @@ export function MeditationPrograms({ onOpenLog }: { onOpenLog: (kind: LogKind, d
                     <h3 className="mt-1 text-lg font-semibold text-porcelain">{routine.title}</h3>
                     <p className="mt-1 text-sm leading-5 text-white/50">{routine.intent}</p>
                   </div>
-                  <div className="grid size-10 shrink-0 place-items-center rounded-full bg-ember/14 text-ember">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
                     <Icon size={18} strokeWidth={2.2} aria-hidden />
                   </div>
                 </div>

@@ -77,7 +77,7 @@ export function ClassSchedule({
                 onClick={() => setSelectedDay(day)}
                 className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-black ${
                   selectedDay === day
-                    ? "border-ember bg-ember text-white"
+                    ? "border-champagne bg-champagne text-[rgb(var(--color-accent-foreground))]"
                     : "border-white/10 bg-carbon text-white/62"
                 }`}
               >
@@ -181,7 +181,7 @@ function ClassCard({
             <p className="mt-1 text-xl font-black text-[#08090a]">{item.instructor}</p>
             {item.note ? <p className="mt-2 text-sm font-bold leading-5 text-ember">{item.note}</p> : null}
           </div>
-          <div className="grid size-11 shrink-0 place-items-center rounded-full bg-ember text-white">
+          <div className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne text-[rgb(var(--color-accent-foreground))]">
             <Dumbbell size={19} strokeWidth={2.4} aria-hidden />
           </div>
         </div>
@@ -201,7 +201,7 @@ function ScheduleStat({ detail, label, value }: { detail: string; label: string;
   return (
     <div className="rounded-2xl bg-carbon p-4">
       <p className="metric-label">{label}</p>
-      <p className="mt-1 font-display text-4xl font-black uppercase leading-none text-ember">{value}</p>
+      <p className="mt-1 font-display text-4xl font-black uppercase leading-none text-champagne">{value}</p>
       <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-white/42">{detail}</p>
     </div>
   );
@@ -218,7 +218,7 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl bg-carbon p-3">
-      <div className="grid size-10 shrink-0 place-items-center rounded-full bg-white/10 text-ember">
+      <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
         <Icon size={17} strokeWidth={2.3} aria-hidden />
       </div>
       <div>

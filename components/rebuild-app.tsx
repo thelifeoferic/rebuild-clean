@@ -88,7 +88,7 @@ export function RebuildApp() {
 
   useEffect(() => {
     if (!showWhyIntro) return;
-    const timer = window.setTimeout(() => setShowWhyIntro(false), 5000);
+    const timer = window.setTimeout(() => setShowWhyIntro(false), 7000);
     return () => window.clearTimeout(timer);
   }, [showWhyIntro]);
 
@@ -271,7 +271,7 @@ export function RebuildApp() {
 }
 
 function WhyIntro({ onClose, profile }: { onClose: () => void; profile: OnboardingProfile }) {
-  const [secondsLeft, setSecondsLeft] = useState(5);
+  const [secondsLeft, setSecondsLeft] = useState(7);
   const firstName = profile.firstName?.trim();
   const why = profile.why?.trim() || "You are building proof that the next version of you is already in motion.";
 
@@ -288,13 +288,13 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
       <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-carbon shadow-panel">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,rgba(var(--color-accent),0.3),transparent_34%),radial-gradient(circle_at_76%_0%,rgba(var(--color-accent),0.16),transparent_30%)]" />
         <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between gap-3">
-          <span className="rounded-full border border-white/12 bg-black/55 px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-white/80 backdrop-blur">
+          <span className="rounded-full border border-champagne/35 bg-black/55 px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-champagne backdrop-blur">
             {secondsLeft}s
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="grid size-11 place-items-center rounded-full border border-white/12 bg-black/55 text-lg font-black text-white/78 backdrop-blur"
+            className="grid size-11 place-items-center rounded-full border border-champagne/25 bg-black/55 text-lg font-black text-champagne backdrop-blur"
             aria-label="Close why reminder"
           >
             X
@@ -306,10 +306,10 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
           <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(var(--color-accent),0.32),transparent_38%),linear-gradient(0deg,rgba(0,0,0,0.95)_0%,rgba(0,0,0,0.76)_52%,rgba(0,0,0,0.3)_100%)]" />
           <div className="relative flex min-h-[27rem] flex-col justify-end p-6">
             <p className="metric-label text-white/70">Remember why</p>
-            <h2 className="mt-3 font-display text-5xl font-black uppercase leading-[0.9] text-white">
+            <h2 className="mt-3 text-2xl font-black leading-tight text-white">
               {firstName ? `${firstName}, remember why you're doing this.` : "Remember why you're doing this."}
             </h2>
-            <p className="mt-5 text-xl font-semibold leading-snug text-white">&ldquo;{why}&rdquo;</p>
+            <p className="mt-5 break-words font-display text-3xl font-black uppercase leading-[1.02] text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.92)]">&ldquo;{why}&rdquo;</p>
             <button
               type="button"
               onClick={onClose}

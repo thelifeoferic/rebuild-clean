@@ -181,7 +181,9 @@ button:active {
 }
 
 .bg-champagne.text-carbon,
-.bg-champagne .text-carbon {
+.bg-champagne .text-carbon,
+.bg-signal.text-carbon,
+.bg-signal .text-carbon {
   color: rgb(var(--color-accent-foreground));
 }
 
