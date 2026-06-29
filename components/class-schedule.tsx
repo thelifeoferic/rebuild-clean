@@ -16,6 +16,8 @@ import {
 import { Section } from "@/components/section";
 import type { LogKind } from "@/types/rebuild";
 
+const classScheduleImage = "/rebuild-class-studio.jpg";
+
 export function ClassSchedule({
   onOpenLog,
 }: {
@@ -26,7 +28,6 @@ export function ClassSchedule({
   const selectedClasses = useMemo(() => classesForDay(selectedDay), [selectedDay]);
   const today = currentStudioDay();
   const todayClasses = classesForDay(today);
-  const featured = todayClasses[0] ?? totalFitnessClassSchedule[0];
 
   return (
     <Section id="classes" eyebrow="Total Fitness" title="Studio Classes">
@@ -37,7 +38,7 @@ export function ClassSchedule({
           className="group relative min-h-[24rem] w-full overflow-hidden bg-black text-left active:scale-[0.99]"
         >
           <Image
-            src={featured.image}
+            src={classScheduleImage}
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, 448px"
@@ -142,7 +143,7 @@ function ClassCard({
     <article className="overflow-hidden rounded-[1.65rem] bg-[#f1eee8] text-[#08090a] shadow-panel">
       <div className="relative min-h-56 bg-black">
         <Image
-          src={item.image}
+          src={classScheduleImage}
           alt=""
           fill
           sizes="(max-width: 768px) 100vw, 448px"

@@ -17,7 +17,7 @@ const toneClasses = {
 
 export function MetricCard({ label, value, detail, icon: Icon, tone = "steel" }: MetricCardProps) {
   return (
-    <article className="panel min-h-32 p-4">
+    <article className="panel min-h-[10.5rem] p-4">
       <div className="mb-4 flex items-center justify-between">
         <p className="metric-label">{label}</p>
         <span className={`grid size-9 place-items-center rounded-full ${toneClasses[tone]}`}>

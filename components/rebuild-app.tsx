@@ -274,6 +274,9 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
   const [secondsLeft, setSecondsLeft] = useState(7);
   const firstName = profile.firstName?.trim();
   const why = profile.why?.trim() || "You are building proof that the next version of you is already in motion.";
+  const themePreference = profile.themePreference ?? "dark";
+  const themeClass = themePreference === "light" ? "theme-light" : themePreference === "auto" ? "theme-auto" : "theme-dark";
+  const accentClass = `accent-${profile.accentColor ?? "cobalt"}`;
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -284,7 +287,7 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[120] grid place-items-center bg-black/92 px-5 backdrop-blur-xl">
+    <div className={`fixed inset-0 z-[120] grid place-items-center bg-black/92 px-5 backdrop-blur-xl ${themeClass} ${accentClass}`}>
       <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-carbon shadow-panel">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,rgba(var(--color-accent),0.3),transparent_34%),radial-gradient(circle_at_76%_0%,rgba(var(--color-accent),0.16),transparent_30%)]" />
         <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between gap-3">

@@ -253,7 +253,7 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
         </div>
 
         <div className="space-y-4 p-4">
-          <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-white/18 bg-white/[0.055] p-4 text-center transition hover:border-champagne/60">
+          <label className="flex min-h-[9.25rem] cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-white/18 bg-white/[0.055] p-4 text-center transition hover:border-champagne/60">
             <input
               type="file"
               accept="image/*"

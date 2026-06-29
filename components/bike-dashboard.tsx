@@ -14,7 +14,7 @@ export function BikeDashboard({ data }: { data: RebuildData }) {
 
   return (
     <Section id="bike" eyebrow="Engine room" title="Bike Dashboard">
-      <div className="relative mb-3 min-h-40 overflow-hidden rounded-2xl border border-white/10 bg-black">
+      <div className="relative mb-3 min-h-[13rem] overflow-hidden rounded-2xl border border-white/10 bg-black">
         <Image
           src="/rebuild-cardio.jpg"
           alt=""

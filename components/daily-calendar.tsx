@@ -176,7 +176,7 @@ function ActionButton({
       type="button"
       onClick={onClick}
       className={`inline-flex min-h-10 items-center justify-center gap-1 rounded-full px-2 text-xs font-bold ${
-        tone === "danger" ? "bg-ember/10 text-ember" : "bg-white/10 text-white/65"
+        tone === "danger" ? "border border-champagne/20 bg-champagne/10 text-champagne" : "bg-white/10 text-white/65"
       }`}
     >
       <Icon size={13} strokeWidth={2.3} aria-hidden />

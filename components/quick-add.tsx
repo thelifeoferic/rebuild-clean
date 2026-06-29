@@ -90,7 +90,7 @@ export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind, draft?: Recor
                 key={item.label}
                 type="button"
                 onClick={() => onSelect(item.kind as LogKind)}
-                className="min-h-28 rounded-2xl border border-white/10 bg-carbon/70 p-3 text-left transition hover:border-champagne/50 hover:bg-white/10"
+                className="min-h-[9.25rem] rounded-2xl border border-white/10 bg-carbon/70 p-3 text-left transition hover:border-champagne/50 hover:bg-white/10"
               >
                 <Icon className="mb-3 text-champagne" size={20} strokeWidth={2.1} aria-hidden />
                 <span className="block text-sm font-semibold text-porcelain">{item.label}</span>

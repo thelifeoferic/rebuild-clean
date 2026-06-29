@@ -53,7 +53,7 @@ export function MeditationPrograms({ onOpenLog }: { onOpenLog: (kind: LogKind, d
   return (
     <Section id="meditation" eyebrow="Nervous system" title="Meditation">
       <div className="panel overflow-hidden">
-        <div className="relative min-h-44 bg-black">
+        <div className="relative min-h-[14.25rem] bg-black">
           <Image
             src="/rebuild-yoga-light.jpg"
             alt=""

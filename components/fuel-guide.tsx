@@ -31,7 +31,7 @@ export function FuelGuide() {
         {fuelCards.map((card) => {
           const Icon = card.icon;
           return (
-            <article key={card.title} className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
+            <article key={card.title} className="min-h-[12rem] rounded-2xl border border-white/10 bg-white/[0.045] p-3">
               <Icon className="mb-3 text-champagne" size={18} strokeWidth={2.1} aria-hidden />
               <p className="font-semibold text-porcelain">{card.title}</p>
               <p className="mt-2 text-sm leading-5 text-white/52">{card.detail}</p>

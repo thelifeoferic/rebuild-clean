@@ -33,7 +33,7 @@ export function NutritionTracker({
 
   return (
     <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
-      <div className="relative min-h-32 bg-black">
+      <div className="relative min-h-[10.5rem] bg-black">
         <Image src="/rebuild-nutrition.jpg" alt="" fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover opacity-55" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
         <div className="absolute bottom-4 left-4 right-4">

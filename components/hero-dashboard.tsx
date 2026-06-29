@@ -945,7 +945,7 @@ function HomeSectionShortcuts({
               key={shortcut.title}
               type="button"
               onClick={() => onOpenProgramsTab(shortcut.tab)}
-              className="group relative min-h-48 overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
+              className="group relative min-h-[15.5rem] overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
             >
               <Image src={shortcut.image} alt="" fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover opacity-78 transition group-active:scale-[1.02]" />
               <span className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/28 to-transparent" />
@@ -1060,7 +1060,7 @@ function PlanButton({
     <button
       type="button"
       onClick={onClick}
-      className={`min-h-16 rounded-2xl border px-2 text-center text-xs font-black uppercase tracking-[0.08em] active:scale-[0.97] ${
+      className={`min-h-[5.25rem] rounded-2xl border px-2 text-center text-xs font-black uppercase tracking-[0.08em] active:scale-[0.97] ${
         done ? "border-signal/30 bg-signal/15 text-signal" : "border-white/10 bg-white/10 text-white/68"
       }`}
     >
@@ -1084,7 +1084,7 @@ function ImageTile({
     <button
       type="button"
       onClick={onClick}
-      className="relative min-h-44 w-full overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
+      className="relative min-h-[14.25rem] w-full overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
     >
       <Image src={src} alt="" fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover opacity-78" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent" />
@@ -1113,7 +1113,7 @@ function HomeSignalCard({
     <button
       type="button"
       onClick={onClick}
-      className="min-h-40 rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-left shadow-panel transition active:scale-[0.97]"
+      className="min-h-[13rem] rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-left shadow-panel transition active:scale-[0.97]"
     >
       <Icon className="mb-3 text-champagne" size={18} strokeWidth={2.1} aria-hidden />
       <p className="metric-label">{label}</p>
@@ -1140,7 +1140,7 @@ function HomeSignalRow({
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-24 w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 text-left shadow-panel transition active:scale-[0.98]"
+      className="flex min-h-[7.75rem] w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 text-left shadow-panel transition active:scale-[0.98]"
     >
       <span className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
         <Icon size={18} strokeWidth={2.2} aria-hidden />

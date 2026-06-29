@@ -56,7 +56,7 @@ export function WorkoutPrograms({ profile }: { profile: OnboardingProfile | null
   return (
     <Section id="programs" eyebrow="Expandable library" title="Workout Templates">
       <div className="panel p-4">
-        <div className="relative mb-4 min-h-40 overflow-hidden rounded-2xl bg-black">
+        <div className="relative mb-4 min-h-[13rem] overflow-hidden rounded-2xl bg-black">
           <Image
             src="/rebuild-class-studio.jpg"
             alt=""
@@ -126,7 +126,7 @@ function ProgramCard({
 }) {
   return (
     <article className="overflow-hidden rounded-2xl bg-white/[0.055] shadow-panel">
-      <div className="relative min-h-44 bg-black">
+      <div className="relative min-h-[14.25rem] bg-black">
         <Image
           src={imageForProgram(program)}
           alt=""

@@ -31,7 +31,7 @@ export function ExerciseGuides({
   return (
     <Section id="exercise-guides" eyebrow="Execution" title="Exercise Guides">
       <div className="panel p-4">
-        <div className="relative mb-4 min-h-36 overflow-hidden rounded-2xl bg-black">
+        <div className="relative mb-4 min-h-[11.75rem] overflow-hidden rounded-2xl bg-black">
           <Image
             src="/rebuild-kettlebell-pushup.jpg"
             alt=""
@@ -76,7 +76,7 @@ export function ExerciseGuides({
             const Icon = guide.icon;
             const target = logTargetForGuide(guide.title);
             return (
-              <article key={guide.title} className="rounded-2xl bg-white/[0.055] p-4">
+              <article key={guide.title} className="min-h-[13rem] rounded-2xl bg-white/[0.055] p-4">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
                     <p className="metric-label">{guide.focus}</p>
