@@ -26,9 +26,11 @@ const movementChoices: { kind: LogKind; label: string; icon: typeof Bike }[] = [
 export function TodayPlan({
   data,
   onOpenLog,
+  onOpenMeditation,
 }: {
   data: RebuildData;
   onOpenLog: (kind: LogKind, draft?: Record<string, string>) => void;
+  onOpenMeditation?: () => void;
 }) {
   const [selectedMovement, setSelectedMovement] = useState<LogKind>("bike");
   const completed = {
@@ -123,6 +125,11 @@ export function TodayPlan({
               type="button"
               onClick={() => {
                 if (item.key === "reset") {
+                  if (onOpenMeditation) {
+                    onOpenMeditation();
+                    return;
+                  }
+
                   onOpenLog("mood", { label: "Meditation", reason: "stress" });
                   return;
                 }

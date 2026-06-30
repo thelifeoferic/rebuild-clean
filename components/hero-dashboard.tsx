@@ -208,7 +208,7 @@ export function HeroDashboard({
               <PlanButton
                 label="Meditate"
                 done={hasMeditatedToday(data)}
-                onClick={() => onOpenLog("mood", { label: "Meditation", reason: "stress" })}
+                onClick={() => openProgramsTab("Meditation", onNavigate)}
               />
             </div>
           </div>
@@ -1042,7 +1042,7 @@ function ActivityBurnSheet({
   );
 }
 
-function openProgramsTab(tab: "Programs" | "Guides" | "Classes" | "Nutrition" | "Media", onNavigate: (view: AppView) => void) {
+function openProgramsTab(tab: "Programs" | "Guides" | "Classes" | "Meditation" | "Nutrition" | "Media", onNavigate: (view: AppView) => void) {
   window.sessionStorage.setItem(programsTabIntentKey, tab);
   onNavigate("programs");
 }

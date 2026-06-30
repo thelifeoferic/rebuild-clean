@@ -1,6 +1,26 @@
 "use client";
 
-import { Bike, CalendarDays, ChevronLeft, ChevronRight, Copy, Dumbbell, Flame, Pencil, Plus, Salad, Scale, Trash2 } from "lucide-react";
+import {
+  Bed,
+  Bike,
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Droplets,
+  Dumbbell,
+  Flame,
+  Pencil,
+  Plus,
+  Salad,
+  Scale,
+  Timer,
+  Trash2,
+  Trophy,
+  Waves,
+  Wind,
+  type LucideIcon,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { Section } from "@/components/section";
@@ -26,8 +46,34 @@ type DailyCalendarProps = {
   profile: OnboardingProfile | null;
 };
 
+type DailyAddOption = {
+  detail: string;
+  draft?: Record<string, string>;
+  icon: LucideIcon;
+  kind: LogKind;
+  label: string;
+};
+
+const dailyAddOptions: DailyAddOption[] = [
+  { detail: "Weight, bike, food, or reset", icon: Plus, kind: "weight", label: "Quick start" },
+  { detail: "Minutes, resistance, distance", icon: Bike, kind: "bike", label: "Bike" },
+  { detail: "Machine, free weights, cable work", icon: Dumbbell, kind: "strength", label: "Strength" },
+  { detail: "Gym equipment and stations", icon: Dumbbell, kind: "machine", label: "Machine" },
+  { detail: "Exercise, load, reps", icon: Dumbbell, kind: "kettlebell", label: "Kettlebell" },
+  { detail: "Sets and reps", icon: Trophy, kind: "pushUps", label: "Push-ups" },
+  { detail: "Rounds and continuous time", icon: Timer, kind: "jacobsLadder", label: "Jacob's Ladder" },
+  { detail: "Load, distance, rounds", icon: Dumbbell, kind: "farmerCarries", label: "Farmer carry" },
+  { detail: "Laps, stroke, minutes", icon: Waves, kind: "swim", label: "Swim" },
+  { detail: "Flow, mobility, recovery", icon: Flame, kind: "yoga", label: "Yoga" },
+  { detail: "Calories, protein, notes", icon: Salad, kind: "meal", label: "Food" },
+  { detail: "Ounces toward the day", icon: Droplets, kind: "water", label: "Water" },
+  { detail: "Hours and quality", icon: Bed, kind: "sleep", label: "Sleep" },
+  { detail: "Log the pause", draft: { label: "Meditation", reason: "stress" }, icon: Wind, kind: "mood", label: "Meditation" },
+];
+
 export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog, profile }: DailyCalendarProps) {
   const [selectedDate, setSelectedDate] = useState(getTodayIso());
+  const [showAddMenu, setShowAddMenu] = useState(false);
   const entries = useMemo(() => getDayEntries(data, selectedDate), [data, selectedDate]);
   const summary = useMemo(() => getDaySummary(data, profile, selectedDate), [data, profile, selectedDate]);
   const viewingToday = selectedDate === getTodayIso();
@@ -129,7 +175,7 @@ export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog, 
             })
           ) : (
             <EmptyState
-              action={{ label: "Log activity", onClick: () => onOpenLog("weight", { date: selectedDate }) }}
+              action={{ label: "Add to this day", onClick: () => setShowAddMenu(true) }}
               detail="Pick a date or save the first activity for this day. Edits you make will move logs into the right calendar day."
               icon={CalendarDays}
               title="No activity logged on this date."
@@ -139,12 +185,54 @@ export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog, 
 
         <button
           type="button"
-          onClick={() => onOpenLog("meal", { date: selectedDate })}
+          onClick={() => setShowAddMenu((current) => !current)}
           className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.055] text-sm font-bold text-porcelain"
+          aria-expanded={showAddMenu}
         >
           <Plus size={17} strokeWidth={2.3} aria-hidden />
-          Add food or another log
+          Add to this day
         </button>
+
+        {showAddMenu ? (
+          <div className="mt-3 rounded-3xl border border-white/10 bg-carbon/85 p-3 shadow-panel">
+            <div className="mb-3 flex items-center justify-between gap-3 px-1">
+              <div>
+                <p className="metric-label">Choose log type</p>
+                <p className="mt-1 text-sm font-semibold text-white/50">{formatLogDate(selectedDate)}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddMenu(false)}
+                className="min-h-9 rounded-full border border-white/10 px-3 text-xs font-bold text-white/60"
+              >
+                Close
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {dailyAddOptions.map((option) => {
+                const Icon = option.icon;
+
+                return (
+                  <button
+                    key={`${option.kind}-${option.label}`}
+                    type="button"
+                    onClick={() => {
+                      setShowAddMenu(false);
+                      onOpenLog(option.kind, { date: selectedDate, ...(option.draft ?? {}) });
+                    }}
+                    className="min-h-[5.75rem] rounded-2xl border border-white/10 bg-white/[0.055] p-3 text-left active:scale-[0.98]"
+                  >
+                    <div className="mb-2 grid size-9 place-items-center rounded-full bg-champagne/10 text-champagne">
+                      <Icon size={16} strokeWidth={2.3} aria-hidden />
+                    </div>
+                    <p className="text-sm font-black leading-tight text-porcelain">{option.label}</p>
+                    <p className="mt-1 text-xs font-semibold leading-4 text-white/45">{option.detail}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
       </div>
     </Section>
   );
@@ -368,6 +456,12 @@ function iconForKind(kind: LogKind) {
   if (kind === "machine") return Dumbbell;
   if (kind === "meal") return Salad;
   if (kind === "mood") return Flame;
+  if (kind === "water") return Droplets;
+  if (kind === "sleep") return Bed;
+  if (kind === "swim") return Waves;
+  if (kind === "yoga") return Flame;
+  if (kind === "jacobsLadder") return Timer;
+  if (kind === "pushUps") return Trophy;
   return Dumbbell;
 }
 
