@@ -28,16 +28,31 @@ Supabase wiring is isolated in `lib/supabase.ts` and `lib/supabase-sync.ts`. Unt
 1. Create a Supabase project.
 2. In Supabase, open SQL Editor and run `supabase/schema.sql`.
 3. In Project Settings > API, copy the Project URL and anon public key.
-4. In Authentication > URL Configuration, set the Site URL to your deployed Vercel URL and add the same URL to Redirect URLs.
-5. In Vercel, add:
+4. In Authentication > URL Configuration, set the Site URL to your deployed Vercel URL.
+5. Add these Redirect URLs:
+
+```bash
+https://your-domain.com/auth/callback
+https://*.vercel.app/auth/callback
+http://localhost:3000/auth/callback
+```
+
+For `rebuild.fitness`, use:
+
+```bash
+https://rebuild.fitness/auth/callback
+```
+
+6. In Authentication > Providers > Email, keep password sign-in enabled. Email confirmation can stay on; REBUILD now has a clean callback page for confirmations and password resets. If you want the least friction for a private beta, you can turn email confirmation off.
+7. In Vercel, add:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-6. Redeploy the app.
-7. On the Home screen, use Cloud Sync to send yourself a magic link, then tap Sync to back up this device or Pull to load cloud data onto another device.
+8. Redeploy the app.
+9. In REBUILD, sign in with email and password. Then use Account and backup to back up this device or restore cloud data onto another device.
 
 The current sync model stores the user profile in `rebuild_profiles` and the full local app state in `rebuild_data_snapshots`. That gives quick cross-device backup now, while leaving room to normalize every log into separate analytics tables later.
 
