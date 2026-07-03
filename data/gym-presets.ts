@@ -1,6 +1,6 @@
 import type { LogKind, OnboardingProfile } from "@/types/rebuild";
 
-export type GymMachineCategory = "Cardio" | "Strength machine" | "Free weights" | "Functional" | "Recovery";
+export type GymMachineCategory = "Cardio" | "Outdoor" | "Strength machine" | "Free weights" | "Functional" | "Recovery";
 
 export type GymMachinePreset = {
   category: GymMachineCategory;
@@ -143,6 +143,7 @@ export function machinePresetFor(name: string) {
 function inferMachineCategory(name: string): GymMachineCategory {
   const normalized = normalizeMachineName(name);
 
+  if (/hike|trail|walk|outdoor/.test(normalized)) return "Outdoor";
   if (/treadmill|elliptical|stair|stairmaster|concept ?2|row machine|rower|rowing|air bike|assault bike/.test(normalized)) return "Cardio";
   if (/yoga|mat|foam roller|mobility|recovery/.test(normalized)) return "Recovery";
   if (/kettlebell|dumbbell|barbell|bench|squat rack|ez curl|medicine ball|slam ball/.test(normalized)) return "Free weights";
@@ -154,6 +155,7 @@ function inferMachineCategory(name: string): GymMachineCategory {
 function inferLogKind(name: string): LogKind {
   const normalized = normalizeMachineName(name);
 
+  if (/hike|trail|walk|outdoor/.test(normalized)) return "machine";
   if (/jacob/.test(normalized)) return "jacobsLadder";
   if (/stationary bike|recumbent bike|air bike|assault bike/.test(normalized)) return "bike";
   if (/kettlebell/.test(normalized)) return "kettlebell";

@@ -1,9 +1,10 @@
 import { Bike, Brain, Droplets, Dumbbell, Flame, Footprints, Home, Moon, Salad, Scale, Trophy, Waves, Zap } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Section } from "@/components/section";
 import { WorkoutStopwatch } from "@/components/workout-stopwatch";
 import type { LogKind } from "@/types/rebuild";
 
-const logTypes = [
+const logTypes: Array<{ detail: string; draft?: Record<string, string>; icon: LucideIcon; kind: LogKind; label: string }> = [
   { kind: "weight", label: "Weigh-in", detail: "bodyweight and date", icon: Scale },
   { kind: "bike", label: "Bike session", detail: "minutes, distance, resistance, calories", icon: Bike },
   { kind: "jacobsLadder", label: "Jacob's Ladder", detail: "duration and longest attempt", icon: Flame },
@@ -13,6 +14,7 @@ const logTypes = [
   { kind: "machine", label: "Gym equipment", detail: "fields match the machine", icon: Dumbbell },
   { kind: "kettlebell", label: "Kettlebell", detail: "exercise, weight, reps", icon: Dumbbell },
   { kind: "farmerCarries", label: "Farmer carries", detail: "load, distance, rounds", icon: Footprints },
+  { kind: "machine", label: "Walk / Hike", detail: "distance, time, estimated calories", icon: Footprints, draft: { category: "Outdoor", gymName: "Outdoor", machine: "Walk / hike" } },
   { kind: "swim", label: "Swim", detail: "minutes, distance, stroke", icon: Waves },
   { kind: "yoga", label: "Yoga", detail: "minutes, focus, notes", icon: Flame },
   { kind: "meal", label: "Meal", detail: "calories, protein, notes", icon: Salad },
@@ -89,7 +91,7 @@ export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind, draft?: Recor
               <button
                 key={item.label}
                 type="button"
-                onClick={() => onSelect(item.kind as LogKind)}
+                onClick={() => onSelect(item.kind, item.draft)}
                 className="min-h-[9.25rem] rounded-2xl border border-white/10 bg-carbon/70 p-3 text-left transition hover:border-champagne/50 hover:bg-white/10"
               >
                 <Icon className="mb-3 text-champagne" size={20} strokeWidth={2.1} aria-hidden />

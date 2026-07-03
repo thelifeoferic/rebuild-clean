@@ -26,6 +26,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import { CountUp } from "@/components/count-up";
+import { LocalHikesPanel } from "@/components/local-hikes";
 import { NutritionTracker } from "@/components/nutrition-tracker";
 import { classesForDay, currentStudioDay } from "@/data/class-schedule";
 import { equipmentLogKindFor, getGymPreset, localGymPresets, machineCategoryFor } from "@/data/gym-presets";
@@ -360,6 +361,8 @@ export function HeroDashboard({
       </div>
 
       <NutritionTracker data={data} onOpenLog={onOpenLog} profile={profile} />
+
+      <LocalHikesPanel data={data} mode="home" onOpenLog={onOpenLog} profile={profile} />
 
       <HomeSectionShortcuts onOpenBodyScan={onOpenBodyScan} onOpenProgramsTab={(tab) => openProgramsTab(tab, onNavigate)} />
 
@@ -864,7 +867,7 @@ function HomeSectionShortcuts({
   onOpenProgramsTab,
 }: {
   onOpenBodyScan: () => void;
-  onOpenProgramsTab: (tab: "Programs" | "Guides" | "Classes" | "Nutrition" | "Media") => void;
+  onOpenProgramsTab: (tab: "Programs" | "Guides" | "Classes" | "Hikes" | "Nutrition" | "Media") => void;
 }) {
   const shortcuts = [
     {
@@ -887,6 +890,13 @@ function HomeSectionShortcuts({
       image: "/rebuild-class-studio.jpg",
       tab: "Classes" as const,
       title: "Classes",
+    },
+    {
+      detail: "Nearby routes with distance, difficulty, and estimated burn.",
+      icon: MapPin,
+      image: "/rebuild-run.jpg",
+      tab: "Hikes" as const,
+      title: "Local hikes",
     },
     {
       detail: "Protein anchors, quick foods, and calorie context.",
@@ -1056,7 +1066,7 @@ function ActivityBurnSheet({
   );
 }
 
-function openProgramsTab(tab: "Programs" | "Guides" | "Classes" | "Meditation" | "Nutrition" | "Media", onNavigate: (view: AppView) => void) {
+function openProgramsTab(tab: "Programs" | "Guides" | "Classes" | "Hikes" | "Meditation" | "Nutrition" | "Media", onNavigate: (view: AppView) => void) {
   window.sessionStorage.setItem(programsTabIntentKey, tab);
   onNavigate("programs");
 }

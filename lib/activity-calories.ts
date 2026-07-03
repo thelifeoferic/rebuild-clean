@@ -114,15 +114,23 @@ export function getActivityCalorieBreakdownForDate(
     });
   }
 
-  const machineCalories = data.machineWorkoutSessions
-    .filter((session) => matches(session.date))
-    .reduce((sum, session) => {
-      if (session.calories && session.calories > 0) return sum + session.calories;
-      const minutes = session.minutes ?? Math.max((session.sets ?? 0) * 4, 8);
-      return sum + caloriesFromMinutes(minutes, machineMet(session.machine), weightLb);
-    }, 0);
+  const machineSessionsForDate = data.machineWorkoutSessions.filter((session) => matches(session.date));
+  const outdoorMachineSessions = machineSessionsForDate.filter(isOutdoorMachineSession);
+  const gymMachineSessions = machineSessionsForDate.filter((session) => !isOutdoorMachineSession(session));
+  const outdoorCalories = outdoorMachineSessions.reduce((sum, session) => sum + machineSessionCalories(session, weightLb), 0);
+  if (outdoorCalories) {
+    const miles = outdoorMachineSessions.reduce((sum, session) => sum + (session.distanceMiles ?? 0), 0);
+    const minutes = outdoorMachineSessions.reduce((sum, session) => sum + (session.minutes ?? 0), 0);
+    items.push({
+      calories: Math.round(outdoorCalories),
+      detail: miles ? `${formatMiles(miles)} logged` : `${minutes} min logged`,
+      label: "Walk / Hike",
+    });
+  }
+
+  const machineCalories = gymMachineSessions.reduce((sum, session) => sum + machineSessionCalories(session, weightLb), 0);
   if (machineCalories) {
-    const count = data.machineWorkoutSessions.filter((session) => matches(session.date)).length;
+    const count = gymMachineSessions.length;
     items.push({
       calories: Math.round(machineCalories),
       detail: `${count} machine log${count === 1 ? "" : "s"}`,
@@ -179,7 +187,7 @@ export function estimateDraftActivityCalories(kind: LogKind, draft: DraftLike, p
   if (kind === "strength") return caloriesFromMinutes(Math.max(number(draft.reps) * 0.2, 8), 5.0, weightLb);
   if (kind === "machine") {
     const minutes = Math.max(number(draft.minutes), number(draft.sets) * 4, 8);
-    return caloriesFromMinutes(minutes, machineMet(text(draft.machine, "machine")), weightLb);
+    return caloriesFromMinutes(minutes, machineMet(`${text(draft.machine, "machine")} ${text(draft.category, "")}`), weightLb);
   }
 
   return 0;
@@ -213,6 +221,17 @@ function caloriesFromMinutes(minutes: number, met: number, weightLb: number) {
   return Math.round((met * 3.5 * weightKg * minutes) / 200);
 }
 
+function machineSessionCalories(session: RebuildData["machineWorkoutSessions"][number], weightLb: number) {
+  if (session.calories && session.calories > 0) return session.calories;
+  const minutes = session.minutes ?? Math.max((session.sets ?? 0) * 4, 8);
+  return caloriesFromMinutes(minutes, machineMet(`${session.machine} ${session.category ?? ""}`), weightLb);
+}
+
+function isOutdoorMachineSession(session: RebuildData["machineWorkoutSessions"][number]) {
+  const lower = `${session.machine} ${session.category ?? ""}`.toLowerCase();
+  return lower.includes("hike") || lower.includes("trail") || lower.includes("walk") || lower.includes("outdoor");
+}
+
 function estimateBmr({
   age,
   heightInches,
@@ -236,6 +255,8 @@ function estimateBmr({
 
 function machineMet(name: string) {
   const lower = name.toLowerCase();
+  if (lower.includes("hike") || lower.includes("trail")) return 5.8;
+  if (lower.includes("walk") || lower.includes("outdoor")) return 3.5;
   if (lower.includes("stair")) return 8.8;
   if (lower.includes("treadmill")) return 7.5;
   if (lower.includes("row") || lower.includes("air bike")) return 7.2;
@@ -245,6 +266,10 @@ function machineMet(name: string) {
   if (lower.includes("pull-up") || lower.includes("dip")) return 6.0;
   if (lower.includes("leg press") || lower.includes("hack squat") || lower.includes("smith")) return 5.8;
   return 5.0;
+}
+
+function formatMiles(value: number) {
+  return `${value.toFixed(value >= 10 ? 1 : 2)} mi`;
 }
 
 function parseHeightInches(value?: string) {

@@ -202,7 +202,7 @@ export function LogModal({
         machine: value,
       };
 
-      if (category === "Cardio") {
+      if (category === "Cardio" || category === "Outdoor") {
         return { ...next, reps: "", sets: "", weight: "" };
       }
 
@@ -331,7 +331,7 @@ export function LogModal({
                 label="Machine"
                 name="machine"
                 value={selectedMachineName}
-                options={machineOptions.map((machine) => machine.name)}
+                options={selectOptionsWithCurrent(machineOptions.map((machine) => machine.name), selectedMachineName)}
                 onChange={(_, value) => chooseMachine(value)}
               />
               <div className="rounded-2xl border border-white/10 bg-white/[0.055] p-3">
@@ -344,7 +344,7 @@ export function LogModal({
                 </div>
               </div>
 
-              {selectedMachineCategory === "Cardio" ? (
+              {selectedMachineCategory === "Cardio" || selectedMachineCategory === "Outdoor" ? (
                 <>
                   <div className="grid grid-cols-2 gap-2">
                     <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
@@ -514,6 +514,11 @@ function selectedFoodNames(draft: LogDraft) {
     .filter(Boolean);
 }
 
+function selectOptionsWithCurrent(options: string[], current: string) {
+  if (!current || options.includes(current)) return options;
+  return [current, ...options];
+}
+
 function number(value: unknown) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -525,6 +530,8 @@ function formatBikeDistance(value: number) {
 
 function machineFormHelp(category: string, machine: string) {
   const normalized = machine.toLowerCase();
+
+  if (category === "Outdoor") return "Distance, time, and estimated calories. No lifting fields.";
 
   if (category === "Cardio") {
     if (normalized.includes("row")) return "Time, distance, and calories. No load fields.";

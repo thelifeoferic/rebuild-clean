@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  --color-carbon: 13 14 13;
-  --color-graphite: 25 25 22;
-  --color-steel: 63 61 55;
-  --color-accent: 202 184 145;
-  --color-accent-foreground: 17 17 15;
+  color-scheme: light;
+  --color-carbon: 251 253 255;
+  --color-graphite: 255 255 255;
+  --color-steel: 226 232 240;
+  --color-accent: 16 105 158;
+  --color-accent-foreground: 255 255 255;
   --color-ember: 214 94 67;
-  --color-signal: 129 151 135;
-  --color-porcelain: 247 244 237;
-  --app-bg: #0d0e0d;
-  background: #0d0e0d;
+  --color-signal: 16 105 158;
+  --color-porcelain: 15 23 42;
+  --app-bg: #fbfdff;
+  background: #fbfdff;
 }
 
 * {
@@ -31,9 +31,8 @@ body {
   margin: 0;
   color: rgb(var(--color-porcelain));
   background:
-    linear-gradient(180deg, rgba(var(--color-accent), 0.09), transparent 25rem),
-    radial-gradient(circle at 20% -10%, rgba(247, 244, 237, 0.06), transparent 18rem),
-    radial-gradient(circle at 92% 8%, rgba(129, 151, 135, 0.08), transparent 16rem),
+    linear-gradient(180deg, rgba(var(--color-accent), 0.035), transparent 22rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 250, 252, 1)),
     var(--app-bg);
 }
 
@@ -83,37 +82,42 @@ button:active {
 }
 
 .theme-auto {
-  color-scheme: dark;
-  --color-carbon: 13 14 13;
-  --color-graphite: 25 25 22;
-  --color-steel: 63 61 55;
-  --color-porcelain: 247 244 237;
-  --app-bg: #0d0e0d;
+  color-scheme: light;
+  --color-carbon: 251 253 255;
+  --color-graphite: 255 255 255;
+  --color-steel: 226 232 240;
+  --color-porcelain: 15 23 42;
+  --app-bg: #fbfdff;
+  background:
+    linear-gradient(180deg, rgba(var(--color-accent), 0.035), transparent 22rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 250, 252, 1)),
+    var(--app-bg);
+  color: rgb(var(--color-porcelain));
 }
 
 .theme-light {
   color-scheme: light;
-  --color-carbon: 250 249 245;
-  --color-graphite: 255 255 252;
-  --color-steel: 223 218 208;
-  --color-porcelain: 22 24 21;
-  --app-bg: #faf9f5;
+  --color-carbon: 251 253 255;
+  --color-graphite: 255 255 255;
+  --color-steel: 226 232 240;
+  --color-porcelain: 15 23 42;
+  --app-bg: #fbfdff;
   background:
-    linear-gradient(180deg, rgba(var(--color-accent), 0.12), transparent 22rem),
-    radial-gradient(circle at 86% 2%, rgba(22, 24, 21, 0.05), transparent 17rem),
+    linear-gradient(180deg, rgba(var(--color-accent), 0.035), transparent 22rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 250, 252, 1)),
     var(--app-bg);
   color: rgb(var(--color-porcelain));
 }
 
 .theme-light.accent-pink {
-  --color-carbon: 255 248 252;
+  --color-carbon: 255 251 253;
   --color-graphite: 255 255 255;
-  --color-steel: 244 213 229;
-  --color-porcelain: 31 20 29;
-  --app-bg: #fff7fb;
+  --color-steel: 232 221 229;
+  --color-porcelain: 22 20 24;
+  --app-bg: #fffbfd;
   background:
-    linear-gradient(180deg, rgba(var(--color-accent), 0.12), transparent 22rem),
-    radial-gradient(circle at 86% 2%, rgba(236, 72, 153, 0.1), transparent 17rem),
+    linear-gradient(180deg, rgba(var(--color-accent), 0.045), transparent 22rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(255, 251, 253, 1)),
     var(--app-bg);
 }
 
@@ -126,14 +130,14 @@ button:active {
 @media (prefers-color-scheme: light) {
   .theme-auto {
     color-scheme: light;
-    --color-carbon: 250 249 245;
-    --color-graphite: 255 255 252;
-    --color-steel: 223 218 208;
-    --color-porcelain: 22 24 21;
-    --app-bg: #faf9f5;
+    --color-carbon: 251 253 255;
+    --color-graphite: 255 255 255;
+    --color-steel: 226 232 240;
+    --color-porcelain: 15 23 42;
+    --app-bg: #fbfdff;
     background:
-      linear-gradient(180deg, rgba(var(--color-accent), 0.1), transparent 22rem),
-      radial-gradient(circle at 86% 2%, rgba(18, 22, 26, 0.05), transparent 17rem),
+      linear-gradient(180deg, rgba(var(--color-accent), 0.035), transparent 22rem),
+      linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 250, 252, 1)),
       var(--app-bg);
     color: rgb(var(--color-porcelain));
   }
@@ -164,9 +168,9 @@ button:active {
 }
 
 .accent-cobalt {
-  --color-accent: 30 105 151;
+  --color-accent: 16 105 158;
   --color-accent-foreground: 255 255 255;
-  --color-signal: 30 105 151;
+  --color-signal: 16 105 158;
 }
 
 .accent-volt {
@@ -188,8 +192,8 @@ button:active {
 }
 
 .theme-light .app-bottom-nav {
-  background: rgba(255, 255, 252, 0.92);
-  box-shadow: 0 -18px 60px rgba(22, 24, 21, 0.12);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 -18px 60px rgba(15, 23, 42, 0.1);
 }
 
 .bg-champagne.text-carbon,
@@ -267,8 +271,8 @@ button:active {
 
 .theme-light .panel {
   border-color: rgba(18, 22, 26, 0.1);
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 24px 70px rgba(52, 42, 24, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
 }
 
 .theme-light .hairline,

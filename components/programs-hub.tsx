@@ -8,6 +8,7 @@ import { FormVisuals } from "@/components/form-visuals";
 import { FuelGuide } from "@/components/fuel-guide";
 import { GoalTrainingPlan } from "@/components/goal-training-plan";
 import { KettlebellPrograms } from "@/components/kettlebell-programs";
+import { LocalHikesPanel } from "@/components/local-hikes";
 import { MeditationPrograms } from "@/components/meditation-programs";
 import { TrainingOverview } from "@/components/training-overview";
 import { VideoLibrary } from "@/components/video-library";
@@ -15,7 +16,7 @@ import { WorkoutStopwatch } from "@/components/workout-stopwatch";
 import { WorkoutPrograms } from "@/components/workout-programs";
 import type { LogKind, OnboardingProfile, RebuildData } from "@/types/rebuild";
 
-const tabs = ["Today", "Programs", "Guides", "Classes", "Meditation", "Nutrition", "Media"] as const;
+const tabs = ["Today", "Programs", "Guides", "Classes", "Hikes", "Meditation", "Nutrition", "Media"] as const;
 type ProgramsTab = (typeof tabs)[number];
 const programsTabIntentKey = "rebuild:programs-tab:intent";
 
@@ -85,6 +86,7 @@ export function ProgramsHub({
       ) : null}
 
       {activeTab === "Classes" ? <ClassSchedule onOpenLog={onOpenLog} /> : null}
+      {activeTab === "Hikes" ? <LocalHikesPanel data={data} onOpenLog={onOpenLog} profile={profile} /> : null}
       {activeTab === "Meditation" ? <MeditationPrograms onOpenLog={onOpenLog} /> : null}
       {activeTab === "Nutrition" ? <FuelGuide /> : null}
       {activeTab === "Media" ? <VideoLibrary profile={profile} /> : null}
