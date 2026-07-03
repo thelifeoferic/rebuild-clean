@@ -1,11 +1,10 @@
 import { Activity, CalendarCheck2, Salad, ShieldCheck } from "lucide-react";
 import { Section } from "@/components/section";
-import { normalizeLogDate } from "@/lib/rebuild-data";
+import { getTodayIso, normalizeLogDate } from "@/lib/rebuild-data";
 import type { RebuildData } from "@/types/rebuild";
 
 export function StreakSummary({ data }: { data: RebuildData }) {
-  const proofDays = uniqueDates([
-    ...data.weights.map((item) => normalizeLogDate(item.date)),
+  const workoutDates = uniqueDates([
     ...data.bikeSessions.map((item) => normalizeLogDate(item.date)),
     ...data.jacobsLadderSessions.map((item) => normalizeLogDate(item.date)),
     ...data.pushUpSessions.map((item) => normalizeLogDate(item.date)),
@@ -16,9 +15,14 @@ export function StreakSummary({ data }: { data: RebuildData }) {
     ...data.farmerCarrySessions.map((item) => normalizeLogDate(item.date)),
     ...data.swimSessions.map((item) => normalizeLogDate(item.date)),
     ...data.yogaSessions.map((item) => normalizeLogDate(item.date)),
+  ]);
+  const loggedDays = uniqueDates([
+    ...workoutDates,
+    ...data.weights.map((item) => normalizeLogDate(item.date)),
     ...data.meals.map((item) => normalizeLogDate(item.date)),
     ...data.behaviorWins.map((item) => normalizeLogDate(item.date)),
   ]).length;
+  const workoutStreak = countConsecutiveWorkoutDays(workoutDates);
 
   const trainingSessions =
     data.bikeSessions.length +
@@ -36,13 +40,16 @@ export function StreakSummary({ data }: { data: RebuildData }) {
   const patternWins = data.behaviorWins.length;
 
   return (
-    <Section id="streaks" eyebrow="Proof, not vibes" title="Consistency">
+    <Section id="streaks" eyebrow="Proof, not vibes" title="Streaks">
       <div className="grid grid-cols-2 gap-2">
-        <ProofCard label="Show-up days" value={`${proofDays}`} detail="days with at least one saved log" icon={CalendarCheck2} />
+        <ProofCard label="Workout streak" value={`${workoutStreak}`} detail="consecutive days with movement" icon={CalendarCheck2} />
         <ProofCard label="Training" value={`${trainingSessions}`} detail="movement sessions logged" icon={Activity} />
         <ProofCard label="Protein hits" value={`${proteinHits}`} detail="meals at 25g+" icon={Salad} />
-        <ProofCard label="Pattern wins" value={`${patternWins}`} detail="replacement behavior logged" icon={ShieldCheck} />
+        <ProofCard label="Reset wins" value={`${patternWins}`} detail="meditation or replacement logged" icon={ShieldCheck} />
       </div>
+      <p className="mt-3 text-sm leading-5 text-white/42">
+        You have {loggedDays} total logged days. The streak number only counts days with saved movement.
+      </p>
     </Section>
   );
 }
@@ -70,4 +77,17 @@ function ProofCard({
 
 function uniqueDates(dates: string[]) {
   return Array.from(new Set(dates.filter(Boolean)));
+}
+
+function countConsecutiveWorkoutDays(dates: string[]) {
+  const days = new Set(dates);
+  let cursor = new Date(`${getTodayIso()}T00:00:00`);
+  let streak = 0;
+
+  while (days.has(cursor.toISOString().slice(0, 10))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return streak;
 }

@@ -55,7 +55,7 @@ type DailyAddOption = {
 };
 
 const dailyAddOptions: DailyAddOption[] = [
-  { detail: "Weight, bike, food, or reset", icon: Plus, kind: "weight", label: "Quick start" },
+  { detail: "Scale check-in for this date", icon: Scale, kind: "weight", label: "Weigh-in" },
   { detail: "Minutes, resistance, distance", icon: Bike, kind: "bike", label: "Bike" },
   { detail: "Machine, free weights, cable work", icon: Dumbbell, kind: "strength", label: "Strength" },
   { detail: "Gym equipment and stations", icon: Dumbbell, kind: "machine", label: "Machine" },
@@ -68,7 +68,7 @@ const dailyAddOptions: DailyAddOption[] = [
   { detail: "Calories, protein, notes", icon: Salad, kind: "meal", label: "Food" },
   { detail: "Ounces toward the day", icon: Droplets, kind: "water", label: "Water" },
   { detail: "Hours and quality", icon: Bed, kind: "sleep", label: "Sleep" },
-  { detail: "Log the pause", draft: { label: "Meditation", reason: "stress" }, icon: Wind, kind: "mood", label: "Meditation" },
+  { detail: "Log the pause", draft: { label: "Meditated", reason: "stress" }, icon: Wind, kind: "mood", label: "Meditation" },
 ];
 
 export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog, profile }: DailyCalendarProps) {
@@ -396,12 +396,21 @@ function getDayEntries(data: RebuildData, selectedDate: string): DayEntry[] {
     title: "Sleep",
   }));
 
-  data.behaviorWins.filter((entry) => matches(entry.date)).forEach((entry) => entries.push({
-    detail: entry.label.includes("->") || entry.label.includes("→") ? entry.label : `Pattern interrupted -> ${entry.label}`,
-    id: entry.id,
-    kind: "mood",
-    title: "Pattern interrupt",
-  }));
+  data.behaviorWins.filter((entry) => matches(entry.date)).forEach((entry) => {
+    const normalizedLabel = entry.label.toLowerCase();
+    const isMeditation = /meditat|breath|urge|present|sleep|walk/.test(normalizedLabel);
+
+    entries.push({
+      detail: isMeditation
+        ? `${entry.label} saved as a reset practice.`
+        : entry.label.includes("->") || entry.label.includes("→")
+          ? entry.label
+          : `Replacement action -> ${entry.label}`,
+      id: entry.id,
+      kind: "mood",
+      title: isMeditation ? "Meditation" : "Reset work",
+    });
+  });
 
   return entries;
 }

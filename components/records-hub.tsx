@@ -8,7 +8,7 @@ import { RebuildTimeline } from "@/components/rebuild-timeline";
 import { StreakSummary } from "@/components/streak-summary";
 import type { LogKind, OnboardingProfile, RebuildData, TimelineItem } from "@/types/rebuild";
 
-const tabs = ["Today", "Trends", "Records", "Timeline", "Consistency"] as const;
+const tabs = ["Today", "Trends", "Records", "Timeline", "Streaks"] as const;
 type RecordsTab = (typeof tabs)[number];
 
 export function RecordsHub({
@@ -78,7 +78,7 @@ export function RecordsHub({
           timeline={timeline}
         />
       ) : null}
-      {activeTab === "Consistency" ? <StreakSummary data={data} /> : null}
+      {activeTab === "Streaks" ? <StreakSummary data={data} /> : null}
     </>
   );
 }

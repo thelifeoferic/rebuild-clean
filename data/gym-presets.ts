@@ -143,9 +143,10 @@ export function machinePresetFor(name: string) {
 function inferMachineCategory(name: string): GymMachineCategory {
   const normalized = normalizeMachineName(name);
 
-  if (/treadmill|elliptical|stair|concept 2|row machine|air bike|assault bike/.test(normalized)) return "Cardio";
+  if (/treadmill|elliptical|stair|stairmaster|concept ?2|row machine|rower|rowing|air bike|assault bike/.test(normalized)) return "Cardio";
   if (/yoga|mat|foam roller|mobility|recovery/.test(normalized)) return "Recovery";
-  if (/kettlebell|dumbbell|barbell|bench|squat rack|ez curl/.test(normalized)) return "Free weights";
+  if (/kettlebell|dumbbell|barbell|bench|squat rack|ez curl|medicine ball|slam ball/.test(normalized)) return "Free weights";
+  if (/punch|bag|battle rope|rope|pull-up|pull up|dip|turf|open floor|resistance band/.test(normalized)) return "Functional";
   if (/leg|curl|press|pulldown|cable|pec|delt|calf|smith|torso|abdominal|thigh|machine/.test(normalized)) return "Strength machine";
   return "Functional";
 }

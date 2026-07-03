@@ -18,11 +18,11 @@ const logTypes = [
   { kind: "meal", label: "Meal", detail: "calories, protein, notes", icon: Salad },
   { kind: "water", label: "Water", detail: "ounces and date", icon: Droplets },
   { kind: "sleep", label: "Sleep", detail: "hours, quality, notes", icon: Moon },
-  { kind: "mood", label: "Pattern Interrupt", detail: "what you did instead", icon: Brain },
+  { kind: "mood", label: "Meditation / Reset", detail: "meditate or redirect", icon: Brain },
 ];
 
 const moods = ["stress", "anger", "boredom", "energy", "habit"];
-const replacementActions = ["Went to the gym", "Meditation", "Walked", "Journaled", "Called a friend", "Early bedtime"];
+const replacementActions = ["Meditated", "Went to the gym", "Walked", "Journaled", "Called a friend", "Early bedtime"];
 
 const routineShortcuts = [
   {
@@ -45,7 +45,7 @@ const routineShortcuts = [
   },
   {
     title: "Low-energy win",
-    detail: "Protect the day with one pattern interrupt",
+    detail: "Protect the day with a reset practice",
     kind: "mood",
     icon: Zap,
   },
@@ -101,8 +101,8 @@ export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind, draft?: Recor
         </div>
 
         <div className="mt-4 rounded-2xl bg-white/[0.055] p-3">
-          <p className="metric-label mb-3">Pattern interrupt</p>
-          <p className="mb-3 text-sm leading-5 text-white/45">Log what replaced the pressure pattern. The private context stays private; the replacement becomes the record.</p>
+          <p className="metric-label mb-3">Meditation / reset</p>
+          <p className="mb-3 text-sm leading-5 text-white/45">Log the thing you did instead. The private context stays private; the replacement becomes the record.</p>
           <div className="flex flex-wrap gap-2">
             {moods.map((mood) => (
               <button

@@ -192,7 +192,7 @@ export function buildTimeline(data: RebuildData): TimelineItem[] {
     items.push({
       id: `tl-${win.id}`,
       date: formatLogDate(win.date),
-      title: "Pattern interrupted",
+      title: "Reset logged",
       detail: normalizePatternLabel(win.label),
       tone: win.didntSmoke && win.didntSpiral ? "green" : "steel",
       editable: { kind: "mood", id: win.id },
@@ -448,5 +448,5 @@ function normalizePatternLabel(label: string) {
     .replace(/did(n't| not) spiral/gi, "stayed present")
     .replace(/chose the reset instead of the old loop/gi, "Stayed with the better choice");
 
-  return clean.includes("→") ? clean : `Pattern interrupted → ${clean}`;
+  return clean.includes("→") ? clean : `Reset → ${clean}`;
 }

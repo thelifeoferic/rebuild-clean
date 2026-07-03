@@ -239,11 +239,11 @@ function getRecordDetails(data: RebuildData, record: PersonalRecord): RecordDeta
     }));
   }
 
-  if (record.label === "Pattern Interrupts") {
+  if (record.label === "Reset Wins") {
     return byDate(data.behaviorWins).map((entry) => ({
       date: formatLogDate(entry.date),
       detail: `Reason: ${entry.reason}`,
-      title: "Replacement behavior",
+      title: "Meditation / reset",
       value: entry.label,
     }));
   }

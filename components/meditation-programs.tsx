@@ -151,7 +151,7 @@ export function MeditationPrograms({ onOpenLog }: { onOpenLog: (kind: LogKind, d
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.2)_0%,rgba(0,0,0,0.32)_42%,rgba(0,0,0,0.92)_100%)]" />
           <div className="absolute bottom-5 left-5 right-5">
-            <p className="metric-label text-white/60">Pattern work</p>
+            <p className="metric-label text-white/60">Reset work</p>
             <p className="mt-1 font-display text-5xl font-black uppercase leading-[0.9] text-porcelain">Build the pause.</p>
             <p className="mt-3 text-sm font-semibold leading-5 text-white/68">Meditation here is practical: create space between the trigger and the next move.</p>
           </div>

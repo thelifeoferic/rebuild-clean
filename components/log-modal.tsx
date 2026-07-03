@@ -27,7 +27,7 @@ const titles: Record<LogKind, string> = {
   meal: "Meal",
   water: "Water",
   sleep: "Sleep",
-  mood: "Pattern Interrupt",
+  mood: "Meditation / Reset",
 };
 
 const defaults: Record<LogKind, LogDraft> = {
@@ -48,14 +48,14 @@ const defaults: Record<LogKind, LogDraft> = {
   mood: {
     date: "",
     reason: "stress",
-    label: "Went to the gym",
+    label: "Meditated",
     didntSmoke: true,
     didntSpiral: true,
   },
 };
 
 const moodReasons: MoodReason[] = ["stress", "anger", "boredom", "energy", "habit"];
-const replacementActions = ["Went to the gym", "Meditation", "Read", "Journaled", "Walked", "Called a friend", "Early bedtime", "Healthy meal", "Stayed present"];
+const replacementActions = ["Meditated", "Went to the gym", "Read", "Journaled", "Walked", "Called a friend", "Early bedtime", "Healthy meal", "Stayed present"];
 const sleepQualities = ["low", "okay", "good", "great"] as const;
 const dumbbellExercises = [
   "Dumbbell curls",
@@ -206,6 +206,10 @@ export function LogModal({
         return { ...next, reps: "", sets: "", weight: "" };
       }
 
+      if (category === "Recovery") {
+        return { ...next, distanceMiles: "", reps: "", sets: "", weight: "" };
+      }
+
       if (category === "Functional") {
         return { ...next, distanceMiles: "", weight: "" };
       }
@@ -348,6 +352,13 @@ export function LogModal({
                   </div>
                   <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
                 </>
+              ) : selectedMachineCategory === "Recovery" ? (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label="Minutes" name="minutes" value={String(draft.minutes)} onChange={update} inputMode="numeric" />
+                    <Field label="Calories" name="calories" value={String(draft.calories)} onChange={update} inputMode="numeric" />
+                  </div>
+                </>
               ) : selectedMachineCategory === "Functional" ? (
                 <>
                   <div className="grid grid-cols-2 gap-2">
@@ -453,7 +464,7 @@ export function LogModal({
             <>
               <DateField value={String(draft.date)} onChange={update} />
               <label className="block">
-                <span className="metric-label mb-2 block">Reason</span>
+                <span className="metric-label mb-2 block">Pressure / trigger</span>
                 <select
                   value={String(draft.reason)}
                   onChange={(event) => update("reason", event.target.value)}
@@ -467,7 +478,7 @@ export function LogModal({
                 </select>
               </label>
               <div>
-                <p className="metric-label mb-2">What did you do instead?</p>
+                <p className="metric-label mb-2">Did you meditate or redirect?</p>
                 <div className="flex flex-wrap gap-2">
                   {replacementActions.map((action) => (
                     <button
@@ -483,7 +494,7 @@ export function LogModal({
                   ))}
                 </div>
               </div>
-              <TextArea label="Custom replacement" name="label" value={String(draft.label)} onChange={update} />
+              <TextArea label="What did you do?" name="label" value={String(draft.label)} onChange={update} />
             </>
           ) : null}
         </div>

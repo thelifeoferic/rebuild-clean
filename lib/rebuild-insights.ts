@@ -88,8 +88,8 @@ export function getRebuildScore(data: RebuildData, profile: OnboardingProfile | 
       weight: 30,
     },
     {
-      detail: `${data.behaviorWins.length} better-choice moments logged.`,
-      label: "Pattern interrupts",
+      detail: `${data.behaviorWins.length} meditation or reset moments logged.`,
+      label: "Reset wins",
       score: patternScore,
       weight: 20,
     },
@@ -400,7 +400,7 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
   });
 
   records.push({
-    detail: "Consecutive days with at least one saved workout.",
+    detail: "Days in a row with a saved workout. Food, water, and weigh-ins do not count here.",
     history: [workoutStreak],
     icon: "streak",
     label: "Workout Streak",
@@ -425,10 +425,10 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
   });
 
   records.push({
-    detail: data.behaviorWins.length ? "Most replacement moments saved." : "First pattern interrupt starts this record.",
+    detail: data.behaviorWins.length ? "Replacement moments saved this week. The old loop stays private." : "First replacement action starts this record.",
     history: [data.behaviorWins.length],
     icon: "pattern",
-    label: "Pattern Interrupts",
+    label: "Reset Wins",
     logKind: "mood",
     sortValue: data.behaviorWins.length,
     unit: "week",
@@ -453,7 +453,7 @@ export function getPersonalRecords(data: RebuildData): PersonalRecord[] {
 
 export function getRecentQuickWin(data: RebuildData) {
   const win = data.behaviorWins[0];
-  if (win) return { title: "Pattern interrupted", detail: normalizePatternLabel(win.label), kind: "mood" as LogKind };
+  if (win) return { title: "Reset logged", detail: normalizePatternLabel(win.label), kind: "mood" as LogKind };
 
   const workout = workoutSessions(data)[0];
   if (workout) return { title: workout.title, detail: workout.detail, kind: workout.kind };
@@ -589,9 +589,24 @@ function pickRotatingCoachInsight(candidates: CoachInsightCandidate[], seed: str
   const cleanCandidates = candidates.filter((candidate) => candidate.text);
   if (!cleanCandidates.length) return "";
 
-  const categories = Array.from(new Set(cleanCandidates.map((candidate) => candidate.category)));
+  const availableCategories = Array.from(new Set(cleanCandidates.map((candidate) => candidate.category)));
+  const preferredRotation = [
+    "training",
+    "strength",
+    "nutrition",
+    "body",
+    "recovery",
+    "consistency",
+    "pattern",
+    "conditioning",
+    "cardio",
+  ];
+  const categories = [
+    ...preferredRotation.filter((category) => availableCategories.includes(category)),
+    ...availableCategories.filter((category) => !preferredRotation.includes(category)),
+  ];
   const dayOffset = daysBetweenCalendarDates("2026-01-01", getTodayIso());
-  const category = categories[(dayOffset + dailyIndex(seed, categories.length)) % categories.length] ?? categories[0];
+  const category = categories[dayOffset % categories.length] ?? categories[0];
   const pool = cleanCandidates.filter((candidate) => candidate.category === category);
   const selectedPool = pool.length ? pool : cleanCandidates;
 
@@ -687,5 +702,5 @@ function normalizePatternLabel(label: string) {
     .replace(/did(n't| not) spiral/gi, "stayed present")
     .replace(/chose the reset instead of the old loop/gi, "Stayed with the better choice");
 
-  return clean.includes("→") ? clean : `Pattern interrupted → ${clean}`;
+  return clean.includes("→") ? clean : `Reset → ${clean}`;
 }

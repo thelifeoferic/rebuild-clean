@@ -20,7 +20,7 @@ type EditTarget = {
   kind: LogKind;
 };
 const profileKey = "rebuild:profile:v2";
-const accentMigrationKey = "rebuild:accent-default-cobalt:v1";
+const accentMigrationKey = "rebuild:accent-default-neutral:v1";
 const whyIntroSeenKey = "rebuild:why-intro-seen:v1";
 const whyIntroVisitKey = "rebuild:why-intro-visits:v1";
 
@@ -47,9 +47,12 @@ export function RebuildApp() {
       }
       if (storedProfile) {
         const parsedProfile = JSON.parse(storedProfile) as OnboardingProfile;
+        const shouldUseNeutralDefault =
+          !window.localStorage.getItem(accentMigrationKey) &&
+          (!parsedProfile.accentColor || parsedProfile.accentColor === "ember" || parsedProfile.accentColor === "cobalt");
         const migratedProfile =
-          !window.localStorage.getItem(accentMigrationKey) && parsedProfile.accentColor === "ember"
-            ? { ...parsedProfile, accentColor: "cobalt" as const }
+          shouldUseNeutralDefault
+            ? { ...parsedProfile, accentColor: "champagne" as const }
             : parsedProfile;
 
         if (migratedProfile !== parsedProfile) {
@@ -276,7 +279,8 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
   const why = profile.why?.trim() || "You are building proof that the next version of you is already in motion.";
   const themePreference = profile.themePreference ?? "dark";
   const themeClass = themePreference === "light" ? "theme-light" : themePreference === "auto" ? "theme-auto" : "theme-dark";
-  const accentClass = `accent-${profile.accentColor ?? "cobalt"}`;
+  const accentClass = `accent-${profile.accentColor ?? "champagne"}`;
+  const progress = `${Math.max(0, Math.min(100, (secondsLeft / 7) * 100))}%`;
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -287,32 +291,28 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
   }, []);
 
   return (
-    <div className={`fixed inset-0 z-[120] grid place-items-center bg-black/92 px-5 backdrop-blur-xl ${themeClass} ${accentClass}`}>
-      <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-carbon shadow-panel">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,rgba(var(--color-accent),0.3),transparent_34%),radial-gradient(circle_at_76%_0%,rgba(var(--color-accent),0.16),transparent_30%)]" />
-        <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between gap-3">
-          <span className="rounded-full border border-champagne/35 bg-black/55 px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-champagne backdrop-blur">
-            {secondsLeft}s
-          </span>
+    <div className={`fixed inset-0 z-[120] grid place-items-center bg-black/82 px-5 backdrop-blur-xl ${themeClass} ${accentClass}`}>
+      <div className="relative w-full max-w-md overflow-hidden rounded-[2.25rem] border border-white/10 bg-carbon shadow-panel">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_8%,rgba(var(--color-accent),0.22),transparent_34%),radial-gradient(circle_at_80%_4%,rgba(255,255,255,0.06),transparent_30%)]" />
+        <div className="absolute left-5 right-5 top-5 z-10 flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="grid size-11 place-items-center rounded-full border border-champagne/25 bg-black/55 text-lg font-black text-champagne backdrop-blur"
+            className="grid size-11 place-items-center rounded-full border border-white/15 bg-black/40 text-2xl font-light leading-none text-white backdrop-blur"
             aria-label="Close why reminder"
           >
-            X
+            ×
           </button>
         </div>
-        <div className="relative min-h-[27rem]">
-          <div className="absolute inset-0 bg-[url('/rebuild-run.jpg')] bg-cover bg-center opacity-55 grayscale contrast-125 saturate-0" />
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,rgba(255,255,255,0.06)_0_1px,transparent_1px_6px)] opacity-30" />
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(var(--color-accent),0.32),transparent_38%),linear-gradient(0deg,rgba(0,0,0,0.95)_0%,rgba(0,0,0,0.76)_52%,rgba(0,0,0,0.3)_100%)]" />
-          <div className="relative flex min-h-[27rem] flex-col justify-end p-6">
-            <p className="metric-label text-white/70">Remember why</p>
-            <h2 className="mt-3 text-2xl font-black leading-tight text-white">
+        <div className="relative min-h-[30rem]">
+          <div className="absolute inset-0 bg-[url('/rebuild-yoga-light.jpg')] bg-cover bg-center opacity-60 grayscale contrast-125 saturate-0" />
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(var(--color-accent),0.24),transparent_42%),linear-gradient(0deg,rgba(0,0,0,0.94)_0%,rgba(0,0,0,0.72)_50%,rgba(0,0,0,0.28)_100%)]" />
+          <div className="relative flex min-h-[30rem] flex-col justify-end p-6">
+            <p className="text-sm font-bold leading-5 text-white/72">
               {firstName ? `${firstName}, remember why you're doing this.` : "Remember why you're doing this."}
-            </h2>
-            <p className="mt-5 break-words font-display text-3xl font-black uppercase leading-[1.02] text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.92)]">&ldquo;{why}&rdquo;</p>
+            </p>
+            <p className="mt-4 break-words font-display text-4xl font-black uppercase leading-[0.96] text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.92)]">&ldquo;{why}&rdquo;</p>
+            <p className="mt-4 text-xs font-black uppercase tracking-[0.2em] text-white/50">Seven seconds. Then back to the work.</p>
             <button
               type="button"
               onClick={onClose}
@@ -321,6 +321,9 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
               Enter REBUILD
             </button>
           </div>
+        </div>
+        <div className="absolute inset-x-0 bottom-0 h-1 bg-white/10" aria-hidden>
+          <div className="h-full bg-champagne transition-all duration-1000 ease-linear" style={{ width: progress }} />
         </div>
       </div>
     </div>
@@ -987,7 +990,7 @@ function labelFor(kind: LogKind) {
     meal: "Meal",
     water: "Water",
     sleep: "Sleep",
-    mood: "Pattern interrupt",
+    mood: "Meditation / reset",
   };
 
   return labels[kind];

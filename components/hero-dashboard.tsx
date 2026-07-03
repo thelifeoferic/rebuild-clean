@@ -199,7 +199,7 @@ export function HeroDashboard({
 
           <div className="contrast-panel mt-3 rounded-[1.35rem] border border-white/10 bg-black/75 p-4 backdrop-blur">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="metric-label text-white/55">Today&apos;s plan</p>
+            <p className="metric-label text-white/55">Today&apos;s anchors</p>
               <span className="text-xs font-bold text-champagne">{todayCompletion(data)}/3</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -216,14 +216,14 @@ export function HeroDashboard({
       </div>
 
       {profile?.quoteStyle !== "none" ? (
-        <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-          <p className="metric-label mb-2">Operating thought</p>
-          <p className="text-lg font-semibold leading-snug text-porcelain">
+        <div className="mt-4 rounded-[1.6rem] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.045] to-white/[0.025] p-5 shadow-panel">
+          <p className="metric-label mb-3 text-porcelain/52">Operating thought</p>
+          <p className="text-xl font-semibold leading-snug text-porcelain">
             <span aria-hidden>&ldquo;</span>
             {quote.line}
             <span aria-hidden>&rdquo;</span>
           </p>
-          <p className="mt-2 text-sm font-semibold text-champagne">{quote.source}</p>
+          <p className="mt-4 text-sm font-black uppercase tracking-[0.14em] text-champagne">{quote.source}</p>
         </div>
       ) : null}
 
@@ -416,13 +416,13 @@ function getLatestHomeEntry(data: RebuildData) {
   const latestChoice = data.behaviorWins[0];
   if (latestChoice) {
     return {
-      detail: latestChoice.label.replace(/^Pattern interrupted\s*→\s*/i, ""),
-      title: "Better choice logged",
+      detail: latestChoice.label.replace(/^(Pattern interrupted|Reset)\s*→\s*/i, ""),
+      title: "Reset logged",
     };
   }
 
   return {
-    detail: "Log your first session, weigh-in, meal, or pattern choice.",
+    detail: "Log your first session, weigh-in, meal, or reset practice.",
     title: "Your first entry goes here",
   };
 }
@@ -665,7 +665,7 @@ function HomeGymPanel({
     }
 
     if (logKind === "kettlebell") {
-      onOpenLog("kettlebell", { exercise: "Swings" });
+      onOpenLog("kettlebell", { exercise: kettlebellExerciseFor(item) });
       return;
     }
 
@@ -691,8 +691,14 @@ function HomeGymPanel({
 
     onOpenLog("machine", {
       category: machineCategoryFor(item),
+      calories: "",
+      distanceMiles: "",
       gymName,
       machine: item,
+      minutes: "",
+      reps: "",
+      sets: "",
+      weight: "",
     });
   }
 
@@ -977,6 +983,14 @@ function strengthExerciseFor(item: string) {
   if (normalized.includes("curl")) return "Biceps curls";
   if (normalized.includes("ez")) return "Biceps curls";
   return item;
+}
+
+function kettlebellExerciseFor(item: string) {
+  const normalized = item.toLowerCase();
+  if (normalized.includes("carry")) return "Suitcase carries";
+  if (normalized.includes("pass")) return "Pass-arounds";
+  if (normalized.includes("world")) return "Around-the-worlds";
+  return "Swings";
 }
 
 function ActivityBurnSheet({

@@ -4,8 +4,8 @@
   "description": "A personal fitness and behavior-change tracker.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#08090A",
-  "theme_color": "#08090A",
+  "background_color": "#0D0E0D",
+  "theme_color": "#0D0E0D",
   "orientation": "portrait",
   "icons": [
     {
