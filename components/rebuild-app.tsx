@@ -20,7 +20,7 @@ type EditTarget = {
   kind: LogKind;
 };
 const profileKey = "rebuild:profile:v2";
-const accentMigrationKey = "rebuild:accent-default-clean-blue:v1";
+const accentMigrationKey = "rebuild:accent-default-neutral:v1";
 const whyIntroSeenKey = "rebuild:why-intro-seen:v1";
 const whyIntroVisitKey = "rebuild:why-intro-visits:v1";
 
@@ -47,12 +47,12 @@ export function RebuildApp() {
       }
       if (storedProfile) {
         const parsedProfile = JSON.parse(storedProfile) as OnboardingProfile;
-        const shouldUseCleanDefault =
+        const shouldUseNeutralDefault =
           !window.localStorage.getItem(accentMigrationKey) &&
-          (!parsedProfile.accentColor || parsedProfile.accentColor === "champagne" || parsedProfile.accentColor === "ember");
+          (!parsedProfile.accentColor || parsedProfile.accentColor === "ember" || parsedProfile.accentColor === "cobalt");
         const migratedProfile =
-          shouldUseCleanDefault
-            ? { ...parsedProfile, accentColor: "cobalt" as const, themePreference: "light" as const }
+          shouldUseNeutralDefault
+            ? { ...parsedProfile, accentColor: "champagne" as const }
             : parsedProfile;
 
         if (migratedProfile !== parsedProfile) {
@@ -277,9 +277,9 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
   const [secondsLeft, setSecondsLeft] = useState(7);
   const firstName = profile.firstName?.trim();
   const why = profile.why?.trim() || "You are building proof that the next version of you is already in motion.";
-  const themePreference = profile.themePreference ?? "light";
+  const themePreference = profile.themePreference ?? "dark";
   const themeClass = themePreference === "light" ? "theme-light" : themePreference === "auto" ? "theme-auto" : "theme-dark";
-  const accentClass = `accent-${profile.accentColor ?? "cobalt"}`;
+  const accentClass = `accent-${profile.accentColor ?? "champagne"}`;
   const progress = `${Math.max(0, Math.min(100, (secondsLeft / 7) * 100))}%`;
 
   useEffect(() => {

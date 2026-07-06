@@ -23,9 +23,9 @@ export function AppShell({
   profile?: OnboardingProfile | null;
   showNavigation?: boolean;
 }) {
-  const themePreference = profile?.themePreference ?? "light";
+  const themePreference = profile?.themePreference ?? "dark";
   const themeClass = themePreference === "light" ? "theme-light" : themePreference === "auto" ? "theme-auto" : "theme-dark";
-  const accentClass = `accent-${profile?.accentColor ?? "cobalt"}`;
+  const accentClass = `accent-${profile?.accentColor ?? "champagne"}`;
 
   return (
     <main className={`mx-auto min-h-screen w-full max-w-md ${themeClass} ${accentClass} ${showNavigation ? "pb-28" : "pb-8"}`}>

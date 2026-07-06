@@ -132,7 +132,7 @@ export async function loadCloudSnapshot(client: SupabaseClient) {
 
 function profileToRow(userId: string, profile: OnboardingProfile) {
   return {
-    accent_color: profile.accentColor ?? "cobalt",
+    accent_color: profile.accentColor ?? "champagne",
     age: profile.age ?? null,
     avatar_url: profile.avatarUrl ?? null,
     behavior_focus: profile.behaviorFocus,
@@ -154,7 +154,7 @@ function profileToRow(userId: string, profile: OnboardingProfile) {
     quote_style: profile.quoteStyle ?? "goggins",
     reset_plan: profile.resetPlan ?? null,
     target_weight: profile.targetWeight ?? null,
-    theme_preference: profile.themePreference ?? "light",
+    theme_preference: profile.themePreference ?? "dark",
     updated_at: new Date().toISOString(),
     user_id: userId,
     why: profile.why ?? null,
@@ -163,7 +163,7 @@ function profileToRow(userId: string, profile: OnboardingProfile) {
 
 function rowToProfile(row: ProfileRow): OnboardingProfile {
   return {
-    accentColor: row.accent_color ?? "cobalt",
+    accentColor: row.accent_color ?? "champagne",
     age: row.age ?? undefined,
     avatarUrl: row.avatar_url ?? undefined,
     behaviorFocus: row.behavior_focus ?? [],
@@ -185,7 +185,7 @@ function rowToProfile(row: ProfileRow): OnboardingProfile {
     quoteStyle: row.quote_style ?? "goggins",
     resetPlan: row.reset_plan ?? undefined,
     targetWeight: row.target_weight ?? undefined,
-    themePreference: row.theme_preference ?? "light",
+    themePreference: row.theme_preference ?? "dark",
     why: row.why ?? undefined,
   };
 }

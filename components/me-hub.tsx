@@ -39,8 +39,8 @@ const goalOptions = [
   "Build confidence",
 ];
 
-const themeOptions = ["light", "dark", "auto"] as const;
-const accentOptions = ["cobalt", "pink", "champagne", "white", "ember", "volt"] as const;
+const themeOptions = ["dark", "light", "auto"] as const;
+const accentOptions = ["champagne", "pink", "cobalt", "white", "ember", "volt"] as const;
 const toneOptions = ["calm", "intense", "minimal", "tactical"] as const;
 const quoteOptions = ["goggins", "calm", "athlete", "none"] as const;
 const locationOptions = ["home", "gym", "travel", "pool"] as const;
@@ -120,7 +120,7 @@ function ProgressiveSetup({
   profile: OnboardingProfile | null;
 }) {
   const [draft, setDraft] = useState<OnboardingProfile>(() => ({
-    accentColor: profile?.accentColor ?? "cobalt",
+    accentColor: profile?.accentColor ?? "champagne",
     age: profile?.age,
     avatarDataUrl: profile?.avatarDataUrl,
     avatarUrl: profile?.avatarUrl,
@@ -143,7 +143,7 @@ function ProgressiveSetup({
     quoteStyle: profile?.quoteStyle ?? "goggins",
     resetPlan: profile?.resetPlan ?? "",
     targetWeight: profile?.targetWeight,
-    themePreference: profile?.themePreference ?? "light",
+    themePreference: profile?.themePreference ?? "dark",
     why: profile?.why ?? "",
   }));
   const completion = useMemo(() => setupCompletion(draft), [draft]);
@@ -263,8 +263,8 @@ function ProgressiveSetup({
           <SelectGroup label="Default location" options={locationOptions} value={draft.defaultLocation ?? "gym"} onChange={(value) => update("defaultLocation", value)} />
           <SelectGroup label="Coaching tone" options={toneOptions} value={draft.coachingTone ?? "calm"} onChange={(value) => update("coachingTone", value)} />
           <SelectGroup label="Quote style" options={quoteOptions} value={draft.quoteStyle ?? "goggins"} onChange={(value) => update("quoteStyle", value)} />
-          <SelectGroup label="Theme" options={themeOptions} value={draft.themePreference ?? "light"} onChange={(value) => update("themePreference", value)} />
-          <SelectGroup label="Accent" options={accentOptions} value={draft.accentColor ?? "cobalt"} onChange={(value) => update("accentColor", value)} />
+          <SelectGroup label="Theme" options={themeOptions} value={draft.themePreference ?? "dark"} onChange={(value) => update("themePreference", value)} />
+          <SelectGroup label="Accent" options={accentOptions} value={draft.accentColor ?? "champagne"} onChange={(value) => update("accentColor", value)} />
         </div>
 
         <button
