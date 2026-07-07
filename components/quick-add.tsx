@@ -1,8 +1,9 @@
-import { Bike, Brain, Droplets, Dumbbell, Flame, Footprints, Home, Moon, Salad, Scale, Trophy, Waves, Zap } from "lucide-react";
+import { Bike, Brain, ChevronRight, Droplets, Dumbbell, Flame, Footprints, Home, Moon, Salad, Scale, Trophy, Waves, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Section } from "@/components/section";
+import { VoiceWorkoutLog, type VoiceLogItem } from "@/components/voice-workout-log";
 import { WorkoutStopwatch } from "@/components/workout-stopwatch";
-import type { LogKind } from "@/types/rebuild";
+import type { LogKind, OnboardingProfile } from "@/types/rebuild";
 
 const logTypes: Array<{ detail: string; draft?: Record<string, string>; icon: LucideIcon; kind: LogKind; label: string }> = [
   { kind: "weight", label: "Weigh-in", detail: "bodyweight and date", icon: Scale },
@@ -23,6 +24,10 @@ const logTypes: Array<{ detail: string; draft?: Record<string, string>; icon: Lu
   { kind: "mood", label: "Meditation / Reset", detail: "meditate or redirect", icon: Brain },
 ];
 
+const primaryLogLabels = new Set(["Weigh-in", "Bike session", "Gym equipment", "Push-ups", "Meal", "Meditation / Reset"]);
+const primaryLogTypes = logTypes.filter((item) => primaryLogLabels.has(item.label));
+
+const secondaryLogTypes = logTypes.filter((item) => !primaryLogLabels.has(item.label));
 const moods = ["stress", "anger", "boredom", "energy", "habit"];
 const replacementActions = ["Meditated", "Went to the gym", "Walked", "Journaled", "Called a friend", "Early bedtime"];
 
@@ -53,56 +58,49 @@ const routineShortcuts = [
   },
 ] as const;
 
-export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind, draft?: Record<string, string | boolean>) => void }) {
+export function QuickAdd({
+  onSelect,
+  onVoiceLogs,
+  profile,
+}: {
+  onSelect: (kind: LogKind, draft?: Record<string, string | boolean>) => void;
+  onVoiceLogs?: (items: VoiceLogItem[]) => void;
+  profile?: OnboardingProfile | null;
+}) {
   return (
     <Section id="quick-add" eyebrow="Capture fast" title="Quick Add">
-      <WorkoutStopwatch />
+      {onVoiceLogs ? <VoiceWorkoutLog onSave={onVoiceLogs} profile={profile} /> : null}
 
-      <div className="panel p-4">
-        <div className="mb-4">
-          <p className="metric-label mb-3">Saved routines</p>
-          <div className="grid gap-2">
-            {routineShortcuts.map((routine) => {
-              const Icon = routine.icon;
-              return (
-                <button
-                  key={routine.title}
-                  type="button"
-                  onClick={() => onSelect(routine.kind)}
-                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.055] p-3 text-left transition hover:border-champagne/50"
-                >
-                  <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
-                    <Icon size={18} strokeWidth={2.2} aria-hidden />
-                  </div>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-semibold text-porcelain">{routine.title}</span>
-                    <span className="mt-1 block text-sm leading-5 text-white/45">{routine.detail}</span>
-                  </span>
-                </button>
-              );
-            })}
+      <div className="panel mb-4 p-4">
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <p className="metric-label">Most used</p>
+            <h3 className="mt-1 text-xl font-semibold text-porcelain">One tap, then only the fields that matter.</h3>
+          </div>
+          <div className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+            <Zap size={19} strokeWidth={2.2} aria-hidden />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          {logTypes.map((item) => {
+          {primaryLogTypes.map((item) => {
             const Icon = item.icon;
             return (
               <button
                 key={item.label}
                 type="button"
                 onClick={() => onSelect(item.kind, item.draft)}
-                className="min-h-[9.25rem] rounded-2xl border border-white/10 bg-carbon/70 p-3 text-left transition hover:border-champagne/50 hover:bg-white/10"
+                className="min-h-[7.25rem] rounded-[1.35rem] border border-white/10 bg-carbon/70 p-3 text-left transition active:scale-[0.98] hover:border-champagne/50 hover:bg-white/10"
               >
                 <Icon className="mb-3 text-champagne" size={20} strokeWidth={2.1} aria-hidden />
-                <span className="block text-sm font-semibold text-porcelain">{item.label}</span>
+                <span className="block text-sm font-black text-porcelain">{item.label}</span>
                 <span className="mt-1 block text-xs leading-4 text-white/45">{item.detail}</span>
               </button>
             );
           })}
         </div>
 
-        <div className="mt-4 rounded-2xl bg-white/[0.055] p-3">
+        <div className="mt-4 rounded-[1.35rem] bg-white/[0.055] p-3">
           <p className="metric-label mb-3">Meditation / reset</p>
           <p className="mb-3 text-sm leading-5 text-white/45">Log the thing you did instead. The private context stays private; the replacement becomes the record.</p>
           <div className="flex flex-wrap gap-2">
@@ -129,6 +127,69 @@ export function QuickAdd({ onSelect }: { onSelect: (kind: LogKind, draft?: Recor
               </button>
             ))}
           </div>
+        </div>
+      </div>
+
+      <div className="panel mb-4 p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="metric-label">Saved routines</p>
+            <p className="mt-1 text-sm font-semibold text-white/48">Shortcuts for the days you do not want to think.</p>
+          </div>
+          <Home className="text-champagne" size={20} strokeWidth={2.2} aria-hidden />
+        </div>
+        <div className="grid gap-2">
+          {routineShortcuts.map((routine) => {
+            const Icon = routine.icon;
+            return (
+              <button
+                key={routine.title}
+                type="button"
+                onClick={() => onSelect(routine.kind)}
+                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 text-left transition active:scale-[0.98] hover:border-champagne/50"
+              >
+                <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+                  <Icon size={18} strokeWidth={2.2} aria-hidden />
+                </div>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-semibold text-porcelain">{routine.title}</span>
+                  <span className="mt-1 block text-sm leading-5 text-white/45">{routine.detail}</span>
+                </span>
+                <ChevronRight className="text-white/28" size={18} strokeWidth={2.2} aria-hidden />
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <WorkoutStopwatch />
+
+      <div className="panel p-4">
+        <div className="mb-3">
+          <p className="metric-label">All logs</p>
+          <p className="mt-1 text-sm font-semibold text-white/48">Everything else stays here, organized as compact actions.</p>
+        </div>
+        <div className="grid gap-2">
+          {secondaryLogTypes.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => onSelect(item.kind, item.draft)}
+                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 text-left transition active:scale-[0.98] hover:border-champagne/50"
+              >
+                <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+                  <Icon size={18} strokeWidth={2.2} aria-hidden />
+                </div>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-black text-porcelain">{item.label}</span>
+                  <span className="mt-1 block text-xs leading-4 text-white/45">{item.detail}</span>
+                </span>
+                <ChevronRight className="text-white/28" size={18} strokeWidth={2.2} aria-hidden />
+              </button>
+            );
+          })}
         </div>
       </div>
     </Section>

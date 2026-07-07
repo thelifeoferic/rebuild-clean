@@ -9,6 +9,7 @@ import { Onboarding } from "@/components/onboarding";
 import { ProgramsHub } from "@/components/programs-hub";
 import { QuickAdd } from "@/components/quick-add";
 import { RecordsHub } from "@/components/records-hub";
+import type { VoiceLogItem } from "@/components/voice-workout-log";
 import { estimateDraftActivityCalories } from "@/lib/activity-calories";
 import { estimateBikeDistanceMiles } from "@/lib/bike-distance";
 import { buildTimeline, cloneSeedData, createId, getTodayIso, normalizeLogDate, normalizeRebuildData, storageKey } from "@/lib/rebuild-data";
@@ -137,6 +138,18 @@ export function RebuildApp() {
     setToast(`${labelFor(kind)} ${target ? "updated" : "saved"}`);
   }
 
+  function saveVoiceLogs(items: VoiceLogItem[]) {
+    if (!items.length) {
+      setToast("No clear log found in that voice note");
+      return;
+    }
+
+    setData((current) =>
+      items.reduce((nextData, item) => appendLog(nextData, item.kind, item.draft, profile), current),
+    );
+    setToast(`${items.length} ${items.length === 1 ? "log" : "logs"} captured from voice`);
+  }
+
   function closeLogModal() {
     setActiveLog(null);
     setCreateDraft(null);
@@ -230,7 +243,7 @@ export function RebuildApp() {
           profile={profile}
         />
       ) : null}
-      {activeView === "log" ? <QuickAdd onSelect={openLog} /> : null}
+      {activeView === "log" ? <QuickAdd onSelect={openLog} onVoiceLogs={saveVoiceLogs} profile={profile} /> : null}
       {activeView === "records" ? (
         <RecordsHub
           data={data}
