@@ -134,7 +134,7 @@ export function HeroDashboard({
 
   return (
     <section className="px-4 pb-4 pt-5">
-      <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-panel">
+      <div className="relative overflow-hidden rounded-[1.9rem] border border-white/10 bg-black shadow-panel">
         <Image
           src={homeHeroImage(profile)}
           alt=""
@@ -143,12 +143,12 @@ export function HeroDashboard({
           sizes="(max-width: 768px) 100vw, 448px"
           className="object-cover object-[52%_40%] opacity-72"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.76),rgba(0,0,0,0.48)_36%,rgba(0,0,0,0.94))]" />
+        <div className="absolute inset-0 hero-readable-overlay" />
         <div className="relative p-5">
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
-              <p className="metric-label text-white/70">{greeting()}, {firstName || "Member"}.</p>
-              <h1 className="mt-2 max-w-[18rem] font-display text-5xl font-black uppercase leading-[0.88] tracking-normal text-white">
+              <p className="metric-label text-white/74">{greeting()}, {firstName || "Member"}.</p>
+              <h1 className="mt-2 max-w-[19rem] font-display text-5xl font-black uppercase leading-[0.88] tracking-normal text-white drop-shadow-[0_3px_20px_rgba(0,0,0,0.9)]">
                 Day {rebuildDay} of your rebuild.
               </h1>
             </div>
@@ -168,7 +168,7 @@ export function HeroDashboard({
             <button
               type="button"
               onClick={() => onNavigate("records")}
-              className="contrast-panel rounded-[1.35rem] border border-champagne/25 bg-black/70 p-4 text-left backdrop-blur"
+              className="contrast-panel rounded-[1.35rem] border border-champagne/25 bg-black/72 p-4 text-left backdrop-blur"
             >
               <p className="metric-label text-white/55">REBUILD Score</p>
               <p className="mt-2 font-display text-5xl font-black uppercase leading-none text-champagne">
@@ -179,7 +179,7 @@ export function HeroDashboard({
             <button
               type="button"
               onClick={() => onOpenLog("weight")}
-              className="contrast-panel rounded-[1.35rem] border border-white/10 bg-black/70 p-4 text-left backdrop-blur"
+              className="contrast-panel rounded-[1.35rem] border border-white/10 bg-black/72 p-4 text-left backdrop-blur"
             >
               <p className="metric-label text-white/55">Current Weight</p>
               <p className="mt-2 font-display text-4xl font-black uppercase leading-none text-white">
@@ -192,15 +192,15 @@ export function HeroDashboard({
           <button
             type="button"
             onClick={() => onNavigate("records")}
-            className="contrast-panel mt-3 w-full rounded-[1.35rem] border border-white/10 bg-black/75 p-4 text-left backdrop-blur"
+            className="contrast-panel mt-3 w-full rounded-[1.35rem] border border-white/10 bg-black/78 p-4 text-left backdrop-blur"
           >
             <p className="metric-label text-white/55">Coach insight</p>
             <p className="mt-2 text-sm font-semibold leading-5 text-porcelain">{coachInsight}</p>
           </button>
 
-          <div className="contrast-panel mt-3 rounded-[1.35rem] border border-white/10 bg-black/75 p-4 backdrop-blur">
+          <div className="contrast-panel mt-3 rounded-[1.35rem] border border-white/10 bg-black/78 p-4 backdrop-blur">
             <div className="mb-3 flex items-center justify-between gap-3">
-            <p className="metric-label text-white/55">Today&apos;s anchors</p>
+              <p className="metric-label text-white/55">Today&apos;s anchors</p>
               <span className="text-xs font-bold text-champagne">{todayCompletion(data)}/3</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -217,8 +217,8 @@ export function HeroDashboard({
       </div>
 
       {profile?.quoteStyle !== "none" ? (
-        <div className="mt-4 rounded-[1.6rem] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.045] to-white/[0.025] p-5 shadow-panel">
-          <p className="metric-label mb-3 text-porcelain/52">Operating thought</p>
+        <div className="app-card mt-4 rounded-[1.6rem] p-5">
+          <p className="metric-label mb-3">Operating thought</p>
           <p className="text-xl font-semibold leading-snug text-porcelain">
             <span aria-hidden>&ldquo;</span>
             {quote.line}
@@ -232,7 +232,7 @@ export function HeroDashboard({
         href={tidalPlaylistUrl}
         target="_blank"
         rel="noreferrer"
-        className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-base font-black text-carbon shadow-glow"
+        className="app-primary-action mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl px-3 text-base font-black"
       >
         <Headphones size={18} strokeWidth={2.2} aria-hidden />
         Start TIDAL playlist
@@ -261,7 +261,7 @@ export function HeroDashboard({
             </h3>
           </div>
         </div>
-        <div className="border-t border-white/10 bg-carbon/92 p-4">
+        <div className="border-t border-white/10 bg-carbon/95 p-4">
           <div className="mb-3 flex items-start gap-3">
             <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
               {recommendation.logKind ? <Dumbbell size={18} strokeWidth={2.2} aria-hidden /> : <ScanSearch size={18} strokeWidth={2.2} aria-hidden />}
@@ -295,7 +295,7 @@ export function HeroDashboard({
                 }
                 onOpenBodyScan();
               }}
-              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-bold text-[rgb(var(--color-accent-foreground))] shadow-glow"
+                className="app-primary-action inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-3 text-sm font-bold"
             >
               {recommendation.programTab ? <Dumbbell size={17} strokeWidth={2.2} aria-hidden /> : <ScanSearch size={17} strokeWidth={2.2} aria-hidden />}
               {recommendation.ctaLabel}
@@ -304,7 +304,7 @@ export function HeroDashboard({
               <button
                 type="button"
                 onClick={() => onOpenLog(recommendation.logKind)}
-                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.055] px-3 text-sm font-bold text-porcelain"
+                className="app-secondary-action inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-3 text-sm font-bold"
               >
                 <CheckCircle2 size={17} strokeWidth={2.2} aria-hidden />
                 Log after workout
@@ -582,11 +582,11 @@ function MiniStat({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-3">
+    <div className="app-card rounded-2xl p-3">
       <Icon className="mb-2 text-champagne" size={17} strokeWidth={2.1} aria-hidden />
       <p className="metric-label">{label}</p>
-      <p className="mt-1 text-base font-semibold text-porcelain">{value}</p>
-      {detail ? <p className="mt-1 text-xs font-semibold text-white/35">{detail}</p> : null}
+      <p className="mt-1 text-base font-semibold text-[rgb(var(--text-primary))]">{value}</p>
+      {detail ? <p className="app-subtle mt-1 text-xs font-semibold">{detail}</p> : null}
     </div>
   );
 }
@@ -706,7 +706,7 @@ function HomeGymPanel({
   }
 
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-panel">
+    <div className="app-surface mt-4 overflow-hidden rounded-2xl">
       <div className="relative min-h-36 bg-black">
         <Image
           src="/rebuild-leg-press-side.jpg"
@@ -717,7 +717,7 @@ function HomeGymPanel({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/42 to-black/10" />
         <div className="absolute bottom-4 left-4 right-4">
-          <div className="mb-3 grid size-10 place-items-center rounded-full bg-champagne text-carbon">
+          <div className="app-primary-action mb-3 grid size-10 place-items-center rounded-full p-0">
             <Building2 size={18} strokeWidth={2.3} aria-hidden />
           </div>
           <p className="metric-label text-white/68">Home gym</p>
@@ -737,7 +737,7 @@ function HomeGymPanel({
           <select
             value={selectedValue}
             onChange={(event) => chooseGym(event.target.value)}
-            className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-porcelain outline-none focus:border-champagne"
+            className="app-secondary-action min-h-12 w-full justify-start rounded-2xl px-4 text-base font-semibold outline-none focus:border-champagne"
           >
             <option value="none">No home gym selected</option>
             {localGymPresets.map((gym) => (
@@ -750,18 +750,18 @@ function HomeGymPanel({
         </label>
 
         {selectedPreset?.id === "total-fitness-29-palms" ? (
-          <div className="mt-4 rounded-[1.35rem] border border-champagne/22 bg-gradient-to-br from-champagne/14 via-white/[0.07] to-white/[0.04] p-4">
+          <div className="app-card mt-4 rounded-[1.35rem] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="metric-label text-white/72">Today at Total Fitness</p>
-                <h3 className="mt-1 text-xl font-black uppercase leading-none text-porcelain">
+                <p className="metric-label">Today at Total Fitness</p>
+                <h3 className="mt-1 text-xl font-black uppercase leading-none text-[rgb(var(--text-primary))]">
                   {todaysStudioClasses.length ? `${todaysStudioClasses.length} studio classes` : "Open floor"}
                 </h3>
-                <p className="mt-2 text-sm font-semibold leading-5 text-white/78">
+                <p className="app-secondary mt-2 text-sm font-semibold leading-5">
                   The schedule is tied to this gym. Tap a class to log it, or open the full week.
                 </p>
               </div>
-              <div className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne text-[rgb(var(--color-accent-foreground))]">
+              <div className="app-primary-action grid size-11 shrink-0 place-items-center rounded-full p-0">
                 <CalendarDays size={18} strokeWidth={2.3} aria-hidden />
               </div>
             </div>
@@ -773,17 +773,17 @@ function HomeGymPanel({
                     key={item.id}
                     type="button"
                     onClick={() => onOpenLog(item.logKind, item.logDraft)}
-                    className="flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-carbon px-3 py-2 text-left transition active:scale-[0.98]"
+                    className="app-secondary-action flex min-h-12 items-center justify-between gap-3 rounded-2xl px-3 py-2 text-left transition active:scale-[0.98]"
                     aria-label={`Log ${item.title}`}
                   >
                     <span>
-                      <span className="block text-sm font-black text-porcelain">{item.title}</span>
-                      <span className="mt-0.5 flex items-center gap-1 text-xs font-bold uppercase tracking-[0.1em] text-white/68">
+                      <span className="block text-sm font-black text-[rgb(var(--text-primary))]">{item.title}</span>
+                      <span className="app-subtle mt-0.5 flex items-center gap-1 text-xs font-bold uppercase tracking-[0.1em]">
                         <Clock3 size={12} strokeWidth={2.3} aria-hidden />
                         {item.start}
                       </span>
                     </span>
-                    <span className="shrink-0 rounded-full bg-white/12 px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em] text-white/76">
+                    <span className="app-chip shrink-0 px-3 py-1.5 text-xs">
                       Log
                     </span>
                   </button>
@@ -794,7 +794,7 @@ function HomeGymPanel({
             <button
               type="button"
               onClick={onOpenClasses}
-              className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black uppercase tracking-[0.08em] text-carbon active:scale-[0.98]"
+              className="app-primary-action mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm font-black uppercase tracking-[0.08em] active:scale-[0.98]"
             >
               View full schedule
             </button>
@@ -810,7 +810,7 @@ function HomeGymPanel({
                   key={item}
                   type="button"
                   onClick={() => openEquipmentLog(item)}
-                  className="shrink-0 rounded-full bg-carbon px-3 py-2 text-xs font-bold text-white/70 transition active:scale-[0.97]"
+                  className="app-chip shrink-0 px-3 py-2 text-xs transition active:scale-[0.97]"
                   aria-label={`Log ${item}`}
                 >
                   {item}
@@ -819,7 +819,7 @@ function HomeGymPanel({
             </div>
           </div>
         ) : (
-          <p className="mt-3 text-sm leading-5 text-white/50">Pick Total Fitness or another local preset to load that gym&apos;s machine list.</p>
+          <p className="app-secondary mt-3 text-sm leading-5">Pick Total Fitness or another local preset to load that gym&apos;s machine list.</p>
         )}
 
         {equipment.length ? (
@@ -828,7 +828,7 @@ function HomeGymPanel({
             <select
               value={selectedMachineForLog}
               onChange={(event) => setSelectedMachine(event.target.value)}
-              className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-porcelain outline-none focus:border-champagne"
+              className="app-secondary-action min-h-12 w-full justify-start rounded-2xl px-4 text-base font-semibold outline-none focus:border-champagne"
             >
               {equipment.map((item) => (
                 <option key={item} value={item}>
@@ -843,7 +843,7 @@ function HomeGymPanel({
           <button
             type="button"
             onClick={() => openEquipmentLog(selectedMachineForLog)}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-champagne px-4 text-sm font-black text-carbon shadow-glow"
+            className="app-primary-action inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-black"
           >
             <Dumbbell size={17} strokeWidth={2.2} aria-hidden />
             Use gym
@@ -851,7 +851,7 @@ function HomeGymPanel({
           <button
             type="button"
             onClick={() => onOpenLog("bike")}
-            className="grid min-h-12 min-w-12 place-items-center rounded-2xl border border-white/10 bg-white/[0.055] text-champagne"
+            className="app-secondary-action grid min-h-12 min-w-12 place-items-center rounded-2xl p-0"
             aria-label="Log cardio"
           >
             <Bike size={18} strokeWidth={2.2} aria-hidden />
@@ -948,9 +948,9 @@ function HomeSectionShortcuts({
             <span className="mt-2 block max-w-[22rem] text-sm font-semibold leading-5 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
               Upload progress photos, compare changes over time, and get non-medical coaching on what to track next.
             </span>
-            <span className="mt-4 inline-flex rounded-full bg-champagne px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[rgb(var(--color-accent-foreground))]">
-              Open scan
-            </span>
+              <span className="app-primary-action mt-4 inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em]">
+                Open scan
+              </span>
           </span>
         </button>
         {shortcuts.map((shortcut) => {
@@ -967,7 +967,7 @@ function HomeSectionShortcuts({
               <span className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/28 to-transparent" />
               <span className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
                 <span>
-                  <span className="mb-3 grid size-10 place-items-center rounded-full bg-champagne text-carbon">
+                  <span className="app-primary-action mb-3 grid size-10 place-items-center rounded-full p-0">
                     <Icon size={18} strokeWidth={2.3} aria-hidden />
                   </span>
                   <span className="block text-lg font-black uppercase tracking-[0.08em] text-white">{shortcut.title}</span>
@@ -1016,19 +1016,19 @@ function ActivityBurnSheet({
 }) {
   return (
     <div className="fixed inset-0 z-[80] flex items-end bg-black/70 px-3 pb-3 backdrop-blur-sm" role="dialog" aria-modal="true">
-      <div className="w-full rounded-[1.75rem] border border-white/10 bg-carbon p-4 shadow-panel">
+      <div className="app-surface w-full rounded-[1.75rem] p-4">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <p className="metric-label">Activity burn</p>
             <h2 className="mt-1 font-display text-4xl font-black uppercase leading-none text-champagne">{activityBurn} cal</h2>
-            <p className="mt-2 text-sm leading-5 text-white/50">
+            <p className="app-secondary mt-2 text-sm leading-5">
               Estimated from today&apos;s saved training and your profile. Use it as a guide, not a lab number.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="grid size-10 shrink-0 place-items-center rounded-full bg-white/10 text-white/70"
+            className="app-secondary-action grid size-10 shrink-0 place-items-center rounded-full p-0"
             aria-label="Close activity burn breakdown"
           >
             <X size={18} strokeWidth={2.3} aria-hidden />
@@ -1038,26 +1038,26 @@ function ActivityBurnSheet({
         {breakdown.length ? (
           <div className="space-y-2">
             {breakdown.map((item) => (
-              <div key={item.label} className="flex items-center justify-between gap-3 rounded-2xl bg-white/[0.055] p-3">
+              <div key={item.label} className="app-card flex items-center justify-between gap-3 rounded-2xl p-3">
                 <div>
-                  <p className="font-semibold text-porcelain">{item.label}</p>
-                  <p className="text-xs font-semibold text-white/42">{item.detail}</p>
+                  <p className="font-semibold text-[rgb(var(--text-primary))]">{item.label}</p>
+                  <p className="app-subtle text-xs font-semibold">{item.detail}</p>
                 </div>
                 <p className="text-lg font-black text-champagne">{item.calories}</p>
               </div>
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl bg-white/[0.055] p-4">
-            <p className="font-semibold text-porcelain">No activity burn yet.</p>
-            <p className="mt-1 text-sm leading-5 text-white/48">Log a workout and REBUILD will estimate the calorie impact here.</p>
+          <div className="app-card rounded-2xl p-4">
+            <p className="font-semibold text-[rgb(var(--text-primary))]">No activity burn yet.</p>
+            <p className="app-secondary mt-1 text-sm leading-5">Log a workout and REBUILD will estimate the calorie impact here.</p>
           </div>
         )}
 
         <button
           type="button"
           onClick={onOpenLog}
-          className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-champagne px-4 text-sm font-black text-carbon"
+          className="app-primary-action mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-2xl px-4 text-sm font-black"
         >
           Log activity
         </button>
@@ -1137,12 +1137,12 @@ function HomeSignalCard({
     <button
       type="button"
       onClick={onClick}
-      className="min-h-[13rem] rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-left shadow-panel transition active:scale-[0.97]"
+      className="app-card min-h-[13rem] rounded-2xl p-4 text-left transition active:scale-[0.97]"
     >
       <Icon className="mb-3 text-champagne" size={18} strokeWidth={2.1} aria-hidden />
       <p className="metric-label">{label}</p>
-      <h3 className="mt-2 text-base font-semibold leading-tight text-porcelain">{title}</h3>
-      <p className="mt-2 line-clamp-3 text-xs leading-4 text-white/45">{detail}</p>
+      <h3 className="mt-2 text-base font-semibold leading-tight text-[rgb(var(--text-primary))]">{title}</h3>
+      <p className="app-subtle mt-2 line-clamp-3 text-xs leading-4">{detail}</p>
     </button>
   );
 }
@@ -1164,17 +1164,17 @@ function HomeSignalRow({
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-[7.75rem] w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 text-left shadow-panel transition active:scale-[0.98]"
+      className="app-card flex min-h-[7.75rem] w-full items-center gap-3 rounded-2xl p-3 text-left transition active:scale-[0.98]"
     >
       <span className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
         <Icon size={18} strokeWidth={2.2} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
         <span className="metric-label block">{label}</span>
-        <span className="mt-1 block text-base font-semibold leading-tight text-porcelain">{title}</span>
-        <span className="mt-1 line-clamp-2 block text-xs leading-4 text-white/48">{detail}</span>
+        <span className="mt-1 block text-base font-semibold leading-tight text-[rgb(var(--text-primary))]">{title}</span>
+        <span className="app-subtle mt-1 line-clamp-2 block text-xs leading-4">{detail}</span>
       </span>
-      <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.055] px-3 py-2 text-[0.62rem] font-black uppercase tracking-[0.12em] text-white/62">
+      <span className="app-chip shrink-0 px-3 py-2 text-[0.62rem]">
         Open
       </span>
     </button>

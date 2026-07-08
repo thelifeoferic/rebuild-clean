@@ -136,14 +136,14 @@ function RecordDetails({ details }: { details: RecordDetail[] }) {
     <div className="mt-4 space-y-2">
       <p className="metric-label">Saved activity details</p>
       {details.map((detail, index) => (
-        <div key={`${detail.title}-${detail.date ?? index}`} className="rounded-2xl border border-white/10 bg-black/25 p-3">
+        <div key={`${detail.title}-${detail.date ?? index}`} className="app-card p-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-sm font-bold text-porcelain">{detail.title}</p>
               <p className="mt-1 text-xs leading-4 text-white/50">{detail.detail}</p>
               {detail.date ? <p className="mt-2 text-[0.65rem] font-black uppercase tracking-[0.14em] text-white/35">{detail.date}</p> : null}
             </div>
-            <p className="max-w-[9rem] shrink-0 truncate rounded-full bg-champagne px-3 py-1.5 text-xs font-black text-carbon">{detail.value}</p>
+            <p className="app-chip-active max-w-[9rem] shrink-0 truncate px-3 py-1.5 text-xs font-black">{detail.value}</p>
           </div>
         </div>
       ))}

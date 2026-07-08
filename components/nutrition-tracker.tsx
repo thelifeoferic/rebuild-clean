@@ -32,7 +32,7 @@ export function NutritionTracker({
     .join(" · ");
 
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
+    <div className="app-card mt-4 overflow-hidden rounded-2xl">
       <div className="relative min-h-[10.5rem] bg-black">
         <Image src="/rebuild-nutrition.jpg" alt="" fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover opacity-55" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
@@ -53,12 +53,12 @@ export function NutritionTracker({
           <SmallStat label="Base guide" value={calorieGuide.baseGuide} unit="cal" />
           <SmallStat label="Activity burn" value={calorieGuide.activityBurn} unit="cal" />
         </div>
-        <div className="mt-3 rounded-2xl bg-carbon/70 p-3">
+        <div className="app-card mt-3 rounded-2xl p-3">
           <p className="metric-label">{calorieGuide.remaining >= 0 ? "Guide remaining" : "Over guide"}</p>
           <p className="mt-1 text-lg font-semibold text-porcelain">
-            {Math.abs(calorieGuide.remaining)} <span className="text-sm text-white/40">cal</span>
+            {Math.abs(calorieGuide.remaining)} <span className="app-subtle text-sm">cal</span>
           </p>
-          <p className="mt-1 text-xs leading-5 text-white/40">
+          <p className="app-subtle mt-1 text-xs leading-5">
             {proteinRemaining > 0
               ? `${proteinRemaining}g protein left, roughly ${proteinAnchorsLeft} solid anchor${proteinAnchorsLeft === 1 ? "" : "s"}.`
               : "Protein target cleared. Keep the rest of the day boring and honest."}
@@ -67,9 +67,9 @@ export function NutritionTracker({
         {todaysMeals.length ? (
           <div className="mt-3 space-y-2">
             {todaysMeals.map((meal) => (
-              <div key={meal.id} className="rounded-2xl bg-white/[0.055] px-3 py-2">
+              <div key={meal.id} className="app-card rounded-2xl px-3 py-2">
                 <p className="text-sm font-semibold text-porcelain">{meal.name}</p>
-                <p className="text-xs font-semibold text-white/42">
+                <p className="app-subtle text-xs font-semibold">
                   {meal.calories} cal · {meal.protein}g protein
                 </p>
               </div>
@@ -79,12 +79,12 @@ export function NutritionTracker({
         <button
           type="button"
           onClick={() => onOpenLog("meal")}
-          className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-white/10 px-3 text-sm font-bold text-porcelain"
+          className="app-secondary-action mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-3 text-sm font-bold"
         >
           <Salad size={17} strokeWidth={2.2} aria-hidden />
           Log food
         </button>
-        <p className="mt-3 text-xs leading-5 text-white/40">
+        <p className="app-subtle mt-3 text-xs leading-5">
           Base calories use your latest weight{estimateBasis ? `, ${estimateBasis}` : ""}. Activity burn is estimated from logged work and current body weight.
         </p>
       </div>
@@ -94,10 +94,10 @@ export function NutritionTracker({
 
 function SmallStat({ label, unit, value }: { label: string; unit: string; value: number }) {
   return (
-    <div className="rounded-2xl bg-carbon/70 p-3">
+    <div className="app-card rounded-2xl p-3">
       <p className="metric-label">{label}</p>
       <p className="mt-1 text-base font-semibold text-porcelain">
-        {value} <span className="text-xs text-white/40">{unit}</span>
+        {value} <span className="app-subtle text-xs">{unit}</span>
       </p>
     </div>
   );
@@ -117,11 +117,11 @@ function TrackerBar({
   value: number;
 }) {
   return (
-    <div className="rounded-2xl bg-carbon/70 p-3">
+    <div className="app-card rounded-2xl p-3">
       <p className="metric-label">{label}</p>
       <p className="mt-1 text-lg font-semibold text-porcelain">
         {value}
-        <span className="text-sm text-white/40"> / {guide}{unit}</span>
+        <span className="app-subtle text-sm"> / {guide}{unit}</span>
       </p>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
         <div className="h-full rounded-full bg-champagne" style={{ width: `${progress}%` }} />

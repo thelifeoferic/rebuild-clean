@@ -146,7 +146,7 @@ export function FormVisuals() {
           {visuals.map((visual) => (
             <article
               key={visual.title}
-              className="min-w-[88%] overflow-hidden rounded-[1.6rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.025))] shadow-panel"
+              className="app-card min-w-[88%] overflow-hidden rounded-[1.6rem]"
             >
               <button
                 type="button"
@@ -168,7 +168,7 @@ export function FormVisuals() {
                   </div>
                   <div className="flex gap-1">
                     {visual.phases.map((phase) => (
-                      <span key={phase} className="rounded-full bg-carbon px-2 py-1 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-champagne">
+                      <span key={phase} className="app-chip-active rounded-full px-2 py-1 text-[0.62rem] font-bold uppercase tracking-[0.12em]">
                         {phase}
                       </span>
                     ))}
@@ -196,7 +196,7 @@ export function FormVisuals() {
               <button
                 type="button"
                 onClick={() => setExpandedVisual(null)}
-                className="grid size-12 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-white/72"
+                className="app-secondary-action grid size-12 place-items-center rounded-full"
                 aria-label="Close form map"
               >
                 <X size={21} strokeWidth={2.2} aria-hidden />
@@ -223,16 +223,16 @@ function CueBlock({ icon, items, title }: { icon: "keep" | "watch"; items: reado
   const tone = icon === "keep" ? "text-signal bg-signal/10" : "text-ember bg-ember/10";
 
   return (
-    <div className="rounded-2xl bg-carbon/70 p-3">
+    <div className="app-card rounded-2xl p-3">
       <div className="mb-2 flex items-center gap-2">
         <span className={`grid size-7 place-items-center rounded-full ${tone}`}>
           <Icon size={14} strokeWidth={2.2} aria-hidden />
         </span>
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/38">{title}</p>
+        <p className={`text-xs font-bold uppercase tracking-[0.14em] ${icon === "watch" ? "text-ember" : "text-signal"}`}>{title}</p>
       </div>
       <div className="grid gap-1">
         {items.map((item) => (
-          <p key={item} className="text-sm leading-5 text-white/62">
+          <p key={item} className="app-secondary text-sm leading-5">
             {item}
           </p>
         ))}

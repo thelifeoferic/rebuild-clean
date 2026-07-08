@@ -155,7 +155,7 @@ export function VideoLibrary({ profile }: { profile: OnboardingProfile | null })
             href={tidalPlaylistUrl}
             target="_blank"
             rel="noreferrer"
-            className="mb-4 flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-signal px-4 text-base font-bold text-carbon"
+            className="app-primary-action mb-4 flex min-h-12 items-center justify-center gap-2 rounded-2xl px-4 text-base font-bold"
           >
             <Headphones size={18} strokeWidth={2.2} aria-hidden />
             Start TIDAL playlist
@@ -205,8 +205,8 @@ export function VideoLibrary({ profile }: { profile: OnboardingProfile | null })
                 onClick={() => setActiveIndex(index)}
                 className={`overflow-hidden rounded-2xl border text-left transition ${
                   activeIndex === index
-                    ? "border-champagne bg-champagne text-carbon"
-                    : "border-white/10 bg-white/[0.055] text-white/64"
+                    ? "app-chip-active"
+                    : "app-chip"
                 }`}
               >
                 <span className="relative block h-20 bg-black">

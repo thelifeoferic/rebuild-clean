@@ -261,7 +261,7 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
               className="sr-only"
               onChange={(event) => void handleFile(event.target.files?.[0] ?? null)}
             />
-            <span className="grid size-12 place-items-center rounded-full bg-champagne text-carbon">
+            <span className="app-primary-action grid size-12 place-items-center rounded-full p-0">
               {imageData ? <Camera size={21} strokeWidth={2.4} aria-hidden /> : <ImagePlus size={21} strokeWidth={2.4} aria-hidden />}
             </span>
             <span>
@@ -280,7 +280,7 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
                 type="button"
                 onClick={() => void saveCurrentPhoto()}
                 disabled={!canSavePhoto}
-                className="inline-flex min-h-10 items-center gap-2 rounded-full bg-champagne px-4 text-sm font-black text-carbon disabled:opacity-45"
+                className="app-primary-action inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-black disabled:opacity-45"
               >
                 <Save size={16} strokeWidth={2.2} aria-hidden />
                 Save to progress
@@ -288,7 +288,7 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
               <button
                 type="button"
                 onClick={clearPhoto}
-                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-sm font-bold text-white/58"
+                className="app-secondary-action inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-bold"
               >
                 <Trash2 size={16} strokeWidth={2.2} aria-hidden />
                 Clear photo
@@ -335,7 +335,7 @@ export function BodyCheck({ profile }: { profile: OnboardingProfile | null }) {
             type="button"
             disabled={!canAnalyze}
             onClick={() => void analyzePhoto()}
-            className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-5 text-base font-black text-carbon shadow-glow transition disabled:cursor-not-allowed disabled:opacity-45"
+            className="app-primary-action flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl px-5 text-base font-black transition disabled:cursor-not-allowed disabled:opacity-45"
           >
             {isLoading ? <Loader2 size={19} className="animate-spin" strokeWidth={2.4} aria-hidden /> : <Sparkles size={19} strokeWidth={2.4} aria-hidden />}
             {isLoading ? "Analyzing..." : "Analyze body scan"}
@@ -450,14 +450,14 @@ function ProgressPhotoLibrary({
                   <button
                     type="button"
                     onClick={() => onSelectBefore(photo.id)}
-                    className="rounded-full bg-white/[0.065] px-3 py-1 text-xs font-bold text-white/54"
+                    className="app-secondary-action rounded-full px-3 py-1 text-xs font-bold"
                   >
                     Before
                   </button>
                   <button
                     type="button"
                     onClick={() => onSelectAfter(photo.id)}
-                    className="rounded-full bg-white/[0.065] px-3 py-1 text-xs font-bold text-white/54"
+                    className="app-secondary-action rounded-full px-3 py-1 text-xs font-bold"
                   >
                     After
                   </button>
@@ -466,7 +466,7 @@ function ProgressPhotoLibrary({
               <button
                 type="button"
                 onClick={() => onDelete(photo.id)}
-                className="grid size-10 shrink-0 place-items-center rounded-full bg-white/[0.065] text-white/45"
+                className="app-secondary-action grid size-10 shrink-0 place-items-center rounded-full"
                 aria-label={`Delete photo from ${formatPhotoDate(photo.createdAt)}`}
               >
                 <Trash2 size={16} strokeWidth={2.2} aria-hidden />
@@ -533,7 +533,7 @@ function AnalysisCard({ analysis, isMock }: { analysis: BodyAnalysis; isMock: bo
   return (
     <div className="space-y-3 rounded-3xl border border-champagne/30 bg-champagne/10 p-4">
       <div className="flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne text-carbon">
+        <span className="app-primary-action grid size-10 shrink-0 place-items-center rounded-full p-0">
           <Sparkles size={18} strokeWidth={2.4} aria-hidden />
         </span>
         <div>

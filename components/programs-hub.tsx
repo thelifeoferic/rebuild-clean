@@ -41,7 +41,7 @@ export function ProgramsHub({
 
   return (
     <>
-      <div className="sticky top-0 z-30 bg-carbon/92 px-4 pt-5 backdrop-blur-xl">
+      <div className="sticky-app-header sticky top-0 z-30 border-b px-4 pt-5">
         <p className="metric-label">Built around your tools</p>
         <h1 className="mt-1 text-3xl font-semibold text-porcelain">Programs</h1>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-3">
@@ -51,7 +51,7 @@ export function ProgramsHub({
               type="button"
               onClick={() => setActiveTab(tab)}
               className={`min-h-10 shrink-0 rounded-full border px-4 text-sm font-bold ${
-                activeTab === tab ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-white/[0.055] text-white/62"
+                activeTab === tab ? "app-chip-active" : "app-chip"
               }`}
             >
               {tab}

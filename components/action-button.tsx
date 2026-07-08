@@ -12,9 +12,9 @@ export function ActionButton({ label, icon: Icon, href, variant = "dark" }: Acti
   const className = clsx(
     "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold transition",
     {
-      "bg-champagne text-carbon shadow-glow hover:brightness-110": variant === "gold",
-      "bg-white/8 text-porcelain hairline hover:bg-white/12": variant === "dark",
-      "bg-signal text-carbon hover:bg-white": variant === "green",
+      "app-primary-action hover:brightness-110": variant === "gold",
+      "app-secondary-action hover:brightness-105": variant === "dark",
+      "bg-signal text-[rgb(var(--color-accent-foreground))] hover:brightness-110": variant === "green",
     },
   );
 

@@ -31,7 +31,7 @@ export function AppShell({
     <main className={`mx-auto min-h-screen w-full max-w-md ${themeClass} ${accentClass} ${showNavigation ? "pb-28" : "pb-8"}`}>
       {children}
       {showNavigation ? (
-        <nav className="app-bottom-nav fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md border-t px-3 pb-[max(0.85rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_60px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
+        <nav className="app-bottom-nav fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md border-t px-3 pb-[max(0.85rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-2xl">
           <div className="grid grid-cols-5 items-end gap-1">
             {navigation.map((item) => {
               const Icon = item.icon;
@@ -44,9 +44,11 @@ export function AppShell({
                   onClick={() => onNavigate(item.view as AppView)}
                   className={`flex flex-col items-center justify-center gap-1 rounded-2xl font-bold transition active:scale-[0.97] ${
                     isElevated
-                      ? "-mt-7 min-h-16 border border-white/15 bg-champagne text-[rgb(var(--color-accent-foreground))] shadow-glow"
+                      ? "-mt-7 min-h-16 border border-white/15 app-primary-action"
                       : `min-h-12 text-[0.56rem] ${
-                          isActive ? "bg-champagne/12 text-champagne" : "text-porcelain/52 hover:bg-white/[0.06] hover:text-porcelain"
+                          isActive
+                            ? "bg-champagne/12 text-champagne"
+                            : "app-subtle hover:bg-champagne/10 hover:text-champagne"
                         }`
                   }`}
                   aria-label={item.label}

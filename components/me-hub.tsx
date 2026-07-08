@@ -72,7 +72,7 @@ export function MeHub({
 
   return (
     <>
-      <div className="sticky top-0 z-30 bg-carbon/92 px-4 pt-5 backdrop-blur-xl">
+      <div className="sticky-app-header sticky top-0 z-30 border-b px-4 pt-5">
         <div className="flex items-center gap-3">
           <div className="grid size-11 place-items-center overflow-hidden rounded-full border border-white/10 bg-champagne/10 text-champagne">
             {avatarSrc ? (
@@ -86,7 +86,7 @@ export function MeHub({
             <h1 className="mt-1 text-3xl font-semibold text-porcelain">Me</h1>
           </div>
         </div>
-        <p className="mt-3 text-sm leading-5 text-white/50">Hi, {firstName}. This is where the rebuild gets more personal.</p>
+        <p className="app-secondary mt-3 text-sm leading-5">Hi, {firstName}. This is where the rebuild gets more personal.</p>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-3">
           {tabs.map((tab) => (
             <button
@@ -94,7 +94,7 @@ export function MeHub({
               type="button"
               onClick={() => setActiveTab(tab)}
               className={`min-h-10 shrink-0 rounded-full border px-4 text-sm font-bold ${
-                activeTab === tab ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-white/[0.055] text-white/62"
+                activeTab === tab ? "app-chip-active" : "app-chip"
               }`}
             >
               {tab}
@@ -270,7 +270,7 @@ function ProgressiveSetup({
         <button
           type="button"
           onClick={save}
-          className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-4 text-base font-bold text-carbon shadow-glow"
+          className="app-primary-action mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl px-4 text-base font-bold"
         >
           <CheckCircle2 size={18} strokeWidth={2.2} aria-hidden />
           Save setup
@@ -367,7 +367,7 @@ function ChipGroup({
               type="button"
               onClick={() => onSelect(option)}
               className={`min-h-10 rounded-full border px-3 text-sm font-semibold ${
-                active ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-white/[0.055] text-white/62"
+                active ? "app-chip-active" : "app-chip"
               }`}
             >
               {option}

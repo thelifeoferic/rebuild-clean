@@ -53,7 +53,7 @@ export function ExerciseGuides({
               type="button"
               onClick={() => setFilter(item)}
               className={`min-h-10 shrink-0 rounded-full border px-4 text-sm font-bold ${
-                filter === item ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-carbon/70 text-white/62"
+                filter === item ? "app-chip-active" : "app-chip"
               }`}
             >
               {item}
@@ -99,7 +99,7 @@ export function ExerciseGuides({
                   <button
                     type="button"
                     onClick={() => onOpenLog(target.kind, target.draft)}
-                    className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-champagne px-4 text-sm font-black text-carbon shadow-glow"
+                    className="app-primary-action mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl px-4 text-sm font-black"
                   >
                     Log {target.label}
                   </button>

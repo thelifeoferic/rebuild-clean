@@ -131,25 +131,25 @@ export function WorkoutStopwatch() {
         <div>
           <p className="metric-label">Workout timer</p>
           <p className="mt-1 font-display text-5xl font-black leading-none text-porcelain tabular-nums">{formatElapsed(elapsedMs)}</p>
-          <p className="mt-2 text-xs font-bold uppercase tracking-[0.12em] text-white/40">
+          <p className="mt-2 text-xs font-bold uppercase tracking-[0.12em] text-[rgb(var(--text-muted))]">
             {state.running ? "Running" : latestLap ? `Last split ${formatElapsed(latestLap)}` : "Ready"}
           </p>
         </div>
-        <div className="grid size-12 shrink-0 place-items-center rounded-full bg-champagne/14 text-champagne">
+        <div className="app-icon-soft grid size-12 shrink-0 place-items-center rounded-full">
           <Timer size={22} strokeWidth={2.2} aria-hidden />
         </div>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-white/10 bg-carbon/70 p-3">
+      <div className="app-card mt-4 p-3">
         <div className="mb-2 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <BellRing size={16} className="text-champagne" strokeWidth={2.2} aria-hidden />
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-white/58">Alarm</p>
+            <p className="metric-label text-xs">Alarm</p>
           </div>
-          <p className="text-xs font-bold text-white/45">{state.alarmMinutes ? `${state.alarmMinutes} min` : "Off"}</p>
+          <p className="app-subtle text-xs font-bold">{state.alarmMinutes ? `${state.alarmMinutes} min` : "Off"}</p>
         </div>
         <div className="grid grid-cols-[1fr_auto] gap-2">
-          <label className="flex min-h-12 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.055] px-3 focus-within:border-champagne">
+          <label className="flex min-h-12 items-center gap-2 rounded-xl border border-[rgb(var(--line-soft))] bg-[rgb(var(--surface-raised))] px-3 focus-within:border-champagne">
             <input
               type="number"
               min={0}
@@ -159,26 +159,26 @@ export function WorkoutStopwatch() {
               value={state.alarmMinutes ? String(state.alarmMinutes) : ""}
               onChange={(event) => setAlarmMinutes(event.target.value)}
               placeholder="Enter minutes"
-              className="min-w-0 flex-1 bg-transparent text-base font-black text-porcelain outline-none placeholder:text-white/32"
+              className="min-w-0 flex-1 bg-transparent text-base font-black text-[rgb(var(--text-primary))] outline-none placeholder:text-[rgb(var(--text-muted))]"
             />
-            <span className="text-xs font-black uppercase tracking-[0.12em] text-white/40">min</span>
+            <span className="text-xs font-black uppercase tracking-[0.12em] text-[rgb(var(--text-muted))]">min</span>
           </label>
           <button
             type="button"
             onClick={() => setAlarmMinutes("0")}
-            className="min-h-12 rounded-xl border border-white/10 bg-white/[0.055] px-3 text-xs font-black uppercase tracking-[0.1em] text-white/60 active:scale-[0.97]"
+            className="app-secondary-action min-h-12 rounded-xl px-3 text-xs font-black uppercase tracking-[0.1em]"
           >
             Clear
           </button>
         </div>
-        <p className="mt-2 text-xs font-semibold leading-5 text-white/40">Enter any duration up to 240 minutes. The timer will keep sounding until you dismiss it.</p>
+        <p className="app-subtle mt-2 text-xs font-semibold leading-5">Enter any duration up to 240 minutes. The timer will keep sounding until you dismiss it.</p>
         {alarmActive ? (
           <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-champagne/25 bg-champagne/12 px-3 py-2">
             <p className="text-sm font-black text-porcelain">Alarm reached</p>
             <button
               type="button"
               onClick={dismissAlarm}
-              className="rounded-full bg-champagne px-3 py-1.5 text-xs font-black text-[rgb(var(--color-accent-foreground))]"
+              className="app-primary-action rounded-full px-3 py-1.5 text-xs font-black"
             >
               Dismiss
             </button>
@@ -187,7 +187,7 @@ export function WorkoutStopwatch() {
         <button
           type="button"
           onClick={testAlarm}
-          className="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.055] text-xs font-black uppercase tracking-[0.12em] text-white/58"
+          className="app-secondary-action mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl text-xs font-black uppercase tracking-[0.12em]"
         >
           <BellRing size={14} strokeWidth={2.3} aria-hidden />
           Test alarm
@@ -199,7 +199,7 @@ export function WorkoutStopwatch() {
         <button
           type="button"
           onClick={state.running ? pause : start}
-          className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-champagne px-3 text-sm font-black text-[rgb(var(--color-accent-foreground))] shadow-glow active:scale-[0.97]"
+          className="app-primary-action flex min-h-12 items-center justify-center gap-2 rounded-2xl px-3 text-sm font-black"
         >
           {state.running ? <Pause size={17} strokeWidth={2.4} aria-hidden /> : <Play size={17} strokeWidth={2.4} aria-hidden />}
           {state.running ? "Pause" : "Start"}
@@ -208,7 +208,7 @@ export function WorkoutStopwatch() {
           type="button"
           onClick={lap}
           disabled={elapsedMs < 1000}
-          className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.055] px-3 text-sm font-black text-porcelain disabled:opacity-35 active:scale-[0.97]"
+          className="app-secondary-action flex min-h-12 items-center justify-center gap-2 rounded-2xl px-3 text-sm font-black disabled:opacity-35"
         >
           <Flag size={16} strokeWidth={2.2} aria-hidden />
           Lap
@@ -217,7 +217,7 @@ export function WorkoutStopwatch() {
           type="button"
           onClick={reset}
           disabled={elapsedMs < 1000 && !state.laps.length}
-          className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.055] px-3 text-sm font-black text-porcelain disabled:opacity-35 active:scale-[0.97]"
+          className="app-secondary-action flex min-h-12 items-center justify-center gap-2 rounded-2xl px-3 text-sm font-black disabled:opacity-35"
         >
           <RotateCcw size={16} strokeWidth={2.2} aria-hidden />
           Clear
@@ -227,9 +227,9 @@ export function WorkoutStopwatch() {
       {state.laps.length ? (
         <div className="mt-4 grid gap-2">
           {state.laps.slice(0, 3).map((lapTime, index) => (
-            <div key={`${lapTime}-${index}`} className="flex items-center justify-between rounded-xl bg-carbon/70 px-3 py-2 text-sm font-bold">
-              <span className="text-white/42">Split {state.laps.length - index}</span>
-              <span className="font-display text-porcelain tabular-nums">{formatElapsed(lapTime)}</span>
+            <div key={`${lapTime}-${index}`} className="flex items-center justify-between rounded-xl bg-[rgb(var(--surface-raised))] px-3 py-2 text-sm font-bold">
+              <span className="text-[rgb(var(--text-muted))]">Split {state.laps.length - index}</span>
+              <span className="font-display text-[rgb(var(--text-primary))] tabular-nums">{formatElapsed(lapTime)}</span>
             </div>
           ))}
         </div>

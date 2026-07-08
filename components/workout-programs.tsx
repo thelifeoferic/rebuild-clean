@@ -79,7 +79,7 @@ export function WorkoutPrograms({ profile }: { profile: OnboardingProfile | null
               type="button"
               onClick={() => setFilter(item)}
               className={`min-h-10 shrink-0 rounded-full border px-4 text-sm font-bold ${
-                filter === item ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-white/[0.055] text-white/62"
+                filter === item ? "app-chip-active" : "app-chip"
               }`}
             >
               {item}

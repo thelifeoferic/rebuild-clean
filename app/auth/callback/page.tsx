@@ -110,27 +110,27 @@ export default function AuthCallbackPage() {
   return (
     <main className="min-h-screen bg-carbon px-5 py-10 text-porcelain">
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-md items-center">
-        <section className="w-full rounded-[2rem] border border-white/10 bg-white/[0.055] p-5 shadow-panel">
+        <section className="app-card w-full rounded-[2rem] p-5">
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <p className="metric-label">REBUILD account</p>
               <h1 className="mt-2 text-3xl font-black tracking-tight">
                 {view === "reset" ? "Reset password" : view === "error" ? "Account needs attention" : "Secure sign-in"}
               </h1>
-              <p className="mt-3 text-base font-semibold leading-6 text-white/58">{message}</p>
+              <p className="app-secondary mt-3 text-base font-semibold leading-6">{message}</p>
             </div>
-            <div className={`grid size-12 shrink-0 place-items-center rounded-full ${view === "error" ? "bg-ember/10 text-ember" : "bg-[var(--accent-soft)] text-[var(--accent)]"}`}>
+            <div className={`grid size-12 shrink-0 place-items-center rounded-full ${view === "error" ? "bg-ember/10 text-ember" : "app-icon-soft"}`}>
               {icon}
             </div>
           </div>
 
           {view === "checking" ? (
-            <div className="rounded-2xl bg-carbon/70 p-4 text-sm font-bold text-white/50">Checking the link...</div>
+            <div className="app-card rounded-2xl p-4 text-sm font-bold">Checking the link...</div>
           ) : null}
 
           {view === "reset" ? (
             <div className="space-y-3">
-              <label className="flex min-h-14 items-center rounded-2xl border border-white/10 bg-carbon px-4 focus-within:border-[var(--accent)]">
+              <label className="flex min-h-14 items-center rounded-2xl border border-white/10 bg-carbon px-4 focus-within:border-champagne">
                 <LockKeyhole size={18} className="mr-3 shrink-0 text-white/38" aria-hidden />
                 <input
                   value={newPassword}
@@ -144,7 +144,7 @@ export default function AuthCallbackPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((value) => !value)}
-                  className="ml-2 grid size-10 place-items-center rounded-full bg-white/[0.06] text-white/55"
+                  className="app-secondary-action ml-2 grid size-10 place-items-center rounded-full"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={17} strokeWidth={2.3} aria-hidden /> : <Eye size={17} strokeWidth={2.3} aria-hidden />}
@@ -154,18 +154,18 @@ export default function AuthCallbackPage() {
                 type="button"
                 onClick={updatePassword}
                 disabled={isWorking || newPassword.length < 6}
-                className="min-h-14 w-full rounded-2xl bg-[var(--accent)] px-4 text-base font-black text-[var(--accent-contrast)] shadow-glow disabled:opacity-45"
+                className="app-primary-action min-h-14 w-full rounded-2xl px-4 text-base font-black disabled:opacity-45"
               >
                 Save new password
               </button>
-              <p className="text-sm font-semibold leading-6 text-white/42">Use at least 6 characters. After this, you can sign in with email and password.</p>
+              <p className="app-subtle text-sm font-semibold leading-6">Use at least 6 characters. After this, you can sign in with email and password.</p>
             </div>
           ) : null}
 
           {view === "success" || view === "error" ? (
             <Link
               href="/"
-              className="mt-4 inline-flex min-h-14 w-full items-center justify-center rounded-2xl bg-[var(--accent)] px-4 text-base font-black text-[var(--accent-contrast)] shadow-glow"
+              className="app-primary-action mt-4 inline-flex min-h-14 w-full items-center justify-center rounded-2xl px-4 text-base font-black"
             >
               Return to REBUILD
             </Link>

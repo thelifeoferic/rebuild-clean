@@ -76,7 +76,7 @@ export function ProfileCard({
           <div>
             <p className="metric-label">Operating profile</p>
             <h3 className="mt-1 text-xl font-semibold text-porcelain">{goals.slice(0, 2).join(" + ")}</h3>
-            <p className="mt-1 text-sm leading-5 text-white/45">
+            <p className="app-subtle mt-1 text-sm leading-5">
               {equipmentCount} equipment options selected. Training recommendations use this profile first.
             </p>
           </div>
@@ -89,13 +89,13 @@ export function ProfileCard({
           </div>
         </div>
 
-        <div className={`mb-3 rounded-2xl ${avatarSrc ? "border border-white/10 bg-transparent p-3" : "bg-white/[0.055] p-3"}`}>
+        <div className="app-card mb-3 rounded-2xl p-3">
           <p className="metric-label mb-2">Profile photo</p>
           <div className={avatarSrc ? "flex items-center justify-between gap-2" : "grid grid-cols-[1fr_auto] gap-2"}>
-            {avatarSrc ? <p className="text-sm font-semibold text-white/55">Photo saved</p> : null}
+            {avatarSrc ? <p className="app-secondary text-sm font-semibold">Photo saved</p> : null}
             <label
               className={`inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-2xl px-3 text-sm font-black ${
-                avatarSrc ? "border border-white/10 bg-white/[0.055] text-white/70" : "bg-champagne text-carbon"
+                avatarSrc ? "app-secondary-action" : "app-primary-action"
               }`}
             >
               {isUploadingAvatar ? <Loader2 size={16} className="animate-spin" aria-hidden /> : <Camera size={16} strokeWidth={2.2} aria-hidden />}
@@ -111,27 +111,27 @@ export function ProfileCard({
               <button
                 type="button"
                 onClick={removeAvatar}
-                className="grid size-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.055] text-white/62"
+                className="app-secondary-action grid size-11 place-items-center rounded-2xl"
                 aria-label="Remove profile photo"
               >
                 <Trash2 size={16} strokeWidth={2.2} aria-hidden />
               </button>
             ) : null}
           </div>
-          <p className="mt-2 text-xs leading-5 text-white/42">
+          <p className="app-subtle mt-2 text-xs leading-5">
             {avatarStatus || "Saved locally first. If you are signed in and the avatars bucket exists, it syncs to Supabase too."}
           </p>
         </div>
 
         {profile?.why ? (
-          <div className="mb-3 rounded-2xl bg-white/[0.055] p-3">
+          <div className="app-card mb-3 rounded-2xl p-3">
             <p className="metric-label mb-1">Why you&apos;re doing this</p>
-            <p className="text-sm font-semibold leading-5 text-white/70">{profile.why}</p>
+            <p className="app-secondary text-sm font-semibold leading-5">{profile.why}</p>
           </div>
         ) : null}
 
         {profile?.homeGymName ? (
-          <div className="mb-3 rounded-2xl bg-white/[0.055] p-3">
+          <div className="app-card mb-3 rounded-2xl p-3">
             <div className="mb-3 flex items-start gap-3">
               <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
                 <Building2 size={18} strokeWidth={2.2} aria-hidden />
@@ -139,12 +139,12 @@ export function ProfileCard({
               <div>
                 <p className="metric-label">Home gym</p>
                 <p className="mt-1 text-base font-semibold text-porcelain">{profile.homeGymName}</p>
-                {profile.homeGymAddress ? <p className="mt-1 text-sm leading-5 text-white/45">{profile.homeGymAddress}</p> : null}
+                {profile.homeGymAddress ? <p className="app-subtle mt-1 text-sm leading-5">{profile.homeGymAddress}</p> : null}
               </div>
             </div>
             <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto pr-1">
               {homeGymEquipment.slice(0, 18).map((item) => (
-                <span key={item} className="rounded-full bg-carbon px-3 py-1 text-xs font-bold text-white/58">
+                <span key={item} className="app-chip rounded-full px-3 py-1 text-xs font-bold">
                   {item}
                 </span>
               ))}
@@ -162,7 +162,7 @@ export function ProfileCard({
             profile?.accentColor ?? "champagne",
             profile?.coachingTone ?? "calm",
           ].map((item) => (
-            <span key={item} className="rounded-full bg-white/[0.055] px-3 py-1 text-xs font-bold capitalize text-white/55">
+            <span key={item} className="app-chip rounded-full px-3 py-1 text-xs font-bold capitalize">
               {item}
             </span>
           ))}
@@ -171,7 +171,7 @@ export function ProfileCard({
         <button
           type="button"
           onClick={onRestart}
-          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.055] px-3 text-sm font-bold text-white/62"
+          className="app-secondary-action inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-3 text-sm font-bold"
         >
           <RotateCcw size={16} strokeWidth={2.2} aria-hidden />
           Redo setup, keep logs

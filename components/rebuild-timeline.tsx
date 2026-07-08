@@ -42,7 +42,7 @@ export function RebuildTimeline({
               type="button"
               onClick={() => setFilter(item)}
               className={`min-h-9 shrink-0 rounded-full border px-3 text-xs font-bold ${
-                filter === item ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-carbon/70 text-white/55"
+                filter === item ? "app-chip-active" : "app-chip"
               }`}
             >
               {item}

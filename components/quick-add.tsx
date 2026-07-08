@@ -90,38 +90,38 @@ export function QuickAdd({
                 key={item.label}
                 type="button"
                 onClick={() => onSelect(item.kind, item.draft)}
-                className="min-h-[7.25rem] rounded-[1.35rem] border border-white/10 bg-carbon/70 p-3 text-left transition active:scale-[0.98] hover:border-champagne/50 hover:bg-white/10"
+                className="app-card min-h-[7.25rem] rounded-[1.35rem] p-3 text-left transition active:scale-[0.98] hover:brightness-105"
               >
                 <Icon className="mb-3 text-champagne" size={20} strokeWidth={2.1} aria-hidden />
-                <span className="block text-sm font-black text-porcelain">{item.label}</span>
-                <span className="mt-1 block text-xs leading-4 text-white/45">{item.detail}</span>
+                <span className="block text-sm font-black text-[rgb(var(--text-primary))]">{item.label}</span>
+                <span className="app-subtle mt-1 block text-xs leading-4">{item.detail}</span>
               </button>
             );
           })}
         </div>
 
-        <div className="mt-4 rounded-[1.35rem] bg-white/[0.055] p-3">
+        <div className="app-card mt-4 rounded-[1.35rem] p-3">
           <p className="metric-label mb-3">Meditation / reset</p>
-          <p className="mb-3 text-sm leading-5 text-white/45">Log the thing you did instead. The private context stays private; the replacement becomes the record.</p>
+          <p className="app-secondary mb-3 text-sm leading-5">Log the thing you did instead. The private context stays private; the replacement becomes the record.</p>
           <div className="flex flex-wrap gap-2">
             {moods.map((mood) => (
               <button
                 key={mood}
                 type="button"
                 onClick={() => onSelect("mood", { reason: mood })}
-                className="rounded-full border border-white/10 px-3 py-2 text-xs font-semibold capitalize text-white/68 transition hover:border-ember/60 hover:text-porcelain"
+                className="app-chip rounded-full px-3 py-2 text-xs font-semibold capitalize transition hover:brightness-105"
               >
                 {mood}
               </button>
             ))}
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2">
-            {replacementActions.map((action, index) => (
+            {replacementActions.map((action) => (
               <button
                 key={action}
                 type="button"
                 onClick={() => onSelect("mood", { label: action })}
-                className={`rounded-2xl px-3 py-3 text-sm font-bold text-carbon ${index === 0 ? "bg-signal" : "bg-champagne"}`}
+                className="app-primary-action rounded-2xl px-3 py-3 text-sm font-bold"
               >
                 {action}
               </button>
@@ -134,7 +134,7 @@ export function QuickAdd({
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <p className="metric-label">Saved routines</p>
-            <p className="mt-1 text-sm font-semibold text-white/48">Shortcuts for the days you do not want to think.</p>
+            <p className="app-secondary mt-1 text-sm font-semibold">Shortcuts for the days you do not want to think.</p>
           </div>
           <Home className="text-champagne" size={20} strokeWidth={2.2} aria-hidden />
         </div>
@@ -146,16 +146,16 @@ export function QuickAdd({
                 key={routine.title}
                 type="button"
                 onClick={() => onSelect(routine.kind)}
-                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 text-left transition active:scale-[0.98] hover:border-champagne/50"
+                className="app-card flex items-center gap-3 rounded-2xl p-3 text-left transition active:scale-[0.98] hover:brightness-105"
               >
-                <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+                <div className="app-icon-soft grid size-10 shrink-0 place-items-center rounded-full">
                   <Icon size={18} strokeWidth={2.2} aria-hidden />
                 </div>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-semibold text-porcelain">{routine.title}</span>
-                  <span className="mt-1 block text-sm leading-5 text-white/45">{routine.detail}</span>
+                  <span className="block font-semibold text-[rgb(var(--text-primary))]">{routine.title}</span>
+                  <span className="app-subtle mt-1 block text-sm leading-5">{routine.detail}</span>
                 </span>
-                <ChevronRight className="text-white/28" size={18} strokeWidth={2.2} aria-hidden />
+                <ChevronRight className="app-subtle" size={18} strokeWidth={2.2} aria-hidden />
               </button>
             );
           })}
@@ -167,7 +167,7 @@ export function QuickAdd({
       <div className="panel p-4">
         <div className="mb-3">
           <p className="metric-label">All logs</p>
-          <p className="mt-1 text-sm font-semibold text-white/48">Everything else stays here, organized as compact actions.</p>
+          <p className="app-secondary mt-1 text-sm font-semibold">Everything else stays here, organized as compact actions.</p>
         </div>
         <div className="grid gap-2">
           {secondaryLogTypes.map((item) => {
@@ -177,16 +177,16 @@ export function QuickAdd({
                 key={item.label}
                 type="button"
                 onClick={() => onSelect(item.kind, item.draft)}
-                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 text-left transition active:scale-[0.98] hover:border-champagne/50"
+                className="app-card flex items-center gap-3 rounded-2xl p-3 text-left transition active:scale-[0.98] hover:brightness-105"
               >
-                <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+                <div className="app-icon-soft grid size-10 shrink-0 place-items-center rounded-full">
                   <Icon size={18} strokeWidth={2.2} aria-hidden />
                 </div>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-black text-porcelain">{item.label}</span>
-                  <span className="mt-1 block text-xs leading-4 text-white/45">{item.detail}</span>
+                  <span className="block text-sm font-black text-[rgb(var(--text-primary))]">{item.label}</span>
+                  <span className="app-subtle mt-1 block text-xs leading-4">{item.detail}</span>
                 </span>
-                <ChevronRight className="text-white/28" size={18} strokeWidth={2.2} aria-hidden />
+                <ChevronRight className="app-subtle" size={18} strokeWidth={2.2} aria-hidden />
               </button>
             );
           })}

@@ -122,7 +122,7 @@ export function DailyCalendar({ data, onDelete, onDuplicate, onEdit, onOpenLog, 
             <button
               type="button"
               onClick={() => setSelectedDate(getTodayIso())}
-              className="min-h-10 rounded-full bg-champagne px-4 text-sm font-black text-carbon"
+              className="app-primary-action min-h-10 rounded-full px-4 text-sm font-black"
             >
               Back to today
             </button>

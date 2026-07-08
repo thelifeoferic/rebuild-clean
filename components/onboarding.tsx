@@ -407,10 +407,8 @@ export function Onboarding({
                       key={minutes}
                       type="button"
                       onClick={() => setPreferredTrainingMinutes(minutes)}
-                      className={`min-h-10 rounded-2xl border text-sm font-bold ${
-                        preferredTrainingMinutes === minutes
-                          ? "border-champagne bg-champagne text-carbon"
-                          : "border-white/10 bg-white/[0.055] text-white/62"
+                      className={`min-h-10 rounded-2xl text-sm font-bold ${
+                        preferredTrainingMinutes === minutes ? "app-chip-active" : "app-chip"
                       }`}
                     >
                       {minutes}
@@ -434,7 +432,7 @@ export function Onboarding({
         <button
           type="button"
           onClick={next}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-champagne px-4 text-base font-bold text-carbon shadow-glow"
+          className="app-primary-action inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-4 text-base font-bold"
         >
           {isFinalStep ? "Enter REBUILD" : step === 0 ? "Start setup" : "Continue"}
           {isFinalStep ? <CheckCircle2 size={18} strokeWidth={2.2} aria-hidden /> : <ArrowRight size={18} strokeWidth={2.2} aria-hidden />}
@@ -443,7 +441,7 @@ export function Onboarding({
           <button
             type="button"
             onClick={complete}
-            className="min-h-12 rounded-2xl border border-white/10 bg-white/[0.055] px-4 text-sm font-bold text-white/62"
+            className="app-secondary-action min-h-12 rounded-2xl px-4 text-sm font-bold"
           >
             Skip
           </button>
@@ -532,8 +530,8 @@ function ChoiceGroup({
               key={option}
               type="button"
               onClick={() => onSelect(option)}
-              className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3 text-sm font-semibold transition ${
-                isSelected ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-white/[0.055] text-white/62"
+              className={`inline-flex min-h-10 items-center gap-2 rounded-full px-3 text-sm font-semibold transition ${
+                isSelected ? "app-chip-active" : "app-chip"
               }`}
             >
               {isSelected ? <CheckCircle2 size={15} strokeWidth={2.2} aria-hidden /> : null}
@@ -574,8 +572,8 @@ function PreferenceGroup<T extends string>({
             key={option}
             type="button"
             onClick={() => onSelect(option)}
-            className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3 text-sm font-semibold capitalize transition ${
-              selected === option ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-white/[0.055] text-white/62"
+            className={`inline-flex min-h-10 items-center gap-2 rounded-full px-3 text-sm font-semibold capitalize transition ${
+              selected === option ? "app-chip-active" : "app-chip"
             }`}
           >
             {selected === option ? <CheckCircle2 size={15} strokeWidth={2.2} aria-hidden /> : null}

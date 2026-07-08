@@ -81,7 +81,7 @@ export function GoalTrainingPlan({ data, onOpenLog, profile }: GoalTrainingPlanP
           <button
             type="button"
             onClick={() => onOpenLog(primaryLog)}
-            className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-champagne px-4 text-sm font-bold text-carbon shadow-glow"
+            className="app-primary-action mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm font-bold"
           >
             Log the recommended work
           </button>

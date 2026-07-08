@@ -12,7 +12,7 @@ const toneClasses = {
   gold: "text-champagne bg-champagne/10",
   green: "text-signal bg-signal/10",
   ember: "text-ember bg-ember/10",
-  steel: "text-white/70 bg-white/10",
+  steel: "app-icon-soft",
 };
 
 export function MetricCard({ label, value, detail, icon: Icon, tone = "steel" }: MetricCardProps) {
@@ -25,7 +25,7 @@ export function MetricCard({ label, value, detail, icon: Icon, tone = "steel" }:
         </span>
       </div>
       <p className="metric-value">{value}</p>
-      <p className="mt-1 text-sm leading-5 text-white/55">{detail}</p>
+      <p className="app-subtle mt-1 text-sm leading-5">{detail}</p>
     </article>
   );
 }

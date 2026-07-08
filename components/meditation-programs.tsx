@@ -186,7 +186,7 @@ export function MeditationPrograms({ onOpenLog }: { onOpenLog: (kind: LogKind, d
                 <button
                   type="button"
                   onClick={() => onOpenLog("mood", { label: routine.replacement, reason: "habit" })}
-                  className="mt-3 min-h-11 w-full rounded-2xl bg-champagne px-4 text-sm font-black text-carbon active:scale-[0.97]"
+                  className="app-primary-action mt-3 min-h-11 w-full rounded-2xl px-4 text-sm font-black active:scale-[0.97]"
                 >
                   Log meditation
                 </button>

@@ -56,7 +56,7 @@ function readableError(error: unknown) {
 function statusClasses(tone: NoticeTone) {
   if (tone === "success") return "border-signal/25 bg-signal/10 text-signal";
   if (tone === "error") return "border-ember/30 bg-ember/10 text-ember";
-  return "border-white/10 bg-white/[0.055] text-white/55";
+  return "app-card app-secondary";
 }
 
 export function AccountPanel(props: AccountPanelProps) {
@@ -244,20 +244,20 @@ export function AccountPanel(props: AccountPanelProps) {
   const primaryDisabled = isWorking || !email.trim() || !password || (mode === "create" && password.length < 6);
 
   return (
-    <section className={`rounded-[1.75rem] border border-white/10 bg-white/[0.045] p-4 shadow-panel ${className}`}>
+    <section className={`app-card rounded-[1.75rem] p-4 ${className}`}>
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <p className="metric-label">{variant === "sync" ? "Account and backup" : "Private account"}</p>
           <h3 className="mt-1 text-xl font-black tracking-tight text-porcelain">
             {session ? "Signed in" : mode === "create" ? "Create your account" : "Sign in"}
           </h3>
-          <p className="mt-1 text-sm leading-5 text-white/50">
+          <p className="app-subtle mt-1 text-sm leading-5">
             {variant === "sync"
               ? "Back up your phone, restore on another device, and keep ownership of your rebuild."
               : "Password-first login. Email links only confirm or reset when needed."}
           </p>
         </div>
-        <div className={`grid size-11 shrink-0 place-items-center rounded-full ${session ? "bg-signal/10 text-signal" : "bg-[var(--accent-soft)] text-[var(--accent)]"}`}>
+        <div className={`grid size-11 shrink-0 place-items-center rounded-full ${session ? "bg-signal/10 text-signal" : "app-icon-soft"}`}>
           {session ? <CheckCircle2 size={20} strokeWidth={2.3} aria-hidden /> : <ShieldCheck size={20} strokeWidth={2.3} aria-hidden />}
         </div>
       </div>
@@ -270,11 +270,11 @@ export function AccountPanel(props: AccountPanelProps) {
       </div>
 
       {!isSupabaseConfigured ? (
-        <p className="rounded-2xl bg-carbon/70 p-3 text-sm leading-6 text-white/55">
+        <p className="app-card rounded-2xl p-3 text-sm leading-6">
           Add the Supabase URL and publishable key in Vercel to enable login.
         </p>
       ) : isCheckingSession ? (
-        <div className="rounded-2xl bg-carbon/70 p-3 text-sm font-semibold text-white/50">Checking account...</div>
+        <div className="app-card rounded-2xl p-3 text-sm font-semibold">Checking account...</div>
       ) : session ? (
         <div className="space-y-3">
           <div className="rounded-2xl border border-signal/20 bg-signal/10 p-3">
@@ -283,14 +283,14 @@ export function AccountPanel(props: AccountPanelProps) {
               Cloud account active
             </div>
             <p className="break-all text-base font-bold text-porcelain">{session.user.email}</p>
-            <p className="mt-2 text-sm leading-5 text-white/50">
+            <p className="app-subtle mt-2 text-sm leading-5">
               This does not erase local storage. You choose when to back up or restore.
             </p>
           </div>
 
           {variant === "sync" ? (
             <>
-              <div className="rounded-2xl bg-carbon/70 p-3">
+              <div className="app-card rounded-2xl p-3">
                 <p className="metric-label">Last backup</p>
                 <p className="mt-1 text-sm font-semibold text-porcelain">{lastSynced ?? "Not backed up from this device yet"}</p>
               </div>
@@ -299,7 +299,7 @@ export function AccountPanel(props: AccountPanelProps) {
                   type="button"
                   onClick={syncNow}
                   disabled={isWorking}
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] px-3 text-base font-black text-[var(--accent-contrast)] disabled:opacity-50"
+                  className="app-primary-action inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-3 text-base font-black disabled:opacity-50"
                 >
                   <UploadCloud size={17} strokeWidth={2.3} aria-hidden />
                   Back up
@@ -308,7 +308,7 @@ export function AccountPanel(props: AccountPanelProps) {
                   type="button"
                   onClick={pullCloud}
                   disabled={isWorking}
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white/10 px-3 text-base font-black text-porcelain disabled:opacity-50"
+                  className="app-secondary-action inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-3 text-base font-black disabled:opacity-50"
                 >
                   <DownloadCloud size={17} strokeWidth={2.3} aria-hidden />
                   Restore
@@ -321,7 +321,7 @@ export function AccountPanel(props: AccountPanelProps) {
             type="button"
             onClick={signOut}
             disabled={isWorking}
-            className={`${compact ? "min-h-12" : "min-h-12"} inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white/[0.065] px-3 text-base font-black text-white/68 disabled:opacity-50`}
+            className={`${compact ? "min-h-12" : "min-h-12"} app-secondary-action inline-flex w-full items-center justify-center gap-2 rounded-2xl px-3 text-base font-black disabled:opacity-50`}
           >
             <LogOut size={17} strokeWidth={2.3} aria-hidden />
             Sign out
@@ -335,14 +335,14 @@ export function AccountPanel(props: AccountPanelProps) {
                 type="button"
                 key={item}
                 onClick={() => setMode(item)}
-                className={`min-h-11 rounded-full text-sm font-black transition ${mode === item ? "bg-[var(--accent)] text-[var(--accent-contrast)]" : "text-white/50"}`}
+                className={`min-h-11 rounded-full text-sm font-black transition ${mode === item ? "app-chip-active" : "app-subtle"}`}
               >
                 {item === "sign-in" ? "Sign in" : "Create"}
               </button>
             ))}
           </div>
 
-          <label className="flex min-h-14 items-center rounded-2xl border border-white/10 bg-carbon px-4 focus-within:border-[var(--accent)]">
+          <label className="flex min-h-14 items-center rounded-2xl border border-white/10 bg-carbon px-4 focus-within:border-champagne">
             <Mail size={18} className="mr-3 shrink-0 text-white/38" aria-hidden />
             <input
               value={email}
@@ -354,7 +354,7 @@ export function AccountPanel(props: AccountPanelProps) {
             />
           </label>
 
-          <label className="flex min-h-14 items-center rounded-2xl border border-white/10 bg-carbon px-4 focus-within:border-[var(--accent)]">
+          <label className="flex min-h-14 items-center rounded-2xl border border-white/10 bg-carbon px-4 focus-within:border-champagne">
             <LockKeyhole size={18} className="mr-3 shrink-0 text-white/38" aria-hidden />
             <input
               value={password}
@@ -368,7 +368,7 @@ export function AccountPanel(props: AccountPanelProps) {
             <button
               type="button"
               onClick={() => setShowPassword((value) => !value)}
-              className="ml-2 grid size-10 place-items-center rounded-full bg-white/[0.06] text-white/55"
+              className="app-secondary-action ml-2 grid size-10 place-items-center rounded-full"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={17} strokeWidth={2.3} aria-hidden /> : <Eye size={17} strokeWidth={2.3} aria-hidden />}
@@ -379,21 +379,21 @@ export function AccountPanel(props: AccountPanelProps) {
             type="button"
             onClick={mode === "create" ? createAccount : signIn}
             disabled={primaryDisabled}
-            className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] px-4 text-base font-black text-[var(--accent-contrast)] shadow-glow disabled:opacity-45"
+            className="app-primary-action inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl px-4 text-base font-black disabled:opacity-45"
           >
             {mode === "create" ? <UserPlus size={18} strokeWidth={2.3} aria-hidden /> : <ShieldCheck size={18} strokeWidth={2.3} aria-hidden />}
             {mode === "create" ? "Create account" : "Sign in"}
           </button>
 
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold leading-5 text-white/40">
+            <p className="app-subtle text-xs font-semibold leading-5">
               {mode === "create" ? "Use at least 6 characters." : "Forgot it? Send a reset email."}
             </p>
             <button
               type="button"
               onClick={resetPassword}
               disabled={isWorking || !email.trim()}
-              className="min-h-10 shrink-0 text-sm font-black text-white/52 underline-offset-4 hover:text-white/80 hover:underline disabled:opacity-40"
+              className="min-h-10 shrink-0 text-sm font-black text-champagne underline-offset-4 hover:underline disabled:opacity-40"
             >
               Reset password
             </button>

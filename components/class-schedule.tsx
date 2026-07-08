@@ -31,7 +31,7 @@ export function ClassSchedule({
 
   return (
     <Section id="classes" eyebrow="Total Fitness" title="Studio Classes">
-      <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.045] shadow-panel">
+      <div className="app-card overflow-hidden rounded-[1.75rem]">
         <button
           type="button"
           onClick={() => setSelectedDay(today)}
@@ -78,8 +78,8 @@ export function ClassSchedule({
                 onClick={() => setSelectedDay(day)}
                 className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-black ${
                   selectedDay === day
-                    ? "border-champagne bg-champagne text-[rgb(var(--color-accent-foreground))]"
-                    : "border-white/10 bg-carbon text-white/62"
+                    ? "app-chip-active"
+                    : "app-chip"
                 }`}
               >
                 {shortDay(day)}
@@ -92,7 +92,7 @@ export function ClassSchedule({
               <p className="metric-label">Selected day</p>
               <h3 className="mt-1 text-2xl font-black uppercase leading-none text-porcelain">{selectedDay}</h3>
             </div>
-            <p className="rounded-full bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-white/54">
+            <p className="app-chip rounded-full px-3 py-2 text-xs font-black uppercase tracking-[0.14em]">
               {selectedClasses.length} classes
             </p>
           </div>
@@ -140,7 +140,7 @@ function ClassCard({
   planned: boolean;
 }) {
   return (
-    <article className="overflow-hidden rounded-[1.65rem] bg-[#f1eee8] text-[#08090a] shadow-panel">
+    <article className="app-card overflow-hidden rounded-[1.65rem]">
       <div className="relative min-h-56 bg-black">
         <Image
           src={classScheduleImage}
@@ -157,8 +157,8 @@ function ClassCard({
           <button
             type="button"
             onClick={onTogglePlan}
-            className={`grid size-10 place-items-center rounded-full border shadow-panel ${
-              planned ? "border-signal bg-signal text-carbon" : "border-white/25 bg-black/45 text-white"
+            className={`grid size-10 place-items-center rounded-full shadow-panel ${
+              planned ? "app-primary-action" : "border border-white/25 bg-black/45 text-white active:scale-[0.97]"
             }`}
             aria-label={planned ? `Remove ${item.title} from plan` : `Add ${item.title} to plan`}
           >
@@ -175,21 +175,21 @@ function ClassCard({
           </h3>
         </div>
       </div>
-      <div className="bg-[#f1eee8] p-4">
+      <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.14em] text-black/45">Instructor</p>
-            <p className="mt-1 text-xl font-black text-[#08090a]">{item.instructor}</p>
+            <p className="metric-label">Instructor</p>
+            <p className="mt-1 text-xl font-black text-porcelain">{item.instructor}</p>
             {item.note ? <p className="mt-2 text-sm font-bold leading-5 text-ember">{item.note}</p> : null}
           </div>
-          <div className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne text-[rgb(var(--color-accent-foreground))]">
+          <div className="app-primary-action grid size-11 shrink-0 place-items-center rounded-full">
             <Dumbbell size={19} strokeWidth={2.4} aria-hidden />
           </div>
         </div>
         <button
           type="button"
           onClick={onLog}
-          className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#08090a] px-5 text-sm font-black uppercase tracking-[0.1em] text-white active:scale-[0.98]"
+          className="app-primary-action mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full px-5 text-sm font-black uppercase tracking-[0.1em]"
         >
           Log this class
         </button>
@@ -200,10 +200,10 @@ function ClassCard({
 
 function ScheduleStat({ detail, label, value }: { detail: string; label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-carbon p-4">
+    <div className="app-card rounded-2xl p-4">
       <p className="metric-label">{label}</p>
       <p className="mt-1 font-display text-4xl font-black uppercase leading-none text-champagne">{value}</p>
-      <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-white/42">{detail}</p>
+      <p className="app-subtle mt-1 text-xs font-bold uppercase tracking-[0.12em]">{detail}</p>
     </div>
   );
 }
@@ -218,13 +218,13 @@ function InfoRow({
   title: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-carbon p-3">
+    <div className="app-card flex items-center gap-3 rounded-2xl p-3">
       <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
         <Icon size={17} strokeWidth={2.3} aria-hidden />
       </div>
       <div>
         <p className="font-black text-porcelain">{title}</p>
-        <p className="mt-1 text-xs font-semibold leading-4 text-white/45">{detail}</p>
+        <p className="app-subtle mt-1 text-xs font-semibold leading-4">{detail}</p>
       </div>
     </div>
   );

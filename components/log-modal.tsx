@@ -334,13 +334,13 @@ export function LogModal({
                 options={selectOptionsWithCurrent(machineOptions.map((machine) => machine.name), selectedMachineName)}
                 onChange={(_, value) => chooseMachine(value)}
               />
-              <div className="rounded-2xl border border-white/10 bg-white/[0.055] p-3">
+              <div className="app-card rounded-2xl p-3">
                 <p className="metric-label">Logging profile</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-champagne px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-carbon">
+                  <span className="app-chip-active rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em]">
                     {selectedMachineCategory || "Equipment"}
                   </span>
-                  <span className="text-sm font-semibold text-white/56">{machineFormHelp(selectedMachineCategory, selectedMachineName)}</span>
+                  <span className="app-secondary text-sm font-semibold">{machineFormHelp(selectedMachineCategory, selectedMachineName)}</span>
                 </div>
               </div>
 
@@ -486,7 +486,7 @@ export function LogModal({
                       type="button"
                       onClick={() => update("label", action)}
                       className={`min-h-10 rounded-full border px-3 text-sm font-semibold ${
-                        draft.label === action ? "border-champagne bg-champagne text-carbon" : "border-white/10 bg-white/[0.055] text-white/62"
+                        draft.label === action ? "app-chip-active" : "app-chip"
                       }`}
                     >
                       {action}
@@ -499,7 +499,7 @@ export function LogModal({
           ) : null}
         </div>
 
-        <button type="submit" className="mt-5 min-h-12 w-full rounded-2xl bg-champagne px-4 text-base font-bold text-carbon shadow-glow">
+        <button type="submit" className="app-primary-action mt-5 min-h-12 w-full rounded-2xl px-4 text-base font-bold">
           {mode === "edit" ? "Save changes" : "Save to REBUILD"}
         </button>
       </form>

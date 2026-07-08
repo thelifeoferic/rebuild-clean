@@ -110,7 +110,7 @@ export function TodayPlan({
                   <button
                     type="button"
                     onClick={() => onOpenLog(selectedMovement)}
-                    className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-champagne px-4 text-sm font-black text-carbon"
+                    className="app-primary-action inline-flex min-h-11 items-center justify-center rounded-2xl px-4 text-sm font-black"
                   >
                     Log
                   </button>
