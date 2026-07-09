@@ -43,7 +43,7 @@ export function ProgramsHub({
     <>
       <div className="sticky-app-header sticky top-0 z-30 border-b px-4 pt-5">
         <p className="metric-label">Built around your tools</p>
-        <h1 className="mt-1 text-3xl font-semibold text-porcelain">Programs</h1>
+        <h1 className="mt-1 text-3xl font-semibold text-[color:var(--text-primary)]">Programs</h1>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-3">
           {tabs.map((tab) => (
             <button

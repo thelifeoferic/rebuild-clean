@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Cloud, Dumbbell, Hea
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { LoginPanel } from "@/components/login-panel";
-import { RebuildWordmark } from "@/components/rebuild-wordmark";
 import { defaultGymEquipment, getGymPreset, localGymPresets } from "@/data/gym-presets";
 import type { OnboardingProfile } from "@/types/rebuild";
 
@@ -211,7 +210,19 @@ export function Onboarding({
   return (
     <section className="px-4 pb-4 pt-5">
       <div className="mb-5 flex justify-center">
-        <RebuildWordmark align="center" className="drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]" />
+        <div className="brand-lockup" aria-label="REBUILD.FITNESS">
+          <span className="brand-glyph">
+            <Image
+              src="/rebuild-fitness-logo.png"
+              alt=""
+              fill
+              priority
+              sizes="36px"
+              className="scale-[2.25] object-cover object-[50%_43%]"
+            />
+          </span>
+          <span className="brand-wordmark">REBUILD.FITNESS</span>
+        </div>
       </div>
 
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -234,12 +245,12 @@ export function Onboarding({
           role="progressbar"
         >
           <div
-            className="h-full rounded-full bg-champagne transition-all duration-300 ease-out"
+            className="h-full rounded-full bg-[rgb(var(--color-accent))] transition-all duration-300 ease-out"
             style={{ width: `${((step + 1) / stepMeta.length) * 100}%` }}
           />
         </div>
 
-        <div className="grid size-11 place-items-center rounded-full bg-champagne/10 text-champagne">
+        <div className="grid size-11 place-items-center rounded-full bg-[rgba(var(--color-accent),0.12)] text-[rgb(var(--color-accent))]">
           <StepIcon size={18} strokeWidth={2.2} aria-hidden />
         </div>
       </div>
@@ -333,7 +344,7 @@ export function Onboarding({
                 <select
                   value={homeGymId}
                   onChange={(event) => selectHomeGym(event.target.value)}
-                  className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-porcelain outline-none focus:border-champagne"
+                  className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-porcelain outline-none focus:border-[rgb(var(--color-accent))]"
                 >
                   {homeGymOptions.map((option) => {
                     const preset = getGymPreset(option);
@@ -351,17 +362,17 @@ export function Onboarding({
                     value={homeGymName}
                     onChange={(event) => setHomeGymName(event.target.value)}
                     placeholder="Gym name"
-                    className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-white outline-none placeholder:text-white/58 focus:border-champagne"
+                    className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-white outline-none placeholder:text-white/58 focus:border-[rgb(var(--color-accent))]"
                   />
                   <input
                     value={homeGymAddress}
                     onChange={(event) => setHomeGymAddress(event.target.value)}
                     placeholder="Gym address"
-                    className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-white outline-none placeholder:text-white/58 focus:border-champagne"
+                    className="min-h-12 w-full rounded-2xl border border-white/10 bg-carbon px-4 text-base font-semibold text-white outline-none placeholder:text-white/58 focus:border-[rgb(var(--color-accent))]"
                   />
                 </div>
               ) : null}
-              <label className="mb-3 flex min-h-11 items-center rounded-2xl border border-white/10 bg-carbon px-3 focus-within:border-champagne">
+              <label className="mb-3 flex min-h-11 items-center rounded-2xl border border-white/10 bg-carbon px-3 focus-within:border-[rgb(var(--color-accent))]">
                 <input
                   value={equipmentQuery}
                   onChange={(event) => setEquipmentQuery(event.target.value)}
@@ -382,8 +393,8 @@ export function Onboarding({
 
           {step === 5 ? (
             <div className="space-y-4">
-              <div className="rounded-2xl border border-champagne/20 bg-champagne/10 p-4">
-                <p className="metric-label mb-2 text-champagne">Operating mode</p>
+              <div className="rounded-2xl border border-[rgba(var(--color-accent),0.22)] bg-[rgba(var(--color-accent),0.1)] p-4">
+                <p className="metric-label mb-2 text-[rgb(var(--color-accent))]">Operating mode</p>
                 <p className="text-sm leading-5 text-white/58">
                   These controls tune how REBUILD feels before you enter. You can change all of them later under Me.
                 </p>
@@ -492,7 +503,7 @@ function IntroPoint({
 }) {
   return (
     <div className="flex items-start gap-3 rounded-2xl bg-white/[0.055] p-3">
-      <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+      <div className="grid size-10 shrink-0 place-items-center rounded-full bg-[rgba(var(--color-accent),0.12)] text-[rgb(var(--color-accent))]">
         <Icon size={18} strokeWidth={2.2} aria-hidden />
       </div>
       <div>
@@ -603,7 +614,7 @@ function Field({
   return (
     <label className="block">
       <span className="metric-label mb-2 block">{label}</span>
-      <div className="flex min-h-12 items-center rounded-2xl border border-white/15 bg-white/[0.075] px-4 focus-within:border-champagne">
+      <div className="flex min-h-12 items-center rounded-2xl border border-white/15 bg-white/[0.075] px-4 focus-within:border-[rgb(var(--color-accent))]">
         <input
           value={value}
           inputMode={inputMode}
@@ -635,7 +646,7 @@ function TextArea({
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-24 w-full rounded-2xl border border-white/15 bg-white/[0.075] px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-white/58 focus:border-champagne"
+        className="min-h-24 w-full rounded-2xl border border-white/15 bg-white/[0.075] px-4 py-3 text-base font-semibold text-white outline-none placeholder:text-white/58 focus:border-[rgb(var(--color-accent))]"
       />
     </label>
   );

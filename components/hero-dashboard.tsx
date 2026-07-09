@@ -7,6 +7,7 @@ import {
   BookOpen,
   Building2,
   CalendarDays,
+  ChevronRight,
   CheckCircle2,
   Clock3,
   Dumbbell,
@@ -18,11 +19,12 @@ import {
   Salad,
   Scale,
   ScanSearch,
-  ShieldCheck,
+  Sparkles,
   Trophy,
   X,
 } from "lucide-react";
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { tidalPlaylistUrl } from "@/data/mock-data";
 import { CountUp } from "@/components/count-up";
@@ -110,6 +112,9 @@ export function HeroDashboard({
   const workoutStreak = getWorkoutStreak(data);
   const records = getPersonalRecords(data);
   const topRecord = records.find((record) => record.value !== "—") ?? records[0];
+  const todaysExerciseMinutes = getTodaysExerciseMinutes(data);
+  const todaysMeals = data.meals.filter((meal) => (meal.date ? isToday(meal.date) : false));
+  const todayFoodCalories = todaysMeals.reduce((sum, meal) => sum + meal.calories, 0);
 
   useEffect(() => {
     setQuoteIndex(randomQuoteIndex(activeQuotes.length));
@@ -133,111 +138,97 @@ export function HeroDashboard({
   }, []);
 
   return (
-    <section className="px-4 pb-4 pt-5">
-      <div className="relative overflow-hidden rounded-[1.9rem] border border-white/10 bg-black shadow-panel">
+    <section className="rebuild-home px-4 pb-8 pt-4">
+      <BrandMasthead
+        avatarSrc={avatarSrc}
+        firstName={firstName}
+        onOpenProfile={() => onNavigate("me")}
+      />
+
+      <div className="rebuild-hero-card">
         <Image
           src={homeHeroImage(profile)}
           alt=""
           fill
           priority
           sizes="(max-width: 768px) 100vw, 448px"
-          className="object-cover object-[52%_40%] opacity-72"
+          className="object-cover object-[52%_40%]"
         />
-        <div className="absolute inset-0 hero-readable-overlay" />
-        <div className="relative p-5">
-          <div className="mb-5 flex items-start justify-between gap-4">
-            <div>
-              <p className="metric-label text-white/74">{greeting()}, {firstName || "Member"}.</p>
-              <h1 className="mt-2 max-w-[19rem] font-display text-5xl font-black uppercase leading-[0.88] tracking-normal text-white drop-shadow-[0_3px_20px_rgba(0,0,0,0.9)]">
-                Day {rebuildDay} of your rebuild.
-              </h1>
-            </div>
-            {avatarSrc ? (
-              <button
-                type="button"
-                onClick={() => onNavigate("me")}
-                className="size-14 shrink-0 overflow-hidden rounded-full border border-white/20 bg-black/45 shadow-panel"
-                aria-label="Open profile"
-              >
-                <img src={avatarSrc} alt={`${firstName || "Member"} profile`} className="h-full w-full object-cover" />
-              </button>
-            ) : null}
+        <div className="rebuild-hero-shade" />
+        <div className="relative flex min-h-[28rem] flex-col justify-between p-5">
+          <div className="flex justify-end">
+            <span className="rebuild-day-pill">Day {rebuildDay}</span>
           </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => onNavigate("records")}
-              className="contrast-panel rounded-[1.35rem] border border-champagne/25 bg-black/72 p-4 text-left backdrop-blur"
-            >
-              <p className="metric-label text-white/55">REBUILD Score</p>
-              <p className="mt-2 font-display text-5xl font-black uppercase leading-none text-champagne">
-                {rebuildScore.value === null ? "—" : <CountUp value={rebuildScore.value} />}
-              </p>
-              <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-white/45">{rebuildScore.deltaLabel}</p>
-            </button>
-            <button
-              type="button"
-              onClick={() => onOpenLog("weight")}
-              className="contrast-panel rounded-[1.35rem] border border-white/10 bg-black/72 p-4 text-left backdrop-blur"
-            >
-              <p className="metric-label text-white/55">Current Weight</p>
-              <p className="mt-2 font-display text-4xl font-black uppercase leading-none text-white">
-                {data.weights.length ? formatWeight(todayWeight) : "—"}
-              </p>
-              <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-white/45">{weightDetail}</p>
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => onNavigate("records")}
-            className="contrast-panel mt-3 w-full rounded-[1.35rem] border border-white/10 bg-black/78 p-4 text-left backdrop-blur"
-          >
-            <p className="metric-label text-white/55">Coach insight</p>
-            <p className="mt-2 text-sm font-semibold leading-5 text-porcelain">{coachInsight}</p>
-          </button>
-
-          <div className="contrast-panel mt-3 rounded-[1.35rem] border border-white/10 bg-black/78 p-4 backdrop-blur">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="metric-label text-white/55">Today&apos;s anchors</p>
-              <span className="text-xs font-bold text-champagne">{todayCompletion(data)}/3</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <PlanButton label="Weigh-in" done={data.weights.some((entry) => isToday(entry.date))} onClick={() => onOpenLog("weight")} />
-              <PlanButton label="Move" done={hasMovementToday(data)} onClick={() => onNavigate("log")} />
-              <PlanButton
-                label="Meditate"
-                done={hasMeditatedToday(data)}
-                onClick={() => openProgramsTab("Meditation", onNavigate)}
+          <div>
+            <p className="rebuild-eyebrow">{greeting()}, {firstName || "Member"}</p>
+            <h1 className="mt-3 max-w-[18rem] font-display text-6xl font-black uppercase leading-[0.82] text-white">
+              Rebuild today.
+            </h1>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <HeroMetric
+                label="Score"
+                onClick={() => onNavigate("records")}
+                value={rebuildScore.value === null ? "—" : <CountUp value={rebuildScore.value} />}
+                detail={rebuildScore.deltaLabel}
+              />
+              <HeroMetric
+                label="Weight"
+                onClick={() => onOpenLog("weight")}
+                value={data.weights.length ? formatWeight(todayWeight) : "—"}
+                detail={weightDetail}
               />
             </div>
           </div>
         </div>
       </div>
 
+      <div className="home-command-dock">
+        <CommandTile icon={Dumbbell} label="Log" onClick={() => onNavigate("log")} tone="primary" />
+        <CommandTile icon={ScanSearch} label="Scan" onClick={onOpenBodyScan} />
+        <CommandTile icon={Building2} label="Gym" onClick={() => openProgramsTab("Classes", onNavigate)} />
+        <a
+          href={tidalPlaylistUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="home-command-tile"
+        >
+          <Headphones size={19} strokeWidth={2.3} aria-hidden />
+          <span>TIDAL</span>
+        </a>
+      </div>
+
+      <SectionIntro eyebrow="Signal" title="Read the pattern" />
+      <button
+        type="button"
+        onClick={() => onNavigate("records")}
+        className="coach-strip"
+      >
+        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[rgba(var(--color-accent),0.13)] text-[rgb(var(--color-accent))]">
+          <Sparkles size={18} strokeWidth={2.25} aria-hidden />
+        </span>
+        <span className="min-w-0 flex-1 text-sm font-semibold leading-5">{coachInsight}</span>
+        <ChevronRight size={18} strokeWidth={2.35} aria-hidden />
+      </button>
+
       {profile?.quoteStyle !== "none" ? (
-        <div className="app-card mt-4 rounded-[1.6rem] p-5">
-          <p className="metric-label mb-3">Operating thought</p>
-          <p className="text-xl font-semibold leading-snug text-porcelain">
-            <span aria-hidden>&ldquo;</span>
-            {quote.line}
-            <span aria-hidden>&rdquo;</span>
-          </p>
-          <p className="mt-4 text-sm font-black uppercase tracking-[0.14em] text-champagne">{quote.source}</p>
-        </div>
+        <button
+          type="button"
+          onClick={() => setQuoteIndex((current) => randomQuoteIndex(activeQuotes.length, current))}
+          className="quote-strip"
+        >
+          <span className="metric-label">Thought</span>
+          <span className="mt-2 block text-xl font-semibold leading-snug">
+            &ldquo;{quote.line}&rdquo;
+          </span>
+          <span className="mt-4 block text-sm font-black uppercase tracking-[0.14em] text-[rgb(var(--color-accent))]">
+            {quote.source}
+          </span>
+        </button>
       ) : null}
 
-      <a
-        href={tidalPlaylistUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="app-primary-action mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl px-3 text-base font-black"
-      >
-        <Headphones size={18} strokeWidth={2.2} aria-hidden />
-        Start TIDAL playlist
-      </a>
+      <HomeSectionShortcuts onOpenBodyScan={onOpenBodyScan} onOpenProgramsTab={(tab) => openProgramsTab(tab, onNavigate)} />
 
+      <SectionIntro eyebrow="Gym" title="Use your floor" />
       <HomeGymPanel
         onOpenClasses={() => openProgramsTab("Classes", onNavigate)}
         onOpenLog={onOpenLog}
@@ -245,47 +236,36 @@ export function HeroDashboard({
         profile={profile}
       />
 
-      <div className="mt-4 overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-panel">
-        <div className="relative min-h-[17rem] bg-black">
+      <SectionIntro eyebrow="Body scan" title="Train from the photo" />
+      <div className="scan-next-card">
+        <div className="relative min-h-[18rem] overflow-hidden rounded-[1.8rem] bg-black">
           <RecommendationImage
             src={recommendation.image}
             alt=""
-            className="object-cover object-[52%_34%] opacity-95"
+            className="object-cover object-[52%_34%]"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.2)_0%,rgba(0,0,0,0.08)_36%,rgba(0,0,0,0.92)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(var(--color-accent),0.24),transparent_34%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.2)_0%,rgba(0,0,0,0.1)_34%,rgba(0,0,0,0.9)_100%)]" />
           <div className="absolute bottom-5 left-5 right-5">
-            <p className="metric-label text-white/72">{recommendation.eyebrow}</p>
-            <h3 className="mt-2 max-w-[16rem] font-display text-4xl font-black uppercase leading-[0.9] text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.9)]">
+            <p className="rebuild-eyebrow">{recommendation.eyebrow}</p>
+            <h3 className="mt-2 max-w-[16rem] font-display text-4xl font-black uppercase leading-[0.9] text-white">
               {recommendation.title}
             </h3>
           </div>
         </div>
-        <div className="border-t border-white/10 bg-carbon/95 p-4">
-          <div className="mb-3 flex items-start gap-3">
-            <div className="grid size-10 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
-              {recommendation.logKind ? <Dumbbell size={18} strokeWidth={2.2} aria-hidden /> : <ScanSearch size={18} strokeWidth={2.2} aria-hidden />}
-            </div>
-            <div>
-              <p className="text-sm font-semibold leading-5 text-white/72">{recommendation.detail}</p>
-              <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-white/44">
-                {recommendation.meta}
-              </p>
-            </div>
-          </div>
+        <div className="p-4">
+          <p className="text-sm font-semibold leading-5 text-[color:var(--text-secondary)]">{recommendation.detail}</p>
+          <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">{recommendation.meta}</p>
           {recommendation.workoutBlocks?.length ? (
-            <div className="mb-3 grid gap-2">
+            <div className="mt-4 grid gap-2">
               {recommendation.workoutBlocks.map((block, index) => (
-                <div key={block} className="flex gap-3 rounded-2xl bg-white/[0.055] p-3">
-                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-champagne/12 text-xs font-black text-champagne">
-                    {index + 1}
-                  </span>
-                  <p className="text-sm font-semibold leading-5 text-white/68">{block}</p>
+                <div key={block} className="scan-workout-step">
+                  <span>{index + 1}</span>
+                  <p>{block}</p>
                 </div>
               ))}
             </div>
           ) : null}
-          <div className="grid gap-2">
+          <div className="mt-4 grid gap-2">
             <button
               type="button"
               onClick={() => {
@@ -295,7 +275,7 @@ export function HeroDashboard({
                 }
                 onOpenBodyScan();
               }}
-                className="app-primary-action inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-3 text-sm font-bold"
+              className="app-primary-action inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm font-black"
             >
               {recommendation.programTab ? <Dumbbell size={17} strokeWidth={2.2} aria-hidden /> : <ScanSearch size={17} strokeWidth={2.2} aria-hidden />}
               {recommendation.ctaLabel}
@@ -304,7 +284,7 @@ export function HeroDashboard({
               <button
                 type="button"
                 onClick={() => onOpenLog(recommendation.logKind)}
-                className="app-secondary-action inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-3 text-sm font-bold"
+                className="app-secondary-action inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm font-black"
               >
                 <CheckCircle2 size={17} strokeWidth={2.2} aria-hidden />
                 Log after workout
@@ -314,57 +294,34 @@ export function HeroDashboard({
         </div>
       </div>
 
-      <div className="mt-4 space-y-2">
-        <div className="mb-3">
-          <p className="metric-label">Proof stack</p>
-          <h2 className="mt-1 text-xl font-semibold text-porcelain">What you&apos;ve done today</h2>
-        </div>
+      <SectionIntro eyebrow="Today" title="What you've done" />
+      <div className="today-metric-grid">
+        <TodayMetric icon={Clock3} label="Exercise" value={`${todaysExerciseMinutes} min`} onClick={() => onNavigate("records")} />
+        <TodayMetric icon={Flame} label="Burn" value={`${activityBurn} cal`} onClick={() => setShowBurnBreakdown(true)} />
+        <TodayMetric icon={Salad} label="Food" value={todayFoodCalories ? `${todayFoodCalories} cal` : "—"} onClick={() => onOpenLog("meal")} />
+        <TodayMetric icon={LineChart} label="Streak" value={workoutStreak ? `${workoutStreak} day${workoutStreak === 1 ? "" : "s"}` : "Start"} onClick={() => onNavigate("records")} />
+      </div>
+
+      <div className="mt-3 grid gap-2">
         <HomeSignalRow
           icon={CheckCircle2}
-          label="Latest entry"
+          label="Proof"
           title={latestEntry.title}
           detail={latestEntry.detail}
           onClick={() => onNavigate("log")}
         />
         <HomeSignalRow
-          icon={Flame}
-          label="Activity burn"
-          title={`${activityBurn} cal`}
-          detail="Estimated from today's saved workouts using your profile and current weight."
-          onClick={() => setShowBurnBreakdown(true)}
-        />
-        <HomeSignalRow
-          icon={LineChart}
-          label="Workout streak"
-          title={workoutStreak ? `${workoutStreak} day${workoutStreak === 1 ? "" : "s"}` : "Start today"}
-          detail={
-            workoutStreak
-              ? "Consecutive days with at least one saved workout."
-              : "Log one workout today to start a training streak."
-          }
-          onClick={() => onNavigate("records")}
-        />
-        <HomeSignalRow
           icon={Trophy}
-          label="Record"
+          label="Best"
           title={topRecord ? topRecord.label : "First record"}
           detail={topRecord ? `${topRecord.value}${topRecord.unit ? ` ${topRecord.unit}` : ""} · ${topRecord.detail}` : "Your first workout sets it."}
           onClick={() => onNavigate("records")}
         />
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <MiniStat label="Weight" value={data.weights.length ? formatWeight(todayWeight) : "--"} detail={weightDetail} icon={Scale} />
-        <MiniStat label="Bike" value={formatMinutes(todaysBikeMinutes)} icon={Bike} />
-        <MiniStat label="Push-ups" value={`${totalPushUps}`} detail="all time" icon={Trophy} />
-        <MiniStat label="Choices" value={`${data.behaviorWins.length}`} icon={ShieldCheck} />
-      </div>
-
       <NutritionTracker data={data} onOpenLog={onOpenLog} profile={profile} />
 
       <LocalHikesPanel data={data} mode="home" onOpenLog={onOpenLog} profile={profile} />
-
-      <HomeSectionShortcuts onOpenBodyScan={onOpenBodyScan} onOpenProgramsTab={(tab) => openProgramsTab(tab, onNavigate)} />
 
       {showBurnBreakdown ? (
         <ActivityBurnSheet
@@ -381,6 +338,134 @@ export function HeroDashboard({
   );
 }
 
+function BrandMasthead({
+  avatarSrc,
+  firstName,
+  onOpenProfile,
+}: {
+  avatarSrc?: string;
+  firstName?: string;
+  onOpenProfile: () => void;
+}) {
+  return (
+    <header className="brand-masthead">
+      <div className="brand-lockup" aria-label="REBUILD.FITNESS">
+        <span className="brand-glyph" aria-hidden>
+          <Image
+            src="/rebuild-fitness-logo.png"
+            alt=""
+            fill
+            priority
+            sizes="44px"
+            className="scale-[2.05] object-cover object-[50%_43%]"
+          />
+        </span>
+        <span className="brand-wordmark">REBUILD.FITNESS</span>
+      </div>
+      <button
+        type="button"
+        onClick={onOpenProfile}
+        className="profile-orb"
+        aria-label="Open profile"
+      >
+        {avatarSrc ? (
+          <img src={avatarSrc} alt={`${firstName || "Member"} profile`} className="h-full w-full object-cover" />
+        ) : (
+          <span>{initialsFor(firstName)}</span>
+        )}
+      </button>
+    </header>
+  );
+}
+
+function HeroMetric({
+  detail,
+  label,
+  onClick,
+  value,
+}: {
+  detail: string;
+  label: string;
+  onClick: () => void;
+  value: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="hero-metric"
+    >
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <small>{detail}</small>
+    </button>
+  );
+}
+
+function CommandTile({
+  icon: Icon,
+  label,
+  onClick,
+  tone,
+}: {
+  icon: typeof Dumbbell;
+  label: string;
+  onClick: () => void;
+  tone?: "primary";
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`home-command-tile ${tone === "primary" ? "home-command-primary" : ""}`}
+    >
+      <Icon size={19} strokeWidth={2.3} aria-hidden />
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function SectionIntro({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div className="section-intro">
+      <p className="metric-label">{eyebrow}</p>
+      <h2>{title}</h2>
+    </div>
+  );
+}
+
+function TodayMetric({
+  icon: Icon,
+  label,
+  onClick,
+  value,
+}: {
+  icon: typeof Scale;
+  label: string;
+  onClick: () => void;
+  value: string;
+}) {
+  return (
+    <button type="button" onClick={onClick} className="today-metric-card">
+      <span>
+        <Icon size={16} strokeWidth={2.25} aria-hidden />
+      </span>
+      <small>{label}</small>
+      <strong>{value}</strong>
+    </button>
+  );
+}
+
+function initialsFor(name?: string) {
+  const trimmed = name?.trim();
+  if (!trimmed) return "R";
+  return trimmed
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
 function getQuotesForStyle(style: OnboardingProfile["quoteStyle"]) {
   if (style === "none") return [quotes[0]];
   if (!style || style === "goggins") return quotes.filter((quote) => quote.style === "goggins");
@@ -395,6 +480,34 @@ function randomQuoteIndex(length: number, current?: number) {
     while (next === current % length) next = Math.floor(Math.random() * length);
   }
   return next;
+}
+
+function getTodaysExerciseMinutes(data: RebuildData) {
+  const bike = data.bikeSessions.filter((entry) => isToday(entry.date)).reduce((sum, entry) => sum + entry.minutes, 0);
+  const ladder = data.jacobsLadderSessions
+    .filter((entry) => isToday(entry.date))
+    .reduce((sum, entry) => sum + Math.round(timeStringToSeconds(entry.duration) / 60), 0);
+  const machine = (data.machineWorkoutSessions ?? [])
+    .filter((entry) => isToday(entry.date))
+    .reduce((sum, entry) => sum + (entry.minutes ?? Math.max((entry.sets ?? 0) * 4, 8)), 0);
+  const swim = (data.swimSessions ?? [])
+    .filter((entry) => isToday(entry.date))
+    .reduce((sum, entry) => sum + entry.minutes, 0);
+  const yoga = (data.yogaSessions ?? [])
+    .filter((entry) => isToday(entry.date))
+    .reduce((sum, entry) => sum + entry.minutes, 0);
+
+  return Math.round(bike + ladder + machine + swim + yoga);
+}
+
+function timeStringToSeconds(value?: string) {
+  const parts = String(value ?? "0")
+    .split(":")
+    .map((part) => Number(part));
+  if (parts.some((part) => Number.isNaN(part))) return 0;
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parts[0] || 0;
 }
 
 function getLatestHomeEntry(data: RebuildData) {
@@ -570,27 +683,6 @@ function RecommendationImage({ alt, className, src }: { alt: string; className: 
   );
 }
 
-function MiniStat({
-  icon: Icon,
-  label,
-  detail,
-  value,
-}: {
-  icon: typeof Scale;
-  label: string;
-  detail?: string;
-  value: string;
-}) {
-  return (
-    <div className="app-card rounded-2xl p-3">
-      <Icon className="mb-2 text-champagne" size={17} strokeWidth={2.1} aria-hidden />
-      <p className="metric-label">{label}</p>
-      <p className="mt-1 text-base font-semibold text-[rgb(var(--text-primary))]">{value}</p>
-      {detail ? <p className="app-subtle mt-1 text-xs font-semibold">{detail}</p> : null}
-    </div>
-  );
-}
-
 function HomeGymPanel({
   onOpenClasses,
   onOpenLog,
@@ -737,7 +829,7 @@ function HomeGymPanel({
           <select
             value={selectedValue}
             onChange={(event) => chooseGym(event.target.value)}
-            className="app-secondary-action min-h-12 w-full justify-start rounded-2xl px-4 text-base font-semibold outline-none focus:border-champagne"
+            className="app-secondary-action min-h-12 w-full justify-start rounded-2xl px-4 text-base font-semibold outline-none focus:border-[rgb(var(--color-accent))]"
           >
             <option value="none">No home gym selected</option>
             {localGymPresets.map((gym) => (
@@ -754,11 +846,11 @@ function HomeGymPanel({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="metric-label">Today at Total Fitness</p>
-                <h3 className="mt-1 text-xl font-black uppercase leading-none text-[rgb(var(--text-primary))]">
+                <h3 className="mt-1 text-xl font-black uppercase leading-none text-[color:var(--text-primary)]">
                   {todaysStudioClasses.length ? `${todaysStudioClasses.length} studio classes` : "Open floor"}
                 </h3>
-                <p className="app-secondary mt-2 text-sm font-semibold leading-5">
-                  The schedule is tied to this gym. Tap a class to log it, or open the full week.
+            <p className="app-secondary mt-2 text-sm font-semibold leading-5">
+              Tap a class to log it. Open the week when you need the full schedule.
                 </p>
               </div>
               <div className="app-primary-action grid size-11 shrink-0 place-items-center rounded-full p-0">
@@ -777,7 +869,7 @@ function HomeGymPanel({
                     aria-label={`Log ${item.title}`}
                   >
                     <span>
-                      <span className="block text-sm font-black text-[rgb(var(--text-primary))]">{item.title}</span>
+                      <span className="block text-sm font-black text-[color:var(--text-primary)]">{item.title}</span>
                       <span className="app-subtle mt-0.5 flex items-center gap-1 text-xs font-bold uppercase tracking-[0.1em]">
                         <Clock3 size={12} strokeWidth={2.3} aria-hidden />
                         {item.start}
@@ -819,7 +911,7 @@ function HomeGymPanel({
             </div>
           </div>
         ) : (
-          <p className="app-secondary mt-3 text-sm leading-5">Pick Total Fitness or another local preset to load that gym&apos;s machine list.</p>
+          <p className="app-secondary mt-3 text-sm leading-5">Choose a gym to load its machines.</p>
         )}
 
         {equipment.length ? (
@@ -828,7 +920,7 @@ function HomeGymPanel({
             <select
               value={selectedMachineForLog}
               onChange={(event) => setSelectedMachine(event.target.value)}
-              className="app-secondary-action min-h-12 w-full justify-start rounded-2xl px-4 text-base font-semibold outline-none focus:border-champagne"
+              className="app-secondary-action min-h-12 w-full justify-start rounded-2xl px-4 text-base font-semibold outline-none focus:border-[rgb(var(--color-accent))]"
             >
               {equipment.map((item) => (
                 <option key={item} value={item}>
@@ -871,42 +963,42 @@ function HomeSectionShortcuts({
 }) {
   const shortcuts = [
     {
-      detail: "Plans matched to your goals and equipment.",
+      detail: "Goal-based training",
       icon: Dumbbell,
       image: "/rebuild-class-metcon.jpg",
       tab: "Programs" as const,
       title: "Programs",
     },
     {
-      detail: "Form cues before you add load.",
+      detail: "Form before load",
       icon: BookOpen,
       image: "/rebuild-kettlebell-pushup.jpg",
       tab: "Guides" as const,
       title: "Guides",
     },
     {
-      detail: "Total Fitness studio schedule and class logging.",
+      detail: "Classes you can log",
       icon: CalendarDays,
       image: "/rebuild-class-studio.jpg",
       tab: "Classes" as const,
       title: "Classes",
     },
     {
-      detail: "Nearby routes with distance, difficulty, and estimated burn.",
+      detail: "Routes near home",
       icon: MapPin,
       image: "/rebuild-run.jpg",
       tab: "Hikes" as const,
       title: "Local hikes",
     },
     {
-      detail: "Protein anchors, quick foods, and calorie context.",
+      detail: "Food and protein",
       icon: Salad,
       image: "/rebuild-nutrition.jpg",
       tab: "Nutrition" as const,
       title: "Nutrition guide",
     },
     {
-      detail: "Featured workouts, videos, and the TIDAL link.",
+      detail: "Video and playlist",
       icon: PlayCircle,
       image: "/rebuild-air-bike.jpg",
       tab: "Media" as const,
@@ -916,17 +1008,12 @@ function HomeSectionShortcuts({
 
   return (
     <div className="mt-4">
-      <div className="mb-3 flex items-end justify-between gap-3">
-        <div>
-          <p className="metric-label">Explore</p>
-          <h2 className="mt-1 text-xl font-semibold text-porcelain">Where to go next</h2>
-        </div>
-      </div>
-      <div className="grid gap-3">
+      <SectionIntro eyebrow="Explore" title="Choose the next room" />
+      <div className="home-destination-stack">
         <button
           type="button"
           onClick={onOpenBodyScan}
-          className="group relative min-h-64 overflow-hidden rounded-3xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
+          className="home-destination-card home-destination-card-featured group"
         >
           <Image
             src="/rebuild-body-scan-selfie.jpg"
@@ -945,8 +1032,8 @@ function HomeSectionShortcuts({
             <span className="block font-display text-4xl font-black uppercase leading-none text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.9)]">
               AI Body Scan
             </span>
-            <span className="mt-2 block max-w-[22rem] text-sm font-semibold leading-5 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
-              Upload progress photos, compare changes over time, and get non-medical coaching on what to track next.
+            <span className="mt-2 block max-w-[20rem] text-sm font-semibold leading-5 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
+              Compare photos. Turn the scan into your next training focus.
             </span>
               <span className="app-primary-action mt-4 inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em]">
                 Open scan
@@ -961,7 +1048,7 @@ function HomeSectionShortcuts({
               key={shortcut.title}
               type="button"
               onClick={() => onOpenProgramsTab(shortcut.tab)}
-              className="group relative min-h-[15.5rem] overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
+              className="home-destination-card group"
             >
               <Image src={shortcut.image} alt="" fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover opacity-78 transition group-active:scale-[1.02]" />
               <span className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/28 to-transparent" />
@@ -970,8 +1057,8 @@ function HomeSectionShortcuts({
                   <span className="app-primary-action mb-3 grid size-10 place-items-center rounded-full p-0">
                     <Icon size={18} strokeWidth={2.3} aria-hidden />
                   </span>
-                  <span className="block text-lg font-black uppercase tracking-[0.08em] text-white">{shortcut.title}</span>
-                  <span className="mt-1 block text-sm leading-5 text-white/72">{shortcut.detail}</span>
+                  <span className="shortcut-title">{shortcut.title}</span>
+                  <span className="shortcut-detail">{shortcut.detail}</span>
                 </span>
                 <span className="shrink-0 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-white">
                   Open
@@ -1020,7 +1107,7 @@ function ActivityBurnSheet({
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <p className="metric-label">Activity burn</p>
-            <h2 className="mt-1 font-display text-4xl font-black uppercase leading-none text-champagne">{activityBurn} cal</h2>
+            <h2 className="mt-1 font-display text-4xl font-black uppercase leading-none text-[rgb(var(--color-accent))]">{activityBurn} cal</h2>
             <p className="app-secondary mt-2 text-sm leading-5">
               Estimated from today&apos;s saved training and your profile. Use it as a guide, not a lab number.
             </p>
@@ -1040,16 +1127,16 @@ function ActivityBurnSheet({
             {breakdown.map((item) => (
               <div key={item.label} className="app-card flex items-center justify-between gap-3 rounded-2xl p-3">
                 <div>
-                  <p className="font-semibold text-[rgb(var(--text-primary))]">{item.label}</p>
+                  <p className="font-semibold text-[color:var(--text-primary)]">{item.label}</p>
                   <p className="app-subtle text-xs font-semibold">{item.detail}</p>
                 </div>
-                <p className="text-lg font-black text-champagne">{item.calories}</p>
+                <p className="text-lg font-black text-[rgb(var(--color-accent))]">{item.calories}</p>
               </div>
             ))}
           </div>
         ) : (
           <div className="app-card rounded-2xl p-4">
-            <p className="font-semibold text-[rgb(var(--text-primary))]">No activity burn yet.</p>
+            <p className="font-semibold text-[color:var(--text-primary)]">No activity burn yet.</p>
             <p className="app-secondary mt-1 text-sm leading-5">Log a workout and REBUILD will estimate the calorie impact here.</p>
           </div>
         )}
@@ -1071,82 +1158,6 @@ function openProgramsTab(tab: "Programs" | "Guides" | "Classes" | "Hikes" | "Med
   onNavigate("programs");
 }
 
-function PlanButton({
-  done,
-  label,
-  onClick,
-}: {
-  done: boolean;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`min-h-[5.25rem] rounded-2xl border px-2 text-center text-xs font-black uppercase tracking-[0.08em] active:scale-[0.97] ${
-        done ? "border-signal/30 bg-signal/15 text-signal" : "border-white/10 bg-white/10 text-white/68"
-      }`}
-    >
-      {done ? "Done" : label}
-    </button>
-  );
-}
-
-function ImageTile({
-  detail,
-  label,
-  onClick,
-  src,
-}: {
-  detail: string;
-  label: string;
-  onClick: () => void;
-  src: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="relative min-h-[14.25rem] w-full overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-panel active:scale-[0.98]"
-    >
-      <Image src={src} alt="" fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover opacity-78" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent" />
-      <span className="absolute bottom-4 left-4 right-4">
-        <span className="block text-[0.68rem] font-black uppercase tracking-[0.18em] text-white/68">{label}</span>
-        <span className="mt-1 block text-lg font-black leading-tight text-white">{detail}</span>
-      </span>
-    </button>
-  );
-}
-
-function HomeSignalCard({
-  detail,
-  icon: Icon,
-  label,
-  onClick,
-  title,
-}: {
-  detail: string;
-  icon: typeof Scale;
-  label: string;
-  onClick: () => void;
-  title: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="app-card min-h-[13rem] rounded-2xl p-4 text-left transition active:scale-[0.97]"
-    >
-      <Icon className="mb-3 text-champagne" size={18} strokeWidth={2.1} aria-hidden />
-      <p className="metric-label">{label}</p>
-      <h3 className="mt-2 text-base font-semibold leading-tight text-[rgb(var(--text-primary))]">{title}</h3>
-      <p className="app-subtle mt-2 line-clamp-3 text-xs leading-4">{detail}</p>
-    </button>
-  );
-}
-
 function HomeSignalRow({
   detail,
   icon: Icon,
@@ -1166,12 +1177,12 @@ function HomeSignalRow({
       onClick={onClick}
       className="app-card flex min-h-[7.75rem] w-full items-center gap-3 rounded-2xl p-3 text-left transition active:scale-[0.98]"
     >
-      <span className="grid size-11 shrink-0 place-items-center rounded-full bg-champagne/10 text-champagne">
+      <span className="app-icon-soft grid size-11 shrink-0 place-items-center rounded-full">
         <Icon size={18} strokeWidth={2.2} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
         <span className="metric-label block">{label}</span>
-        <span className="mt-1 block text-base font-semibold leading-tight text-[rgb(var(--text-primary))]">{title}</span>
+        <span className="mt-1 block text-base font-semibold leading-tight text-[color:var(--text-primary)]">{title}</span>
         <span className="app-subtle mt-1 line-clamp-2 block text-xs leading-4">{detail}</span>
       </span>
       <span className="app-chip shrink-0 px-3 py-2 text-[0.62rem]">
@@ -1190,39 +1201,4 @@ function greeting() {
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
-}
-
-function todayCompletion(data: RebuildData) {
-  return [
-    data.weights.some((entry) => isToday(entry.date)),
-    hasMovementToday(data),
-    hasMeditatedToday(data),
-  ].filter(Boolean).length;
-}
-
-function hasMeditatedToday(data: RebuildData) {
-  return (
-    data.behaviorWins.some((entry) => isToday(entry.date) && isMeditationLabel(entry.label)) ||
-    data.yogaSessions.some((entry) => isToday(entry.date) && isMeditationLabel(entry.focus))
-  );
-}
-
-function isMeditationLabel(value?: string) {
-  const normalized = String(value ?? "").toLowerCase();
-  return normalized.includes("meditat") || normalized.includes("breath") || normalized.includes("stayed present");
-}
-
-function hasMovementToday(data: RebuildData) {
-  return (
-    data.bikeSessions.some((entry) => isToday(entry.date)) ||
-    data.jacobsLadderSessions.some((entry) => isToday(entry.date)) ||
-    data.pushUpSessions.some((entry) => isToday(entry.date)) ||
-    data.dumbbellCurlSessions.some((entry) => isToday(entry.date)) ||
-    data.strengthAccessorySessions.some((entry) => isToday(entry.date)) ||
-    data.machineWorkoutSessions.some((entry) => isToday(entry.date)) ||
-    data.kettlebellSessions.some((entry) => isToday(entry.date)) ||
-    data.farmerCarrySessions.some((entry) => isToday(entry.date)) ||
-    data.swimSessions.some((entry) => isToday(entry.date)) ||
-    data.yogaSessions.some((entry) => isToday(entry.date))
-  );
 }

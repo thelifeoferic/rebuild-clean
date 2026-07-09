@@ -47,8 +47,8 @@ export function AppShell({
                       ? "-mt-7 min-h-16 border border-white/15 app-primary-action"
                       : `min-h-12 text-[0.56rem] ${
                           isActive
-                            ? "bg-champagne/12 text-champagne"
-                            : "app-subtle hover:bg-champagne/10 hover:text-champagne"
+                            ? "bg-[rgba(var(--color-accent),0.14)] text-[rgb(var(--color-accent))]"
+                            : "app-subtle hover:bg-[rgba(var(--color-accent),0.1)] hover:text-[rgb(var(--color-accent))]"
                         }`
                   }`}
                   aria-label={item.label}

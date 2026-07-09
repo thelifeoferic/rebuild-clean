@@ -40,7 +40,7 @@ export function RecordsHub({
     <>
       <div className="sticky-app-header sticky top-0 z-30 border-b px-4 pt-5">
         <p className="metric-label">Your fitness record</p>
-        <h1 className="mt-1 text-3xl font-semibold text-porcelain">The Rebuild</h1>
+        <h1 className="mt-1 text-3xl font-semibold text-[color:var(--text-primary)]">The Rebuild</h1>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-3">
           {tabs.map((tab) => (
             <button

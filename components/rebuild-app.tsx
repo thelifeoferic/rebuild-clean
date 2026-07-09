@@ -268,7 +268,7 @@ export function RebuildApp() {
         />
       ) : null}
       {toast ? (
-        <div className="fixed inset-x-4 bottom-24 z-[70] mx-auto max-w-sm rounded-2xl border border-white/10 bg-carbon/92 px-4 py-3 text-sm font-semibold text-porcelain shadow-panel backdrop-blur-xl">
+        <div className="fixed inset-x-4 bottom-24 z-[70] mx-auto max-w-sm rounded-2xl border border-white/10 bg-carbon/92 px-4 py-3 text-sm font-semibold text-white shadow-panel backdrop-blur-xl">
           {toast}
         </div>
       ) : null}
@@ -329,14 +329,14 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
             <button
               type="button"
               onClick={onClose}
-              className="mt-6 min-h-12 rounded-2xl bg-champagne px-4 text-base font-black text-[rgb(var(--color-accent-foreground))] shadow-glow"
+              className="app-primary-action mt-6 min-h-12 rounded-2xl px-4 text-base font-black"
             >
               Enter REBUILD
             </button>
           </div>
         </div>
         <div className="absolute inset-x-0 bottom-0 h-1 bg-white/10" aria-hidden>
-          <div className="h-full bg-champagne transition-all duration-1000 ease-linear" style={{ width: progress }} />
+          <div className="h-full bg-[rgb(var(--color-accent))] transition-all duration-1000 ease-linear" style={{ width: progress }} />
         </div>
       </div>
     </div>
