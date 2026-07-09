@@ -13,6 +13,7 @@ const logTypes: Array<{ detail: string; draft?: Record<string, string>; icon: Lu
   { kind: "dumbbellCurls", label: "Dumbbell work", detail: "exercise, weight, each arm", icon: Dumbbell },
   { kind: "strength", label: "Strength lift", detail: "exercise, load, reps", icon: Dumbbell },
   { kind: "machine", label: "Gym equipment", detail: "fields match the machine", icon: Dumbbell },
+  { kind: "machine", label: "Treadmill", detail: "minutes, miles, calories", icon: Footprints, draft: { category: "Cardio", machine: "Treadmill" } },
   { kind: "kettlebell", label: "Kettlebell", detail: "exercise, weight, reps", icon: Dumbbell },
   { kind: "farmerCarries", label: "Farmer carries", detail: "load, distance, rounds", icon: Footprints },
   { kind: "machine", label: "Walk / Hike", detail: "distance, time, estimated calories", icon: Footprints, draft: { category: "Outdoor", gymName: "Outdoor", machine: "Walk / hike" } },
@@ -24,7 +25,7 @@ const logTypes: Array<{ detail: string; draft?: Record<string, string>; icon: Lu
   { kind: "mood", label: "Meditation / Reset", detail: "meditate or redirect", icon: Brain },
 ];
 
-const primaryLogLabels = new Set(["Weigh-in", "Bike session", "Gym equipment", "Push-ups", "Meal", "Meditation / Reset"]);
+const primaryLogLabels = new Set(["Weigh-in", "Bike session", "Treadmill", "Gym equipment", "Push-ups", "Meal", "Meditation / Reset"]);
 const primaryLogTypes = logTypes.filter((item) => primaryLogLabels.has(item.label));
 
 const secondaryLogTypes = logTypes.filter((item) => !primaryLogLabels.has(item.label));

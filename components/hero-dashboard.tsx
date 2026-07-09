@@ -113,6 +113,7 @@ export function HeroDashboard({
   const records = getPersonalRecords(data);
   const topRecord = records.find((record) => record.value !== "—") ?? records[0];
   const todaysExerciseMinutes = getTodaysExerciseMinutes(data);
+  const walkingMiles = getTotalWalkingMiles(data);
   const todaysMeals = data.meals.filter((meal) => (meal.date ? isToday(meal.date) : false));
   const todayFoodCalories = todaysMeals.reduce((sum, meal) => sum + meal.calories, 0);
 
@@ -197,6 +198,13 @@ export function HeroDashboard({
         </a>
       </div>
 
+      <HomeGymPanel
+        onOpenClasses={() => openProgramsTab("Classes", onNavigate)}
+        onOpenLog={onOpenLog}
+        onUpdateProfile={onUpdateProfile}
+        profile={profile}
+      />
+
       <SectionIntro eyebrow="Signal" title="Read the pattern" />
       <button
         type="button"
@@ -227,14 +235,6 @@ export function HeroDashboard({
       ) : null}
 
       <HomeSectionShortcuts onOpenBodyScan={onOpenBodyScan} onOpenProgramsTab={(tab) => openProgramsTab(tab, onNavigate)} />
-
-      <SectionIntro eyebrow="Gym" title="Use your floor" />
-      <HomeGymPanel
-        onOpenClasses={() => openProgramsTab("Classes", onNavigate)}
-        onOpenLog={onOpenLog}
-        onUpdateProfile={onUpdateProfile}
-        profile={profile}
-      />
 
       <SectionIntro eyebrow="Body scan" title="Train from the photo" />
       <div className="scan-next-card">
@@ -299,6 +299,7 @@ export function HeroDashboard({
         <TodayMetric icon={Clock3} label="Exercise" value={`${todaysExerciseMinutes} min`} onClick={() => onNavigate("records")} />
         <TodayMetric icon={Flame} label="Burn" value={`${activityBurn} cal`} onClick={() => setShowBurnBreakdown(true)} />
         <TodayMetric icon={Salad} label="Food" value={todayFoodCalories ? `${todayFoodCalories} cal` : "—"} onClick={() => onOpenLog("meal")} />
+        <TodayMetric icon={MapPin} label="Walk total" value={walkingMiles ? `${walkingMiles.toFixed(1)} mi` : "Start"} onClick={() => onOpenLog("machine", { category: "Outdoor", gymName: "Outdoor", machine: "Walk / hike" })} />
         <TodayMetric icon={LineChart} label="Streak" value={workoutStreak ? `${workoutStreak} day${workoutStreak === 1 ? "" : "s"}` : "Start"} onClick={() => onNavigate("records")} />
       </div>
 
@@ -500,6 +501,16 @@ function getTodaysExerciseMinutes(data: RebuildData) {
   return Math.round(bike + ladder + machine + swim + yoga);
 }
 
+function getTotalWalkingMiles(data: RebuildData) {
+  return (data.machineWorkoutSessions ?? [])
+    .filter((entry) => {
+      const machine = entry.machine.toLowerCase();
+      const category = (entry.category ?? "").toLowerCase();
+      return machine.includes("walk") || machine.includes("hike") || machine.includes("treadmill") || category.includes("outdoor");
+    })
+    .reduce((sum, entry) => sum + (entry.distanceMiles ?? 0), 0);
+}
+
 function timeStringToSeconds(value?: string) {
   const parts = String(value ?? "0")
     .split(":")
@@ -694,6 +705,7 @@ function HomeGymPanel({
   onUpdateProfile: (profile: OnboardingProfile) => void;
   profile: OnboardingProfile | null;
 }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState("");
   const currentProfile = profile;
   const selectedPreset = currentProfile ? getGymPreset(currentProfile.homeGymId) : undefined;
@@ -798,7 +810,34 @@ function HomeGymPanel({
   }
 
   return (
-    <div className="app-surface mt-4 overflow-hidden rounded-2xl">
+    <div className="app-surface mt-5 overflow-hidden rounded-[1.65rem]">
+      <button
+        type="button"
+        onClick={() => setIsExpanded((current) => !current)}
+        className="flex min-h-20 w-full items-center justify-between gap-4 px-4 py-4 text-left"
+        aria-expanded={isExpanded}
+      >
+        <span>
+          <span className="metric-label block">Local gym</span>
+          <span className="mt-1 block text-2xl font-black uppercase leading-none text-[color:var(--text-primary)]">
+            Explore My Local Gym
+          </span>
+          <span className="app-secondary mt-1 block text-sm font-semibold">
+            {selectedValue === "none" ? "Choose a gym to load its equipment." : gymName}
+          </span>
+        </span>
+        <span className="app-icon-soft grid size-11 shrink-0 place-items-center rounded-full">
+          <ChevronRight
+            size={20}
+            strokeWidth={2.4}
+            aria-hidden
+            className={`transition-transform ${isExpanded ? "rotate-90" : ""}`}
+          />
+        </span>
+      </button>
+
+      {isExpanded ? (
+        <>
       <div className="relative min-h-36 bg-black">
         <Image
           src="/rebuild-leg-press-side.jpg"
@@ -950,6 +989,8 @@ function HomeGymPanel({
           </button>
         </div>
       </div>
+        </>
+      ) : null}
     </div>
   );
 }

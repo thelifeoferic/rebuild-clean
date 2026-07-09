@@ -21,7 +21,7 @@ type EditTarget = {
   kind: LogKind;
 };
 const profileKey = "rebuild:profile:v2";
-const accentMigrationKey = "rebuild:accent-default-neutral:v1";
+const accentMigrationKey = "rebuild:accent-default-neutral:v2";
 const whyIntroSeenKey = "rebuild:why-intro-seen:v1";
 const whyIntroVisitKey = "rebuild:why-intro-visits:v1";
 
@@ -50,10 +50,10 @@ export function RebuildApp() {
         const parsedProfile = JSON.parse(storedProfile) as OnboardingProfile;
         const shouldUseNeutralDefault =
           !window.localStorage.getItem(accentMigrationKey) &&
-          (!parsedProfile.accentColor || parsedProfile.accentColor === "ember" || parsedProfile.accentColor === "cobalt");
+          (!parsedProfile.accentColor || parsedProfile.accentColor === "ember" || parsedProfile.accentColor === "champagne");
         const migratedProfile =
           shouldUseNeutralDefault
-            ? { ...parsedProfile, accentColor: "champagne" as const }
+            ? { ...parsedProfile, accentColor: "cobalt" as const, themePreference: parsedProfile.themePreference ?? ("light" as const) }
             : parsedProfile;
 
         if (migratedProfile !== parsedProfile) {
@@ -290,9 +290,9 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
   const [secondsLeft, setSecondsLeft] = useState(7);
   const firstName = profile.firstName?.trim();
   const why = profile.why?.trim() || "You are building proof that the next version of you is already in motion.";
-  const themePreference = profile.themePreference ?? "dark";
+  const themePreference = profile.themePreference ?? "light";
   const themeClass = themePreference === "light" ? "theme-light" : themePreference === "auto" ? "theme-auto" : "theme-dark";
-  const accentClass = `accent-${profile.accentColor ?? "champagne"}`;
+  const accentClass = `accent-${profile.accentColor ?? "cobalt"}`;
   const progress = `${Math.max(0, Math.min(100, (secondsLeft / 7) * 100))}%`;
 
   useEffect(() => {
@@ -304,40 +304,37 @@ function WhyIntro({ onClose, profile }: { onClose: () => void; profile: Onboardi
   }, []);
 
   return (
-    <div className={`fixed inset-0 z-[120] grid place-items-center bg-black/82 px-5 backdrop-blur-xl ${themeClass} ${accentClass}`}>
-      <div className="relative w-full max-w-md overflow-hidden rounded-[2.25rem] border border-white/10 bg-carbon shadow-panel">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_8%,rgba(var(--color-accent),0.22),transparent_34%),radial-gradient(circle_at_80%_4%,rgba(255,255,255,0.06),transparent_30%)]" />
-        <div className="absolute left-5 right-5 top-5 z-10 flex items-center justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="grid size-11 place-items-center rounded-full border border-white/15 bg-black/40 text-2xl font-light leading-none text-white backdrop-blur"
-            aria-label="Close why reminder"
-          >
-            ×
-          </button>
-        </div>
-        <div className="relative min-h-[30rem]">
-          <div className="absolute inset-0 bg-[url('/rebuild-yoga-light.jpg')] bg-cover bg-center opacity-60 grayscale contrast-125 saturate-0" />
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(var(--color-accent),0.24),transparent_42%),linear-gradient(0deg,rgba(0,0,0,0.94)_0%,rgba(0,0,0,0.72)_50%,rgba(0,0,0,0.28)_100%)]" />
-          <div className="relative flex min-h-[30rem] flex-col justify-end p-6">
-            <p className="text-sm font-bold leading-5 text-white/72">
-              {firstName ? `${firstName}, remember why you're doing this.` : "Remember why you're doing this."}
-            </p>
-            <p className="mt-4 break-words font-display text-4xl font-black uppercase leading-[0.96] text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.92)]">&ldquo;{why}&rdquo;</p>
-            <p className="mt-4 text-xs font-black uppercase tracking-[0.2em] text-white/50">Seven seconds. Then back to the work.</p>
-            <button
-              type="button"
-              onClick={onClose}
-              className="app-primary-action mt-6 min-h-12 rounded-2xl px-4 text-base font-black"
-            >
-              Enter REBUILD
-            </button>
-          </div>
-        </div>
-        <div className="absolute inset-x-0 bottom-0 h-1 bg-white/10" aria-hidden>
-          <div className="h-full bg-[rgb(var(--color-accent))] transition-all duration-1000 ease-linear" style={{ width: progress }} />
-        </div>
+    <div className={`fixed inset-0 z-[120] grid place-items-center px-6 ${themeClass} ${accentClass}`}>
+      <button
+        type="button"
+        onClick={onClose}
+        className="app-secondary-action absolute right-5 top-5 grid size-11 place-items-center rounded-full text-2xl font-light leading-none"
+        aria-label="Close why reminder"
+      >
+        ×
+      </button>
+
+      <div className="w-full max-w-md text-center">
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
+          {firstName ? `${firstName}, remember why.` : "Remember why."}
+        </p>
+        <p className="mx-auto mt-5 max-w-[22rem] break-words font-display text-5xl font-black uppercase leading-[0.92] text-[color:var(--text-primary)]">
+          &ldquo;{why}&rdquo;
+        </p>
+        <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
+          Seven seconds. Then back to the work.
+        </p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="app-primary-action mx-auto mt-8 inline-flex min-h-12 items-center justify-center rounded-2xl px-7 text-base font-black"
+        >
+          Enter REBUILD
+        </button>
+      </div>
+
+      <div className="absolute inset-x-8 bottom-8 h-1 overflow-hidden rounded-full bg-[color:var(--line-soft)]" aria-hidden>
+        <div className="h-full bg-[rgb(var(--color-accent))] transition-all duration-1000 ease-linear" style={{ width: progress }} />
       </div>
     </div>
   );

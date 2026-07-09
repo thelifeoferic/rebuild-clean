@@ -125,8 +125,8 @@ export function Onboarding({
   const [homeGymId, setHomeGymId] = useState("none");
   const [homeGymName, setHomeGymName] = useState("");
   const [equipmentQuery, setEquipmentQuery] = useState("");
-  const [themePreference, setThemePreference] = useState<NonNullable<OnboardingProfile["themePreference"]>>("dark");
-  const [accentColor, setAccentColor] = useState<NonNullable<OnboardingProfile["accentColor"]>>("champagne");
+  const [themePreference, setThemePreference] = useState<NonNullable<OnboardingProfile["themePreference"]>>("light");
+  const [accentColor, setAccentColor] = useState<NonNullable<OnboardingProfile["accentColor"]>>("cobalt");
   const [coachingTone, setCoachingTone] = useState<NonNullable<OnboardingProfile["coachingTone"]>>("calm");
   const [quoteStyle, setQuoteStyle] = useState<NonNullable<OnboardingProfile["quoteStyle"]>>("goggins");
   const [defaultLocation, setDefaultLocation] = useState<NonNullable<OnboardingProfile["defaultLocation"]>>("gym");

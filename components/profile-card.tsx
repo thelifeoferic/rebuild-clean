@@ -158,8 +158,8 @@ export function ProfileCard({
             ...profileSignals,
             `${profile?.preferredTrainingMinutes ?? 25} min`,
             profile?.defaultLocation ?? "gym",
-            profile?.themePreference ?? "dark",
-            profile?.accentColor ?? "champagne",
+            profile?.themePreference ?? "light",
+            profile?.accentColor ?? "cobalt",
             profile?.coachingTone ?? "calm",
           ].map((item) => (
             <span key={item} className="app-chip rounded-full px-3 py-1 text-xs font-bold capitalize">
